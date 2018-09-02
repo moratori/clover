@@ -1,61 +1,52 @@
-(defpackage clover-test
+(defpackage clover.tests.types
   (:use :cl
-        :clover
-        :types.clover
-        :prove))
-(in-package :clover-test)
+        :clover.core
+        :clover.types
+        :1am))
+(in-package :clover.tests.types)
 
-;; NOTE: To run this test file, execute `(asdf:test-system :clover)' in your Lisp.
 
-(plan 4)
 
-(subtest "OBJ CONSTRUCTION:: primitive expr test"
-        (ok (expr nil 'P '(x y z)))
-        (ok (expr t 'P '(x y z)))
-        (ok (expr nil 'P '(x)))
-        (ok (expr t 'P '(x)))
-        (ok (expr nil 'P '()))
-        (ok (expr t 'P '()))
+(test test-expr
+        (is (expr nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))
+        (is (expr t 'P   (list (vterm 'x) (vterm 'y) (vterm 'z))))
+        (is (expr nil 'P (list (vterm 'x))))
+        (is (expr t 'P (list (vterm 'x))))
+        (is (expr nil 'P nil))
+        (is (expr t 'P nil))
         )
 
-(subtest "OBJ CONSTRUCTION:: expr-set test"
-        (ok (expr-set nil))
-        (ok (expr-set (list (expr t 'P '(x y z)))))
-        (ok (expr-set (list (expr t 'P '(x y z))
-                            (expr nil 'P '(x y z))
-                            (expr nil 'P '()))))
-        (ok (expr-set (list (expr t 'Pred1 '(x y z))
-                            (expr nil 'Pred2 '(x y z))
-                            (expr nil 'Pred3 '()))))
+(test test-clause
+        (is (clause nil))
+        (is (clause (list (expr t 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))))
+        (is (clause (list (expr t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                            (expr nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                            (expr nil 'P nil))))
+        (is (clause (list (expr t 'Pred1 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                            (expr nil 'Pred2 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                            (expr nil 'Pred3 nil))))
         )
 
-(subtest "OBJ CONSTRUCTION:: clause test"
-        (ok (clause-set (list (expr-set nil) 
-                              (expr-set (list (expr t 'P '(x y z))))
-                              (expr-set (list (expr t 'Pred1 '(x y z))
-                                              (expr nil 'Pred2 '(x y z))
-                                              (expr nil 'Pred3 '()))))))
+(test test-clause
+        (is (clause-set (list (clause nil) 
+                              (clause (list (expr t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))))
+                              (clause (list (expr t 'Pred1 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                              (expr nil 'Pred2 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                              (expr nil 'Pred3 nil))))))
         )
 
 
-(subtest "METHOD BEHAVIOR:: finish check"
+(test test-finish
          
-        (ok (finish (clause-set (list (expr-set nil) 
-                                      (expr-set (list (expr t 'P '(x y z))))
-                                      (expr-set (list (expr t 'Pred1 '(x y z))
-                                                      (expr nil 'Pred2 '(x y z))
-                                                      (expr nil 'Pred3 '())))))))
+        (is (finish (clause-set (list (clause nil) 
+                                      (clause (list (expr t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))))
+                                      (clause (list (expr t 'Pred1 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                                      (expr nil 'Pred2 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                                      (expr nil 'Pred3 nil)))))))
         
-        (ok (not (finish (clause-set (list (expr-set (list (expr t 'P '(x y z))))
-                                           (expr-set (list (expr t 'Pred1 '(x y z))
-                                                           (expr nil 'Pred2 '(x y z))
-                                                           (expr nil 'Pred3 '()))))))))
+        (is (not (finish (clause-set (list (clause (list (expr t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))))
+                                           (clause (list (expr t 'Pred1 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                                           (expr nil 'Pred2 (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                                                           (expr nil 'Pred3 nil))))))))
         )
-
-
-(finalize)
-
-
-
-
 

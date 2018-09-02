@@ -1,10 +1,11 @@
-(defpackage conditions.clover
+(defpackage clover.conditions
   (:use :cl)
   (:export
-        :clover-condition
-  ))
-(in-package :conditions.clover)
+        :clover-toplevel-condition
+        )
+  )
+(in-package :clover.conditions)
 
 
-(define-condition clover-condition ()
+(define-condition clover-toplevel-condition ()
   ())

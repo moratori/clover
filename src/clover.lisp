@@ -1,21 +1,21 @@
-(defpackage clover
+(defpackage clover.core
   (:use :cl
         :iddfs
-        :types.clover)
+        :clover.types
+        :clover.unify
+        )
   (:export 
         :open-nodes
         :finish))
-(in-package :clover)
+(in-package :clover.core)
 
 
 
-
-(defmethod open-nodes ((node clause-set))
+(defmethod open-nodes ((clause-set clause-set))
   )
 
 
-(defmethod finish ((node clause-set))
-  "節集合中に空節が含まれているか否かを判定する"
+(defmethod finish ((clause-set clause-set))
   (some (lambda (x)
-          (null (expr-set.exprs x))) 
-        (clause-set.clauses node)))
+          (null (clause.exprs x))) 
+        (clause-set.clauses clause-set)))

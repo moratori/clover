@@ -1,8 +1,8 @@
-(defpackage clover.util
+(defpackage clover.unify
   (:use :cl
         :clover.conditions
         :clover.types)
   )
-(in-package :clover.util)
+(in-package :clover.unify)
 
 

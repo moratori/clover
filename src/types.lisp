@@ -1,10 +1,13 @@
-(defpackage types.clover
-  (:use :cl)
+(defpackage clover.types
+  (:use :cl
+        :iddfs
+        :clover.conditions
+        )
   (:export
         :clause-set
         :clause-set.clauses
-        :expr-set
-        :expr-set.exprs
+        :clause
+        :clause.exprs
         :expr
         :expr.negation
         :expr.predicate
@@ -21,7 +24,53 @@
         :unifier-set.unifiers
 
   ))
-(in-package :types.clover)
+(in-package :clover.types)
+
+
+(defun %%clause-set (obj)
+  (and 
+    (listp obj)
+    (every (lambda (x)
+             (typep x 'clause))
+           obj)))
+
+(deftype %clause-set ()
+  '(satisfies %%clause-set))
+
+
+(defun %%clause (obj)
+  (and 
+    (listp obj)
+    (every (lambda (x)
+             (typep x 'expr))
+           obj)))
+
+(deftype %clause ()
+  '(satisfies %%clause))
+
+
+(defun %%unifier-set (obj)
+  (and 
+    (listp obj)
+    (every (lambda (x)
+             (typep x 'unifier))
+           obj)))
+
+(deftype %unifier-set ()
+  '(satisfies %%unifier-set))
+
+
+(defun %%args (obj)
+  (or (null obj)
+      (and 
+          (listp obj)
+          (every (lambda (x) (typep x 'term)) obj))))
+
+(deftype %args ()
+  '(satisfies %%args))
+
+
+
 
 
 (defstruct (clause-set
@@ -30,14 +79,14 @@
              (:conc-name clause-set.))
   "節集合を表現する構造体
    節のリストを保持する"
-   (clauses nil :type list))
+   (clauses nil :type %clause-set))
 
-(defstruct (expr-set
-             (:constructor expr-set (exprs))
-             (:conc-name expr-set.))
+(defstruct (clause
+             (:constructor clause (exprs))
+             (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
-   (exprs nil :type list))
+   (exprs nil :type %clause))
 
 (defstruct (expr
              (:constructor expr (negation predicate args))
@@ -46,7 +95,7 @@
    否定の有無、述語名、述語の引数を保持する"
    (negation  nil :type boolean)
    (predicate nil :type symbol)
-   (args      nil :type list))
+   (args      nil :type %args))
 
 
 (defstruct term)
@@ -66,7 +115,7 @@
   "関数項を表現する構造体
    関数項のシンボルと引数を保持する"
    (fsymbol (error "default value required") :type symbol)
-   (args (error "default value required") :type list))
+   (args    (error "default value required") :type %args))
 
 
 (defstruct (unifier
@@ -81,5 +130,5 @@
 (defstruct (unifier-set
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
-  (unifiers nil :type list))
+  (unifiers nil :type %unifier-set))
 
