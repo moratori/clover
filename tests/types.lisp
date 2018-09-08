@@ -5,19 +5,19 @@
 (in-package :clover.tests.types)
 
 
-(test test.vterm 
+(test clover.tests.types.vterm 
       (is (vterm 'x))
       (is (vterm 'x_y_z-a-b-c))
       )
 
-(test test.fterm
+(test clover.tests.types.fterm
       (is (fterm 'f (list (vterm 'x) (vterm 'y))))
       (is (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'z))))))
       (is (fterm 'h nil))
       )
 
 
-(test test.literal
+(test clover.tests.types.literal
         (is (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))
         (is (literal t 'P   (list (vterm 'x) (vterm 'y) (vterm 'z))))
         (is (literal nil 'P (list (vterm 'x))))
@@ -26,7 +26,7 @@
         (is (literal t 'P nil))
         )
 
-(test test.clause
+(test clover.tests.types.clause
         (is (clause nil))
         (is (clause (list (literal t 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))))
         (is (clause (list (literal t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
@@ -37,7 +37,7 @@
                             (literal nil 'Pred3 nil))))
         )
 
-(test test.clause-set
+(test clover.tests.types.clause-set
         (is (clause-set (list (clause nil) 
                               (clause (list (literal t 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))))
                               (clause (list (literal t 'Pred1 (list (vterm 'x) (vterm 'y) (vterm 'z)))

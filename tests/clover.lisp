@@ -7,7 +7,7 @@
 
 
 
-(test test.finish
+(test clover.tests.clover.finish
          
         (is (finish 
               (clause-set (list (clause nil) 
