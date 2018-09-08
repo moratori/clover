@@ -1,4 +1,4 @@
-(defpackage clover.core
+(defpackage clover.clover
   (:use :cl
         :iddfs
         :clover.types
@@ -7,7 +7,7 @@
   (:export 
         :open-nodes
         :finish))
-(in-package :clover.core)
+(in-package :clover.clover)
 
 
 
@@ -17,5 +17,5 @@
 
 (defmethod finish ((clause-set clause-set))
   (some (lambda (x)
-          (null (clause.exprs x))) 
+          (null (clause.literals x))) 
         (clause-set.clauses clause-set)))

@@ -7,17 +7,18 @@
         :clause-set
         :clause-set.clauses
         :clause
-        :clause.exprs
-        :expr
-        :expr.negation
-        :expr.predicate
-        :expr.args
+        :clause.literals
+        :literal
+        :literal.negation
+        :literal.predicate
+        :literal.args
         :term
         :vterm
         :vterm.var
         :fterm
         :fterm.fsymbol
         :fterm.args
+        :unifier
         :unifier.src
         :unifier.dst
         :unifier-set
@@ -42,7 +43,7 @@
   (and 
     (listp obj)
     (every (lambda (x)
-             (typep x 'expr))
+             (typep x 'literal))
            obj)))
 
 (deftype %clause ()
@@ -74,6 +75,10 @@
 
 
 (defstruct (clause-set
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "{~{~A~^,~}}"
+                         (clause-set.clauses object))))
              (:include abstract-node)
              (:constructor clause-set (clauses))
              (:conc-name clause-set.))
@@ -82,15 +87,25 @@
    (clauses nil :type %clause-set))
 
 (defstruct (clause
-             (:constructor clause (exprs))
+             (:print-object
+               (lambda (object stream)
+                 (format stream "~{~A ~^v~}"
+                         (clause.literals object))))
+             (:constructor clause (literals))
              (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
-   (exprs nil :type %clause))
+   (literals nil :type %clause))
 
-(defstruct (expr
-             (:constructor expr (negation predicate args))
-             (:conc-name expr.))
+(defstruct (literal
+             (:print-object
+               (lambda (object stream)
+                 (format stream "!~A(~{~A~^,~})" 
+                         (literal.negation object)
+                         (literal.predicate object)
+                         (literal.args object))))
+             (:constructor literal (negation predicate args))
+             (:conc-name literal.))
   "基本論理式を表現する構造体
    否定の有無、述語名、述語の引数を保持する"
    (negation  nil :type boolean)
@@ -101,6 +116,9 @@
 (defstruct term)
 
 (defstruct (vterm
+             (:print-object
+               (lambda (object stream)
+                 (format stream "~A" (vterm.var object))))
              (:include term)
              (:constructor vterm (var))
              (:conc-name vterm.))
@@ -109,6 +127,11 @@
    (var (error "default value required") :type symbol))
 
 (defstruct (fterm
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "~A(~{~A~^,~})" 
+                         (fterm.fsymbol object)
+                         (fterm.args object))))
              (:include term)
              (:constructor fterm (fsymbol args))
              (:conc-name fterm.))
@@ -119,6 +142,11 @@
 
 
 (defstruct (unifier
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "~A->~A" 
+                         (unifier.src object)
+                         (unifier.dst object))))
              (:constructor unifier (src dst))
              (:conc-name unifier.))
   "単一化子を保持する構造体
@@ -128,6 +156,10 @@
 
 
 (defstruct (unifier-set
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "{~{~A~^,~}}" 
+                         (unifier-set.unifiers object))))
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
   (unifiers nil :type %unifier-set))

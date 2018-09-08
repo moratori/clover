@@ -17,5 +17,8 @@
   :depends-on ("clover" "1am")
   :components ((:module "tests"
                 :components
-                ((:file "clover"))))
+                ((:file "clover")
+                 (:file "types")
+                 (:file "unify")
+                 (:file "util"))))
   :description "Test system for clover")
