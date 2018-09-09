@@ -17,6 +17,7 @@
                 ((:file "conditions")
                  (:file "types")
                  (:file "util")
+                 (:file "substitute")
                  (:file "unify")
                  (:file "clover"))))
   :description "Simple Automated Theorem Prover"

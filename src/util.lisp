@@ -10,6 +10,9 @@
 (in-package :clover.util)
 
 
+(defmethod term= ((obj1 t) (obj2 t))
+  nil)
+
 
 (defmethod term= ((term1 vterm) (term2 vterm))
   (eq (vterm.var term1) (vterm.var term2)))
@@ -24,6 +27,8 @@
       (eq fsymbol1 fsymbol2)
       (= (length args1) (length args2))
       (every #'term= args1 args2))))
+
+
 
 
 (defmethod unifier= ((unifier1 unifier) (unifier2 unifier))
@@ -42,3 +47,4 @@
             (unifier-set.unifiers unifier-set2)
             (unifier-set.unifiers unifier-set1)
             :test #'unifier=))))
+

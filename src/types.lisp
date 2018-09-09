@@ -100,8 +100,8 @@
 (defstruct (literal
              (:print-object
                (lambda (object stream)
-                 (format stream "!~A(~{~A~^,~})" 
-                         (literal.negation object)
+                 (format stream "~A~A(~{~A~^,~})"
+                         (if (literal.negation object) "!" "")
                          (literal.predicate object)
                          (literal.args object))))
              (:constructor literal (negation predicate args))
