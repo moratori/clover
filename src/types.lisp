@@ -72,47 +72,6 @@
 
 
 
-
-
-(defstruct (clause-set
-             (:print-object 
-               (lambda (object stream)
-                 (format stream "{~{~A~^,~}}"
-                         (clause-set.clauses object))))
-             (:include abstract-node)
-             (:constructor clause-set (clauses))
-             (:conc-name clause-set.))
-  "節集合を表現する構造体
-   節のリストを保持する"
-   (clauses nil :type %clause-set))
-
-(defstruct (clause
-             (:print-object
-               (lambda (object stream)
-                 (format stream "~{~A ~^v~}"
-                         (clause.literals object))))
-             (:constructor clause (literals))
-             (:conc-name clause.))
-  "節を表現する構造体
-   基本論理式のリストを保持する構造体"
-   (literals nil :type %clause))
-
-(defstruct (literal
-             (:print-object
-               (lambda (object stream)
-                 (format stream "~A~A(~{~A~^,~})"
-                         (if (literal.negation object) "!" "")
-                         (literal.predicate object)
-                         (literal.args object))))
-             (:constructor literal (negation predicate args))
-             (:conc-name literal.))
-  "基本論理式を表現する構造体
-   否定の有無、述語名、述語の引数を保持する"
-   (negation  nil :type boolean)
-   (predicate nil :type symbol)
-   (args      nil :type %args))
-
-
 (defstruct term)
 
 (defstruct (vterm
@@ -163,4 +122,50 @@
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
   (unifiers nil :type %unifier-set))
+ 
+
+
+(defstruct (literal
+             (:print-object
+               (lambda (object stream)
+                 (format stream "~A~A(~{~A~^,~})"
+                         (if (literal.negation object) "!" "")
+                         (literal.predicate object)
+                         (literal.args object))))
+             (:constructor literal (negation predicate args))
+             (:conc-name literal.))
+  "基本論理式を表現する構造体
+   否定の有無、述語名、述語の引数を保持する"
+   (negation  nil :type boolean)
+   (predicate nil :type symbol)
+   (args      nil :type %args))
+
+
+(defstruct (clause
+             (:print-object
+               (lambda (object stream)
+                 (format stream "~{~A ~^v~}"
+                         (clause.literals object))))
+             (:constructor clause (literals &optional parent1 parent2 unifier))
+             (:conc-name clause.))
+  "節を表現する構造体
+   基本論理式のリストを保持する構造体"
+   (literals nil :type %clause)
+   (parent1  nil :type (or null clause))
+   (parent2  nil :type (or null clause))
+   (unifier  nil :type (or null unifier)))
+
+
+(defstruct (clause-set
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "{~{~A~^,~}}"
+                         (clause-set.clauses object))))
+             (:include abstract-node)
+             (:constructor clause-set (clauses))
+             (:conc-name clause-set.))
+  "節集合を表現する構造体
+   節のリストを保持する"
+   (clauses nil :type %clause-set))
+
 
