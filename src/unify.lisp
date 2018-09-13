@@ -61,16 +61,15 @@
          (args2    (fterm.args term2))
          (length1  (length args1))
          (length2  (length args1)))
+
     (unless (and (eq fsymbol1 fsymbol2)
                  (=  length1  length2))
       (error (make-condition 'unmatching-fterm-error
                              :message "unmatching fterm error while %%collect-disagreement-set"
                              :fterm1 term1
                              :fterm2 term2)))
-    (loop 
-      for arg1 in args1
-      for arg2 in args2
-      append (%%collect-disagreement-set arg1 arg2))))
+
+    (mapcan #'%%collect-disagreement-set args1 args2)))
 
 
 (defmethod %%collect-disagreement-set ((literal1 literal) (literal2 literal))
@@ -87,10 +86,8 @@
                              :message "unmatching literal while %%collect-disagreement-set"
                              :literal1 literal1
                              :literal2 literal2)))
-    (loop 
-      for arg1 in args1
-      for arg2 in args2
-      append (%%collect-disagreement-set arg1 arg2))))
+
+    (mapcan #'%%collect-disagreement-set args1 args2)))
 
 
 
