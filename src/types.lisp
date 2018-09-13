@@ -83,7 +83,7 @@
              (:conc-name vterm.))
   "変数項、定数項を表現する構造体
    シンボルを保持する"
-   (var (error "default value required") :type symbol))
+   (var (error "default value required") :type symbol :read-only t))
 
 (defstruct (fterm
              (:print-object 
@@ -96,8 +96,8 @@
              (:conc-name fterm.))
   "関数項を表現する構造体
    関数項のシンボルと引数を保持する"
-   (fsymbol (error "default value required") :type symbol)
-   (args    (error "default value required") :type %args))
+   (fsymbol (error "default value required") :type symbol :read-only t)
+   (args    (error "default value required") :type %args  :read-only t))
 
 
 (defstruct (unifier
@@ -110,8 +110,8 @@
              (:conc-name unifier.))
   "単一化子を保持する構造体
    書き換え元、書き換え先を保持する"
-   (src (error "default value required") :type vterm)
-   (dst (error "default value required") :type term))
+   (src (error "default value required") :type vterm :read-only t)
+   (dst (error "default value required") :type term  :read-only t))
 
 
 (defstruct (unifier-set
@@ -121,7 +121,7 @@
                          (unifier-set.unifiers object))))
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
-  (unifiers nil :type %unifier-set))
+  (unifiers nil :type %unifier-set :read-only t))
  
 
 
@@ -136,9 +136,9 @@
              (:conc-name literal.))
   "基本論理式を表現する構造体
    否定の有無、述語名、述語の引数を保持する"
-   (negation  nil :type boolean)
-   (predicate nil :type symbol)
-   (args      nil :type %args))
+   (negation  nil :type boolean :read-only t)
+   (predicate nil :type symbol  :read-only t)
+   (args      nil :type %args   :read-only t))
 
 
 (defstruct (clause
@@ -150,10 +150,10 @@
              (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
-   (literals nil :type %clause)
-   (parent1  nil :type (or null clause))
-   (parent2  nil :type (or null clause))
-   (unifier  nil :type (or null unifier)))
+   (literals nil :type %clause :read-only t)
+   (parent1  nil :type (or null clause)  :read-only t)
+   (parent2  nil :type (or null clause)  :read-only t)
+   (unifier  nil :type (or null unifier) :read-only t))
 
 
 (defstruct (clause-set
@@ -166,6 +166,6 @@
              (:conc-name clause-set.))
   "節集合を表現する構造体
    節のリストを保持する"
-   (clauses nil :type %clause-set))
+   (clauses nil :type %clause-set :read-only t))
 
 
