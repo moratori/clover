@@ -4,6 +4,7 @@
         :clover.conditions
         )
   (:export
+        :logical-expression
         :clause-set
         :clause-set.clauses
         :clause
@@ -23,7 +24,6 @@
         :unifier.dst
         :unifier-set
         :unifier-set.unifiers
-
   ))
 (in-package :clover.types)
 
@@ -122,7 +122,9 @@
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
   (unifiers nil :type %unifier-set :read-only t))
- 
+
+
+(defstruct logical-expression)
 
 
 (defstruct (literal
@@ -132,6 +134,7 @@
                          (if (literal.negation object) "!" "")
                          (literal.predicate object)
                          (literal.args object))))
+             (:include logical-expression)
              (:constructor literal (negation predicate args))
              (:conc-name literal.))
   "基本論理式を表現する構造体
@@ -146,6 +149,7 @@
                (lambda (object stream)
                  (format stream "~{~A ~^v~}"
                          (clause.literals object))))
+             (:include logical-expression)
              (:constructor clause (literals &optional parent1 parent2 unifier))
              (:conc-name clause.))
   "節を表現する構造体
