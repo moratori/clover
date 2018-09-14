@@ -57,29 +57,15 @@
 
 
 
-(defmethod apply-unifier-set ((vterm vterm) (unifier-set unifier-set))
+(defmethod apply-unifier-set ((term term) (unifier-set unifier-set))
   (reduce 
     #'apply-unifier 
     (unifier-set.unifiers unifier-set)
-    :initial-value vterm))
+    :initial-value term))
 
-(defmethod apply-unifier-set ((fterm fterm) (unifier-set unifier-set))
+(defmethod apply-unifier-set ((logical-expression logical-expression) (unifier-set unifier-set))
   (reduce 
     #'apply-unifier
     (unifier-set.unifiers unifier-set)
-    :initial-value fterm))
-
-(defmethod apply-unifier-set ((literal literal) (unifier-set unifier-set))
-  (reduce 
-      #'apply-unifier
-      (unifier-set.unifiers unifier-set)
-      :initial-value literal))
-
-(defmethod apply-unifier-set ((clause clause) (unifier-set unifier-set))
-  (reduce 
-    #'apply-unifier
-    (unifier-set.unifiers unifier-set)
-    :initial-value clause))
-
-
+    :initial-value logical-expression))
 
