@@ -14,7 +14,8 @@
   :depends-on ("iddfs")
   :components ((:module "src"
                 :components
-                ((:file "conditions")
+                ((:file "property")
+                 (:file "conditions")
                  (:file "types")
                  (:file "util")
                  (:file "substitute")
