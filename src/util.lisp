@@ -5,7 +5,8 @@
   (:export
     :term=
     :unifier=
-    :unifier-set=)
+    :unifier-set=
+    :literal=)
   )
 (in-package :clover.util)
 
@@ -13,10 +14,8 @@
 (defmethod term= ((obj1 t) (obj2 t))
   nil)
 
-
 (defmethod term= ((term1 vterm) (term2 vterm))
   (eq (vterm.var term1) (vterm.var term2)))
-
 
 (defmethod term= ((fterm1 fterm) (fterm2 fterm))
   (let ((fsymbol1 (fterm.fsymbol fterm1))
@@ -25,6 +24,17 @@
         (args2    (fterm.args fterm2)))
     (and 
       (eq fsymbol1 fsymbol2)
+      (= (length args1) (length args2))
+      (every #'term= args1 args2))))
+
+(defmethod literal= ((literal1 literal) (literal2 literal))
+  (let ((pred1 (literal.predicate literal1))
+        (pred2 (literal.predicate literal2))
+        (args1    (literal.args      literal1))
+        (args2    (literal.args      literal2)))
+    (and 
+      (eq (literal.negation literal1) (literal.negation literal2))
+      (eq pred1 pred2)
       (= (length args1) (length args2))
       (every #'term= args1 args2))))
 
