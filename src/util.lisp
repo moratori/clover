@@ -6,7 +6,9 @@
     :term=
     :unifier=
     :unifier-set=
-    :literal=)
+    :literal=
+    :complement-literal-p
+    :resolution-candidate=)
   )
 (in-package :clover.util)
 
@@ -39,6 +41,17 @@
       (every #'term= args1 args2))))
 
 
+(defmethod complement-literal-p ((literal1 literal) (literal2 literal))
+  (let ((pred1 (literal.predicate literal1))
+        (pred2 (literal.predicate literal2))
+        (args1    (literal.args literal1))
+        (args2    (literal.args literal2))
+        (negation1 (literal.negation literal1))
+        (negation2 (literal.negation literal2)))
+    (and
+      (not (eq negation1 negation2))
+      (eq pred1 pred2)
+      (every #'term= args1 args2))))
 
 
 (defmethod unifier= ((unifier1 unifier) (unifier2 unifier))
@@ -57,4 +70,21 @@
             (unifier-set.unifiers unifier-set2)
             (unifier-set.unifiers unifier-set1)
             :test #'unifier=))))
+
+
+(defmethod resolution-candidate= ((res-cand1 resolution-candidate) (res-cand2 resolution-candidate))
+  (let ((focus-literal1 (res-cand.focus-literal res-cand1))
+        (focus-literal2 (res-cand.focus-literal res-cand2))
+        (cand-unifiers1 (res-cand.cand-unifiers res-cand1))
+        (cand-unifiers2 (res-cand.cand-unifiers res-cand2)))
+    (and 
+      (literal= focus-literal1 focus-literal2)
+      (null (set-difference 
+              cand-unifiers1
+              cand-unifiers2
+              :test #'unifier-set=))
+      (null (set-difference 
+              cand-unifiers2
+              cand-unifiers1
+              :test #'unifier-set=)))))
 

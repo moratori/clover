@@ -20,5 +20,7 @@
                 ((:file "clover")
                  (:file "types")
                  (:file "unify")
-                 (:file "util"))))
+                 (:file "util")
+                 (:file "rename")
+                 (:file "resolution"))))
   :description "Test system for clover")

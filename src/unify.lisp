@@ -157,10 +157,9 @@
 
       (let* ((result (%collect-disagreement-set literal1 literal2)))
 
-        (loop for unifier = (%select-one-of-substitutable-unifier result)
-              while unifier
-              do
-              (setf result (%flatten-disagreement-set result unifier)))
+        (loop :for   unifier = (%select-one-of-substitutable-unifier result)
+              :while unifier
+              :do    (setf result (%flatten-disagreement-set result unifier)))
 
         result)
 
