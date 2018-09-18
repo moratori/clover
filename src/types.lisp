@@ -171,7 +171,7 @@
 (defstruct (clause-set
              (:print-object 
                (lambda (object stream)
-                 (format stream "{~{~A~^,~}}"
+                 (format stream "{~{~A~^, ~}}"
                          (clause-set.clauses object))))
              (:include abstract-node)
              (:constructor clause-set (clauses))

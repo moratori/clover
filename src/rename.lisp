@@ -44,3 +44,9 @@
   (apply-unifier-set
     clause
     (%make-rename-binds clause)))
+
+(defmethod rename ((clause-set clause-set))
+  (clause-set
+    (mapcar 
+      #'rename
+      (clause-set.clauses clause-set))))
