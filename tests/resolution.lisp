@@ -58,7 +58,7 @@
                        (literal t 'P (list (vterm 'w) (fterm 'F (list (vterm 'w)))))
                        (literal t 'Q (list (vterm 'w))))))
                  (res 
-                   (resolution clause1 clause2))
+                   (%resolution clause1 clause2))
                  (expected
                    (list 
                      (clause 
@@ -68,7 +68,9 @@
                          (literal t 'Q (list (vterm 'w)))))
                      (clause 
                        (list 
-                         (literal t 'P (list (vterm 'z) (vterm 'z)))))
+                         (literal t 'Q (list (vterm 'w)))
+                         (literal t 'P (list (vterm 'z) (vterm 'z)))
+                         (literal nil 'Q (list (vterm 'w)))))
                      (clause 
                        (list 
                          (literal nil 'P (list (vterm 'w) (vterm 'y))) 
