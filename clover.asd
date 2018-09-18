@@ -11,10 +11,13 @@
   :version "0.1.0"
   :author "moratori"
   :license "LLGPL"
-  :depends-on ("iddfs")
+  :depends-on ("cl-cpus" "bordeaux-threads")
   :components ((:module "src"
                 :components
-                ((:file "property")
+                ((:module "search"
+                  :components 
+                  ((:file "iddfs")))
+                 (:file "property")
                  (:file "conditions")
                  (:file "types")
                  (:file "util")
