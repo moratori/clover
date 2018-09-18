@@ -22,5 +22,7 @@
                  (:file "unify")
                  (:file "util")
                  (:file "rename")
+                 (:file "simplify")
+                 (:file "substitute")
                  (:file "resolution"))))
   :description "Test system for clover")
