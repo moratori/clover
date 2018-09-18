@@ -17,7 +17,10 @@
   :depends-on ("clover" "1am")
   :components ((:module "tests"
                 :components
-                ((:file "clover")
+                ((:module "search"
+                  :components 
+                  ((:file "iddfs")))
+                 (:file "clover")
                  (:file "types")
                  (:file "unify")
                  (:file "util")
