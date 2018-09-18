@@ -1,6 +1,6 @@
 (defpackage clover.types
   (:use :cl
-        :iddfs
+        :clover.search.iddfs
         :clover.conditions
         )
   (:export
