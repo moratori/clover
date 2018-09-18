@@ -1,6 +1,5 @@
 (defpackage clover.substitute
   (:use :cl
-        :iddfs
         :clover.conditions
         :clover.types
         :clover.util
