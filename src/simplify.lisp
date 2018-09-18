@@ -45,3 +45,11 @@
   (%remove-duplicates-literal
     (%remove-law-of-exclude-middle 
       clause)))
+
+(defmethod simplify ((clause-set clause-set))
+  (clause-set
+    (remove-duplicates
+      (mapcar 
+        #'simplify
+        (clause-set.clauses clause-set))
+      :test #'clause=)))
