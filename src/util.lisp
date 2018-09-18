@@ -54,6 +54,9 @@
       (eq pred1 pred2)
       (every #'term= args1 args2))))
 
+(defmethod null-clause-p ((clause clause))
+  (null (clause.literals clause)))
+
 
 (defmethod unifier= ((unifier1 unifier) (unifier2 unifier))
   (and 
