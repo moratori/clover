@@ -1,6 +1,6 @@
 (defpackage clover.clover
   (:use :cl
-        :iddfs
+        :clover.search.iddfs
         :clover.types
         :clover.unify
         )
