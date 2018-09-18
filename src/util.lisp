@@ -9,7 +9,8 @@
     :literal=
     :complement-literal-p
     :resolution-candidate=
-    :clause=)
+    :clause=
+    :clause-set=)
   )
 (in-package :clover.util)
 
@@ -86,6 +87,17 @@
             (clause.literals clause2)
             (clause.literals clause1)
             :test #'literal=))))
+
+(defmethod clause-set= ((clause-set1 clause-set) (clause-set2 clause-set))
+  (and 
+    (null (set-difference 
+            (clause-set.clauses clause-set1)
+            (clause-set.clauses clause-set2)
+            :test #'clause=))
+    (null (set-difference 
+            (clause-set.clauses clause-set2)
+            (clause-set.clauses clause-set1)
+            :test #'clause=))))
 
 
 (defmethod resolution-candidate= ((res-cand1 resolution-candidate) (res-cand2 resolution-candidate))
