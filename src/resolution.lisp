@@ -5,6 +5,7 @@
         :clover.types 
         :clover.util
         :clover.unify
+        :clover.simplify
         :clover.substitute
         )
   (:export
@@ -46,17 +47,18 @@
                       (apply-unifier-set focus-literal us))
                     (unifiered-clause
                       (apply-unifier-set res-clause us)))
-                (clause
-                  (remove-if
-                    (lambda (lit)
-                      (or 
-                        (literal= unifiered-focus-literal lit)
-                        (complement-literal-p unifiered-focus-literal lit)))
-                    (clause.literals unifiered-clause))
-                  (when *save-resolution-history* clause1)
-                  (when *save-resolution-history* clause2)
-                  (when *save-resolution-history* focus-literal)
-                  (when *save-resolution-history* us))))
+                (simplify
+                  (clause
+                    (remove-if
+                      (lambda (lit)
+                        (or 
+                          (literal= unifiered-focus-literal lit)
+                          (complement-literal-p unifiered-focus-literal lit)))
+                      (clause.literals unifiered-clause))
+                    (when *save-resolution-history* clause1)
+                    (when *save-resolution-history* clause2)
+                    (when *save-resolution-history* focus-literal)
+                    (when *save-resolution-history* us)))))
             unifier-set-list)))
       (%collect-resolutable-literal
         clause1

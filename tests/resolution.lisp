@@ -46,7 +46,6 @@
 
 (test clover.tests.resolution.resolution
 
-      ;; do systematic checking
       (is (let* ((clause1
                    (clause 
                      (list
@@ -57,11 +56,29 @@
                      (list
                        (literal t 'P (list (vterm 'z) (vterm 'z)))
                        (literal t 'P (list (vterm 'w) (fterm 'F (list (vterm 'w)))))
-                       (literal t 'Q (list (vterm 'w)))))))
-            (format t "~%~{~A~%~}"
-                    (resolution clause1 clause2))
-            t
-            ))
+                       (literal t 'Q (list (vterm 'w))))))
+                 (res 
+                   (resolution clause1 clause2))
+                 (expected
+                   (list 
+                     (clause 
+                       (list 
+                         (literal nil 'Q (list (vterm 'z)))
+                         (literal t 'P (list (vterm 'w) (fterm 'F (list (vterm 'w)))))
+                         (literal t 'Q (list (vterm 'w)))))
+                     (clause 
+                       (list 
+                         (literal t 'P (list (vterm 'z) (vterm 'z)))))
+                     (clause 
+                       (list 
+                         (literal nil 'P (list (vterm 'w) (vterm 'y))) 
+                         (literal t 'P (list (vterm 'z) (vterm 'z)))
+                         (literal t 'P (list (vterm 'w) (fterm 'F (list (vterm 'w))))))))))
+            (every 
+              (lambda (r)
+                (member r expected
+                  :test #'clause=))
+              res)))
   )
 
 

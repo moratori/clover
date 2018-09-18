@@ -8,7 +8,7 @@
 (in-package :clover.property)
 
 
-(defparameter *save-resolution-history* nil
+(defparameter *save-resolution-history* t
   "whether to save resolution history")
 
 (defparameter *vterm-gensym-prefix* "V_"

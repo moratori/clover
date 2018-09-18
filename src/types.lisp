@@ -9,6 +9,10 @@
         :clause-set.clauses
         :clause
         :clause.literals
+        :clause.parent1
+        :clause.parent2
+        :clause.focus-literal
+        :clause.unifier
         :literal
         :literal.negation
         :literal.predicate
@@ -161,7 +165,7 @@
    (parent1  nil :type (or null clause)  :read-only t)
    (parent2  nil :type (or null clause)  :read-only t)
    (focus-literal nil :type (or null literal) :read-only t)
-   (unifier  nil :type (or null unifier) :read-only t))
+   (unifier  nil :type (or null unifier-set) :read-only t))
 
 
 (defstruct (clause-set

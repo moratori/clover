@@ -43,7 +43,11 @@
     (mapcar
       (lambda (literal)
         (apply-unifier literal unifier))
-      (clause.literals clause))))
+      (clause.literals clause))
+    (clause.parent1 clause)
+    (clause.parent2 clause)
+    (clause.focus-literal clause)
+    (clause.unifier clause)))
 
 (defmethod apply-unifier ((target unifier) (unifier unifier))
   (let ((src (apply-unifier (unifier.src target) unifier))

@@ -22,6 +22,7 @@
                  (:file "unify")
                  (:file "clover")
                  (:file "rename")
+                 (:file "simplify")
                  (:file "resolution"))))
   :description "Simple Automated Theorem Prover"
   :long-description
