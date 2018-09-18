@@ -13,3 +13,6 @@
 
 (defparameter *vterm-gensym-prefix* "V_"
   "prefix of generated symbol for rename process")
+
+(defparameter *resolution-search-depth* 20
+  "depth for search algorithms")
