@@ -9,6 +9,7 @@
     :unmatching-literal-error
     :unexpected-unifier-source
     :message-of
+    :unimplemented-resolution-algorithm
     )
   )
 (in-package :clover.conditions)
@@ -59,6 +60,9 @@
      :initarg :src
      :initform nil
      :accessor src-of)))
+
+(define-condition unimplemented-resolution-algorithm (clover-toplevel-condition)
+  ())
 
 
 (defmethod print-object ((error clover-toplevel-condition) stream)
