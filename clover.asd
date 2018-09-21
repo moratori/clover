@@ -23,10 +23,10 @@
                  (:file "util")
                  (:file "substitute")
                  (:file "unify")
-                 (:file "clover")
                  (:file "rename")
                  (:file "simplify")
-                 (:file "resolution"))))
+                 (:file "resolution")
+                 (:file "clover"))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string
