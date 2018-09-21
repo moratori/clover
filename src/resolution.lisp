@@ -12,6 +12,7 @@
   (:export
     :%collect-resolutable-literal
     :%resolution
+    :opener_exhaustive-worst-resolution
     )
   )
 (in-package :clover.resolution)
