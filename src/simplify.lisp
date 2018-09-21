@@ -25,31 +25,26 @@
     (clause.unifier clause)))
 
 
-(defmethod %remove-law-of-exclude-middle ((clause clause))
+(defmethod %include-law-of-exclude-middle-p ((clause clause))
   (let ((literals (clause.literals clause)))
-    (clause
-      (remove-if
-        (lambda (lit)
-          (some
-            (lambda (target)
-              (complement-literal-p target lit))
-            literals))
-        literals)
-      (clause.parent1  clause)
-      (clause.parent2  clause)
-      (clause.focus-literal clause)
-      (clause.unifier clause))))
+    (some 
+      (lambda (lit1)
+        (some 
+          (lambda (lit2)
+            (complement-literal-p lit1 lit2))
+          literals))
+      literals)))
 
 
 (defmethod simplify ((clause clause))
-  (%remove-duplicates-literal
-    (%remove-law-of-exclude-middle 
-      clause)))
+  (%remove-duplicates-literal clause))
 
 (defmethod simplify ((clause-set clause-set))
   (clause-set
     (remove-duplicates
-      (mapcar 
-        #'simplify
-        (clause-set.clauses clause-set))
+      (remove-if
+        #'%include-law-of-exclude-middle-p
+        (mapcar 
+          #'simplify
+          (clause-set.clauses clause-set)))
       :test #'clause=)))
