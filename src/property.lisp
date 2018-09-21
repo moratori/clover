@@ -3,6 +3,8 @@
   (:export
     :*save-resolution-history*
     :*vterm-gensym-prefix*
+    :*resolution-search-depth*
+    :*resolution-algorithm*
     )
   )
 (in-package :clover.property)
@@ -16,3 +18,6 @@
 
 (defparameter *resolution-search-depth* 20
   "depth for search algorithms")
+
+(defparameter *resolution-algorithm* :worst
+  "default resolution algorithm")
