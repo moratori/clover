@@ -40,7 +40,8 @@
                  (:file "rename")
                  (:file "simplify")
                  (:file "resolution")
-                 (:file "clover"))))
+                 (:file "clover")
+                 (:file "rendertree"))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string
