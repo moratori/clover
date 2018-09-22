@@ -14,7 +14,10 @@
 (defsystem "clover-test"
   :author "moratori"
   :license ""
-  :depends-on ("clover" "1am")
+  :depends-on (:clover
+               :1am
+               #+sbcl :sb-cover
+               )
   :components ((:module "tests"
                 :components
                 ((:module "search"
