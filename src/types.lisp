@@ -154,8 +154,12 @@
 (defstruct (clause
              (:print-object
                (lambda (object stream)
-                 (format stream "~{~A ~^v ~}"
-                         (clause.literals object))))
+                 (cond 
+                   ((null (clause.literals object))
+                    (format stream "□"))
+                   (t
+                    (format stream "~{~A ~^v ~}"
+                         (clause.literals object))))))
              (:include logical-expression)
              (:constructor clause (literals &optional parent1 parent2 focus-literal unifier))
              (:conc-name clause.))
