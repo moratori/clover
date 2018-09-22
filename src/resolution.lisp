@@ -68,8 +68,8 @@
 
 (defmethod %prepare-resolution ((clause-set clause-set))
   "導出処理に先立ち、節集合をきれいにする"
-  (rename
-    (simplify clause-set)))
+  (simplify
+    (rename clause-set)))
 
 
 
