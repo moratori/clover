@@ -10,7 +10,9 @@
     :complement-literal-p
     :resolution-candidate=
     :clause=
-    :clause-set=)
+    :clause-set=
+    :null-clause-p
+    )
   )
 (in-package :clover.util)
 
