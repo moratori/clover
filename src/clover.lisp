@@ -4,6 +4,7 @@
         :clover.search.iddfs
         :clover.types
         :clover.resolution
+        :clover.util
         )
   (:export
     :start_resolution
@@ -20,8 +21,7 @@
 
 
 (defmethod finish ((clause-set clause-set))
-  (some (lambda (x)
-          (null (clause.literals x))) 
+  (some  #'null-clause-p
         (clause-set.clauses clause-set)))
 
 
