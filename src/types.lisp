@@ -78,6 +78,18 @@
   '(satisfies %%args))
 
 
+(defun %%clause-type (obj)
+  (and 
+    (typep obj 'symbol)
+    (or 
+      (eq obj :premise)
+      (eq obj :resolvent)
+      (eq obj :inputted))))
+
+(deftype %clause-type ()
+  '(satisfies %%clause-type))
+
+
 
 (defstruct term)
 
@@ -178,7 +190,8 @@
    (parent1  nil :type (or null clause)  :read-only t)
    (parent2  nil :type (or null clause)  :read-only t)
    (focus-literal nil :type (or null literal) :read-only t)
-   (unifier  nil :type (or null unifier-set) :read-only t))
+   (unifier  nil :type (or null unifier-set) :read-only t)
+   (clause-type :premise :type %clause-type :read-only t))
 
 
 (defstruct (clause-set
