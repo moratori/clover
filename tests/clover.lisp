@@ -7,7 +7,6 @@
         :1am))
 (in-package :clover.tests.clover)
 
-(setf *save-resolution-history* nil)
 
 (test clover.tests.clover.finish
          
@@ -31,115 +30,124 @@
         )
 
 
-(test clover.tests.clover.start_resolution
+(test clover.tests.clover.start_resolution.exhaustive
+      (let ((linear-sucess
+             (list 
+               (clause-set (list  (clause (list (literal t 'P nil)) nil nil nil nil :goal)
+                                  (clause (list (literal nil 'P nil)))))
+               (clause-set (list  (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                                  (clause (list (literal nil 'P nil) (literal t 'Q nil)))
+                                  (clause (list (literal t 'P nil)) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal nil 'P nil)))
+                                  (clause (list (literal t 'P nil) (literal nil 'Q nil)))
+                                  (clause (list (literal t 'Q nil)) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
+                                                (literal t 'R (list (vterm 'y) (vterm 'x)))
+                                                (literal nil 'P (list (vterm 'x)))))
+                                  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
+                                                (literal t 'R (list (vterm 'y) (vterm 'x)))
+                                                (literal nil 'P (list (vterm 'y)))))
+                                  (clause (list (literal nil 'R (list (fterm 'A nil)
+                                                                      (fterm 'B nil)))))
+                                  (clause (list (literal nil 'R (list (fterm 'B nil)
+                                                                      (fterm 'A nil)))))
+                                  (clause (list (literal t 'P (list (vterm 'x)))) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal nil 'LEN (list (fterm 'NIL nil)
+                                                                        (fterm 'ZERO nil)))))
+                                  (clause (list (literal t 'LEN (list (vterm 'c)
+                                                                      (vterm 'n)))
+                                                (literal nil 'LEN (list (fterm 'CONS (list (vterm 'e)
+                                                                                           (vterm 'c)))
+                                                                        (fterm 'SUCC (list (vterm 'n)))))))
+                                  (clause (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
+                                                                                         (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
+                                                                      (vterm 'x)))) nil nil nil nil :goal))))))
+  (setf *resolution-algorithm* :exhaustive)
+  (setf *save-resolution-history* nil)
+  (loop :for each :in linear-sucess
+        :do (is (start_resolution each)))))
 
-        (is (start_resolution
-              (clause-set (list  (clause (list (literal t 'P nil)))
-                                 (clause (list (literal nil 'P nil)))))))
 
-        (is (start_resolution
-              (clause-set (list  (clause (list (literal nil 'P nil) (literal nil 'P nil)))
-                                 (clause (list (literal nil 'P nil) (literal t 'Q nil)))
-                                 (clause (list (literal t 'P nil)))))))
-        
-        (is (start_resolution
-              (clause-set (list  (clause (list (literal nil 'P nil)))
-                                 (clause (list (literal t 'P nil) (literal nil 'Q nil)))
-                                 (clause (list (literal t 'Q nil)))))))
-       
-        (is (start_resolution
-              (clause-set (list  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
-                                               (literal t 'R (list (vterm 'y) (vterm 'x)))
-                                               (literal nil 'P (list (vterm 'x)))))
-                                 (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
-                                               (literal t 'R (list (vterm 'y) (vterm 'x)))
-                                               (literal nil 'P (list (vterm 'y)))))
-                                 (clause (list (literal nil 'R (list (fterm 'A nil)
-                                                                     (fterm 'B nil)))))
-                                 (clause (list (literal nil 'R (list (fterm 'B nil)
-                                                                     (fterm 'A nil)))))
-                                 (clause (list (literal t 'P (list (vterm 'x)))))))))
 
-        (is (start_resolution
-              (clause-set (list  (clause (list (literal nil 'LEN (list (fterm 'NIL nil)
-                                                                       (fterm 'ZERO nil)))))
-                                 (clause (list (literal t 'LEN (list (vterm 'c)
-                                                                     (vterm 'n)))
-                                               (literal nil 'LEN (list (fterm 'CONS (list (vterm 'e)
-                                                                                          (vterm 'c)))
-                                                                       (fterm 'SUCC (list (vterm 'n)))))))
-                                 (clause (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
-                                                                                        (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
-                                                                     (vterm 'x)))))))))
 
-;;;; 現在実装している探索戦略であると
-;;;; テストに時間が掛かりすぎるため一旦省略する
-;;
-;;        (is (start_resolution
-;;              (clause-set (list  (clause (list (literal nil 'P (list (vterm 'x)
-;;                                                                     (fterm 'E nil)
-;;                                                                     (vterm 'x)))))
-;;                                 (clause (list (literal nil 'P (list (fterm 'E nil)
-;;                                                                     (vterm 'x)
-;;                                                                     (vterm 'x)))))
-;;                                 (clause (list (literal nil 'P (list (vterm 'u)
-;;                                                                     (vterm 'z)
-;;                                                                     (vterm 'w)))
-;;                                               (literal t   'P (list (vterm 'y)
-;;                                                                     (vterm 'z)
-;;                                                                     (vterm 'v)))
-;;                                               (literal t   'P (list (vterm 'x)
-;;                                                                     (vterm 'y)
-;;                                                                     (vterm 'u)))
-;;                                               (literal t   'P (list (vterm 'x)
-;;                                                                     (vterm 'v)
-;;                                                                     (vterm 'w)))))
-;;                                 (clause (list (literal nil 'P (list (vterm 'x)
-;;                                                                     (vterm 'v)
-;;                                                                     (vterm 'w)))
-;;                                               (literal t   'P (list (vterm 'y)
-;;                                                                     (vterm 'z)
-;;                                                                     (vterm 'v)))
-;;                                               (literal t   'P (list (vterm 'x)
-;;                                                                     (vterm 'y)
-;;                                                                     (vterm 'u)))
-;;                                               (literal t   'P (list (vterm 'u)
-;;                                                                     (vterm 'z)
-;;                                                                     (vterm 'w)))))
-;;                                 (clause (list (literal nil 'P (list (vterm 'x)
-;;                                                                     (vterm 'x)
-;;                                                                     (fterm 'E nil)))))
-;;                                 (clause (list (literal nil 'P (list (fterm 'A nil)
-;;                                                                     (fterm 'B nil)
-;;                                                                     (fterm 'C nil)))))
-;;                                 (clause (list (literal t   'P (list (fterm 'B nil)
-;;                                                                     (fterm 'A nil)
-;;                                                                     (fterm 'C nil)))))))))
-;;
-;;;; 充足不可能でない節集合は、探索制限に掛かり、正しく失敗するはずであるが、
-;;;; テストに時間が掛かりすぎるため一旦省略する
-;;        (is (not (start_resolution
-;;                   (clause-set (list  (clause (list (literal nil 'P (list (vterm 'w)
-;;                                                                        (fterm 'E nil)
-;;                                                                        (vterm 'w)))))
-;;                                      (clause (list (literal nil 'P (list (vterm 'x)
-;;                                                                          (fterm 'E nil)
-;;                                                                          (vterm 'y)))
-;;                                                    (literal t 'P (list (vterm 'y)
-;;                                                                        (fterm 'E nil)
-;;                                                                        (vterm 'x))))))))))
-;;        
-;;        (is (not (start_resolution
-;;                   (clause-set (list  (clause (list (literal t 'P nil))))))))
-;;        
-;;        (is (not (start_resolution
-;;                   (clause-set (list  (clause (list (literal t 'P (list (vterm 'x))))))))))
-;;
-;;        (is (not (start_resolution
-;;                   (clause-set (list  (clause (list (literal t 'P   (list (vterm 'x)))
-;;                                                    (literal nil 'P (list (vterm 'x))))))))))
-;;
-        )
 
+
+(test clover.tests.clover.start_resolution.linear
+
+     (let ((linear-sucess
+             (list 
+               (clause-set (list  (clause (list (literal t 'P nil)) nil nil nil nil :goal)
+                                  (clause (list (literal nil 'P nil)))))
+               (clause-set (list  (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                                  (clause (list (literal nil 'P nil) (literal t 'Q nil)))
+                                  (clause (list (literal t 'P nil)) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal nil 'P nil)))
+                                  (clause (list (literal t 'P nil) (literal nil 'Q nil)))
+                                  (clause (list (literal t 'Q nil)) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
+                                                (literal t 'R (list (vterm 'y) (vterm 'x)))
+                                                (literal nil 'P (list (vterm 'x)))))
+                                  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
+                                                (literal t 'R (list (vterm 'y) (vterm 'x)))
+                                                (literal nil 'P (list (vterm 'y)))))
+                                  (clause (list (literal nil 'R (list (fterm 'A nil)
+                                                                      (fterm 'B nil)))))
+                                  (clause (list (literal nil 'R (list (fterm 'B nil)
+                                                                      (fterm 'A nil)))))
+                                  (clause (list (literal t 'P (list (vterm 'x)))) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal nil 'LEN (list (fterm 'NIL nil)
+                                                                        (fterm 'ZERO nil)))))
+                                  (clause (list (literal t 'LEN (list (vterm 'c)
+                                                                      (vterm 'n)))
+                                                (literal nil 'LEN (list (fterm 'CONS (list (vterm 'e)
+                                                                                           (vterm 'c)))
+                                                                        (fterm 'SUCC (list (vterm 'n)))))))
+                                  (clause (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
+                                                                                         (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
+                                                                      (vterm 'x)))) nil nil nil nil :goal)))
+               (clause-set (list  (clause (list (literal nil 'P (list (vterm 'x)
+                                                                      (fterm 'E nil)
+                                                                      (vterm 'x)))))
+                                  (clause (list (literal nil 'P (list (fterm 'E nil)
+                                                                      (vterm 'x)
+                                                                      (vterm 'x)))))
+                                  (clause (list (literal nil 'P (list (vterm 'u)
+                                                                      (vterm 'z)
+                                                                      (vterm 'w)))
+                                                (literal t   'P (list (vterm 'y)
+                                                                      (vterm 'z)
+                                                                      (vterm 'v)))
+                                                (literal t   'P (list (vterm 'x)
+                                                                      (vterm 'y)
+                                                                      (vterm 'u)))
+                                                (literal t   'P (list (vterm 'x)
+                                                                      (vterm 'v)
+                                                                      (vterm 'w)))))
+                                  (clause (list (literal nil 'P (list (vterm 'x)
+                                                                      (vterm 'v)
+                                                                      (vterm 'w)))
+                                                (literal t   'P (list (vterm 'y)
+                                                                      (vterm 'z)
+                                                                      (vterm 'v)))
+                                                (literal t   'P (list (vterm 'x)
+                                                                      (vterm 'y)
+                                                                      (vterm 'u)))
+                                                (literal t   'P (list (vterm 'u)
+                                                                      (vterm 'z)
+                                                                      (vterm 'w)))))
+                                  (clause (list (literal nil 'P (list (vterm 'x)
+                                                                      (vterm 'x)
+                                                                      (fterm 'E nil)))))
+                                  (clause (list (literal nil 'P (list (fterm 'A nil)
+                                                                      (fterm 'B nil)
+                                                                      (fterm 'C nil)))))
+                                  (clause (list (literal t   'P (list (fterm 'B nil)
+                                                                      (fterm 'A nil)
+                                                                      (fterm 'C nil)))) nil nil nil nil :goal)))
+               )))
+  (setf *resolution-algorithm* :linear)
+  (setf *save-resolution-history* nil)
+  (loop :for each :in linear-sucess
+        :do (is (start_resolution each)))))
 
 
