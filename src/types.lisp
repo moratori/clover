@@ -29,7 +29,6 @@
         :unifier.dst
         :unifier-set
         :unifier-set.unifiers
-        :resolution-candidate
         :res-cand.focus-literal
         :res-cand.cand-unifiers
   ))
@@ -210,33 +209,5 @@
   "節集合を表現する構造体
    節のリストを保持する"
    (clauses nil :type %clause-set :read-only t))
-
-
-
-(defun %%unifier-set-list (obj)
-  (and 
-    (listp obj)
-    (every (lambda (x)
-             (typep x 'unifier-set))
-           obj)))
-
-
-(deftype %unifier-set-list ()
-  `(satisfies %%unifier-set-list))
-
-
-(defstruct (resolution-candidate
-             (:print-object
-               (lambda (object stream)
-                 (format stream "~A / one of [~{~A~^ ~}]"
-                         (res-cand.focus-literal object)
-                         (res-cand.cand-unifiers object))))
-             (:constructor resolution-candidate (focus-literal cand-unifiers))
-             (:conc-name res-cand.))
-  "二つの節に対して導出の候補となるリテラルを保持する。
-   focus-literal に対して、どのcand-unifiers の要素を適用しても (focus-literal/unifier-set ∈ cand-unifiers)
-   二つの節は、それを相補的なリテラルとして保持することとなる。"
-  (focus-literal (error "default value required") :type literal :read-only t)
-  (cand-unifiers nil :type %unifier-set-list :type t))
 
 
