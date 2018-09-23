@@ -64,6 +64,9 @@
 (define-condition unimplemented-resolution-algorithm (clover-toplevel-condition)
   ())
 
+(define-condition null-clause-not-found (clover-toplevel-condition)
+  ())
+
 
 (defmethod print-object ((error clover-toplevel-condition) stream)
   (format stream "~%~A~%" (message-of error)))
