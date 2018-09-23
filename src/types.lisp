@@ -13,6 +13,7 @@
         :clause.parent2
         :clause.focus-literal
         :clause.unifier
+        :clause.clause-type
         :literal
         :literal.negation
         :literal.predicate
@@ -82,6 +83,9 @@
   (and 
     (typep obj 'symbol)
     (or 
+      (eq obj :fact)
+      (eq obj :rule)
+      (eq obj :goal)
       (eq obj :premise)
       (eq obj :resolvent)
       (eq obj :inputted))))
@@ -182,7 +186,7 @@
                     (format stream "~{~A ~^v ~}"
                          (clause.literals object))))))
              (:include logical-expression)
-             (:constructor clause (literals &optional parent1 parent2 focus-literal unifier))
+             (:constructor clause (literals &optional parent1 parent2 focus-literal unifier clause-type))
              (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
