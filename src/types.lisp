@@ -95,9 +95,11 @@
 (defstruct (fterm
              (:print-object 
                (lambda (object stream)
-                 (format stream "~A(~{~A~^,~})" 
-                         (fterm.fsymbol object)
-                         (fterm.args object))))
+                 (let ((fsymbol (fterm.fsymbol object))
+                       (args    (fterm.args object)))
+                   (if (null args)
+                     (format stream "~A" fsymbol)
+                     (format stream "~A(~{~A~^,~})" fsymbol args)))))
              (:include term)
              (:constructor fterm (fsymbol args))
              (:conc-name fterm.))
@@ -137,10 +139,17 @@
 (defstruct (literal
              (:print-object
                (lambda (object stream)
-                 (format stream "~A~A(~{~A~^,~})"
-                         (if (literal.negation object) "!" "")
-                         (literal.predicate object)
-                         (literal.args object))))
+                 (let ((negation (literal.negation object))
+                       (predicate (literal.predicate object))
+                       (args (literal.args object)))
+                   (if (null args)
+                     (format stream "~A~A"
+                         (if negation "!" "")
+                         predicate)
+                     (format stream "~A~A(~{~A~^,~})"
+                         (if negation "!" "")
+                         predicate
+                         args)))))
              (:include logical-expression)
              (:constructor literal (negation predicate args))
              (:conc-name literal.))
