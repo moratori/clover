@@ -14,7 +14,7 @@
 
 (defmethod open-nodes ((clause-set clause-set))
   (case *resolution-algorithm*
-    (:worst (opener_exhaustive-worst-resolution clause-set))
+    (:exhaustive (opener_exhaustive-strategy clause-set))
     (otherwise (error 
                  (make-condition 'unimplemented-resolution-algorithm
                                  :message (format nil "unimplemented resolution algorithm"))))))
