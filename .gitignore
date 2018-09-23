@@ -9,3 +9,4 @@
 quicklisp/
 coverage/
 qlfile.lock
+test-output-files/
