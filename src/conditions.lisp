@@ -10,6 +10,7 @@
     :unexpected-unifier-source
     :message-of
     :unimplemented-resolution-algorithm
+    :null-clause-not-found
     )
   )
 (in-package :clover.conditions)
