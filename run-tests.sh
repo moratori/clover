@@ -19,3 +19,16 @@ else
         $roswell -s clover-test \
                  -e '(1am:run)'
 fi
+
+
+dot="`/usr/bin/which dot`"
+if [ ${?} -ne 0 ]; then
+        echo "Graphviz required for rendering refutation tree"
+        exit 1
+fi
+
+dot_src_path="test-output-files/"
+
+if [ -d "${dot_src_path}" ]; then
+        find $dot_src_path -type f -name "*.dot" -exec dot -Tpng -o {}.png {} \;
+fi
