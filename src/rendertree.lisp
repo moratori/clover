@@ -36,7 +36,7 @@
               (neighbor-edges
                 (list 
                   (format nil "CLAUSE_~A -> CLAUSE_~A[label = \"~A\"];" left-seq seq unifier)
-                  (format nil "CLAUSE_~A -> CLAUSE_~A[label = \"~A\"];" right-seq seq unifier))))
+                  (format nil "CLAUSE_~A -> CLAUSE_~A;" right-seq seq))))
          (values 
            (append parent1-nodes myself parent2-nodes)
            (append parent1-edges neighbor-edges parent2-edges)))))))
