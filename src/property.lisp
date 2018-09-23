@@ -19,5 +19,5 @@
 (defparameter *resolution-search-depth* 20
   "depth for search algorithms")
 
-(defparameter *resolution-algorithm* :worst
+(defparameter *resolution-algorithm* :exhaustive
   "default resolution algorithm")
