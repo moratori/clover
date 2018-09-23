@@ -85,6 +85,7 @@
       (eq obj :fact)
       (eq obj :rule)
       (eq obj :goal)
+      (eq obj :center)
       (eq obj :horn)
       (eq obj :premise)
       (eq obj :resolvent)
