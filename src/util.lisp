@@ -8,10 +8,10 @@
     :unifier-set=
     :literal=
     :complement-literal-p
-    :resolution-candidate=
     :clause=
     :clause-set=
     :null-clause-p
+    :clause-length
     )
   )
 (in-package :clover.util)
@@ -78,6 +78,9 @@
             (unifier-set.unifiers unifier-set1)
             :test #'unifier=))))
 
+(defmethod clause-length ((clause clause))
+  (length 
+    (clause.literals clause)))
 
 (defmethod clause= ((clause1 clause) (clause2 clause))
   (and 
@@ -100,21 +103,4 @@
             (clause-set.clauses clause-set2)
             (clause-set.clauses clause-set1)
             :test #'clause=))))
-
-
-(defmethod resolution-candidate= ((res-cand1 resolution-candidate) (res-cand2 resolution-candidate))
-  (let ((focus-literal1 (res-cand.focus-literal res-cand1))
-        (focus-literal2 (res-cand.focus-literal res-cand2))
-        (cand-unifiers1 (res-cand.cand-unifiers res-cand1))
-        (cand-unifiers2 (res-cand.cand-unifiers res-cand2)))
-    (and 
-      (literal= focus-literal1 focus-literal2)
-      (null (set-difference 
-              cand-unifiers1
-              cand-unifiers2
-              :test #'unifier-set=))
-      (null (set-difference 
-              cand-unifiers2
-              cand-unifiers1
-              :test #'unifier-set=)))))
 
