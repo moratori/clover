@@ -22,7 +22,8 @@
     (clause.parent1  clause)
     (clause.parent2  clause)
     (clause.focus-literal clause)
-    (clause.unifier clause)))
+    (clause.unifier clause)
+    (clause.clause-type clause)))
 
 
 (defmethod %include-law-of-exclude-middle-p ((clause clause))
