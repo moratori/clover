@@ -92,9 +92,48 @@
       next-each-nodes))))
 
 (defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :linear)))
-  "clause-type が :goal となっているもののみに対して、ノード展開する
-   - clause-set中に :goal 節が複数ある場合は、エラー
-   - :goal 以外の節で既に充足不可能な様な場合は、探索の停止性は保証されない"
+  "clause-set から :center clause を除いたものの集合が充足不能ではないこと"
+  (let* ((prepared (%prepare-resolution clause-set))
+         (clauses (clause-set.clauses prepared))
+         (center-clause-count 
+           (count-if 
+             (lambda (c)
+               (eq (clause.clause-type c) :center))
+             clauses))
+         (center-clause
+           (find-if 
+             (lambda (c)
+               (eq (clause.clause-type c) :center))
+             clauses)))
+    (when (= center-clause-count 1)
+      
+      (let ((next-base-clauses
+              (cons 
+                (clause 
+                  (clause.literals center-clause)
+                  (clause.parent1 center-clause)
+                  (clause.parent2 center-clause)
+                  (clause.focus-literal center-clause)
+                  (clause.unifier center-clause)
+                  :resolvent)
+                (remove-if 
+                  (lambda (c)
+                    (eq (clause.clause-type c) :center))
+                  clauses)))
+            (next-each-clauses
+              (loop :for clause :in clauses
+                    :if (not (clause= clause center-clause))
+                    :append (%resolution center-clause clause 
+                                         (lambda (x) :center)))))
+        (%sort-clause-set-list
+         (mapcar
+          (lambda (c)
+            (clause-set
+              (cons c next-base-clauses)))
+          next-each-clauses))))))
+
+
+(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :horn)))
   (let* ((prepared (%prepare-resolution clause-set))
          (clauses (clause-set.clauses prepared))
          (goal-clause-count 
@@ -107,22 +146,14 @@
              (lambda (c)
                (eq (clause.clause-type c) :goal))
              clauses)))
+
     (when (= goal-clause-count 1)
-      
       (let ((next-base-clauses
-              (cons 
-                (clause 
-                  (clause.literals goal-clause)
-                  (clause.parent1 goal-clause)
-                  (clause.parent2 goal-clause)
-                  (clause.focus-literal goal-clause)
-                  (clause.unifier goal-clause)
-                  :resolvent)
-                (remove-if 
-                  (lambda (c)
-                    (eq (clause.clause-type c) :goal))
-                  clauses)))
-            (next-each-nodes
+              (remove-if 
+                (lambda (c)
+                  (eq (clause.clause-type c) :goal))
+                clauses))
+            (next-each-clauses
               (loop :for clause :in clauses
                     :if (not (clause= clause goal-clause))
                     :append (%resolution goal-clause clause 
@@ -132,6 +163,4 @@
           (lambda (c)
             (clause-set
               (cons c next-base-clauses)))
-          next-each-nodes))))))
-
-
+          next-each-clauses))))))
