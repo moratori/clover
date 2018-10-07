@@ -1,0 +1,13 @@
+language: common-lisp
+sudo: required
+
+install:
+  - curl -L https://raw.githubusercontent.com/roswell/roswell/release/scripts/install-for-ci.sh | sh
+
+addons:
+  apt:
+    packages:
+      - graphviz
+
+script:
+  - ./run-all-tests.sh
