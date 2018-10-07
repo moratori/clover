@@ -10,6 +10,9 @@
 (in-package :clover.tests.rendertree)
 
 
+(defparameter *graphviz-output-dir* (merge-pathnames 
+                                      #P"test-output-files/graphviz/"
+                                      (asdf:system-source-directory :clover)))
 
 
 (test clover.tests.rendertree.render-refutation-tree
@@ -23,8 +26,8 @@
                                      (clause (list (literal nil 'P nil) (literal t 'Q nil)))
                                      (clause (list (literal t 'P nil))))))
 
-              (render-refutation-tree clause (merge-pathnames #P"test-output-files/test1.dot" 
-                                                              (asdf:system-source-directory :clover)))
+              (render-refutation-tree clause (merge-pathnames #P"test1.dot" 
+                                                              *graphviz-output-dir*))
               t
               )))
         
@@ -44,8 +47,8 @@
                                                                                             (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
                                                                          (vterm 'x)))) nil nil nil nil :center))))
 
-              (render-refutation-tree clause (merge-pathnames #P"test-output-files/test2.dot" 
-                                                              (asdf:system-source-directory :clover)))
+              (render-refutation-tree clause (merge-pathnames #P"test2.dot" 
+                                                              *graphviz-output-dir*))
               t
               )))
         
@@ -66,8 +69,8 @@
                                                                          (fterm 'A nil)))))
                                      (clause (list (literal t 'P (list (vterm 'x))))))))
                 
-              (render-refutation-tree clause (merge-pathnames #P"test-output-files/test3.dot" 
-                                                              (asdf:system-source-directory :clover)))
+              (render-refutation-tree clause (merge-pathnames #P"test3.dot" 
+                                                              *graphviz-output-dir*))
               t
               )))
 
@@ -122,8 +125,8 @@
                                                    (literal nil 'nephew (list (vterm 'z) (vterm 'y)))))
                                      (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil nil :center))))
 
-              (render-refutation-tree clause (merge-pathnames #P"test-output-files/test4.dot" 
-                                                              (asdf:system-source-directory :clover)))
+              (render-refutation-tree clause (merge-pathnames #P"test4.dot" 
+                                                              *graphviz-output-dir*))
               t
               )))
 
