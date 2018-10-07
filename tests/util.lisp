@@ -16,6 +16,12 @@
                       (fterm 'f (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
       )
 
+(test clover.tests.util.alphabet-clause=
+;; todo: add test for the method
+
+
+)
+
 
 (test clover.tests.util.literal=
 
