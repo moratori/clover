@@ -11,6 +11,7 @@
     :clause=
     :clause-set=
     :null-clause-p
+    :alphabet-clause=
     :clause-length
     )
   )
@@ -92,6 +93,11 @@
             (clause.literals clause2)
             (clause.literals clause1)
             :test #'literal=))))
+
+(defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
+  ;; todo: implement the logic
+  nil
+  )
 
 (defmethod clause-set= ((clause-set1 clause-set) (clause-set2 clause-set))
   (and 
