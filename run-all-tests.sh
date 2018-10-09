@@ -1,16 +1,13 @@
 #!/bin/bash
 
-#### roswell が見当たらない場合は終了
+#### 使用コマンド有無確認
 roswell="`/usr/bin/which ros`"
-if [ ${?} -ne 0 ]; then
-        echo "Roswell required: https://github.com/roswell/roswell"
-        exit 1
-fi
-
-#### timeoutコマンドが見当たらない場合は終了
 timeout="`/usr/bin/which timeout`"
-if [ ${?} -ne 0 ]; then
-        echo "timeout command required"
+dot="`/usr/bin/which dot`"
+if [ -z "$roswell" ] || [ -z "$timeout" ]; then
+        echo "following command required"
+        echo "* ros"
+        echo "* timeout"
         exit 1
 fi
 
@@ -69,15 +66,13 @@ fi
 
 
 #### Graphvizが存在する場合は、描画まで実行する
-dot="`/usr/bin/which dot`"
-if [ ${?} -eq 0 ]; then
+if [ ! -z "${dot}" ]; then
         if [ -d "${dot_src_path}" ]; then
                 /usr/bin/find $dot_src_path -type f -name "*.dot" -exec $dot -Tpng -o {}.png {} \;
         fi
 else
         echo "Graphviz required for rendering refutation tree"
         echo "test skipped"
-        exit 1
 fi
 
 exit 0
