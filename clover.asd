@@ -13,6 +13,8 @@
   :license "LLGPL"
   :depends-on (:cl-cpus
                :bordeaux-threads
+               :yacc
+               :cl-lex
                #+sbcl :sb-cover)
   :components ((:module "src"
                 :around-compile 
