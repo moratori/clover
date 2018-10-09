@@ -7,11 +7,19 @@ if [ ${?} -ne 0 ]; then
         exit 1
 fi
 
+#### timeoutコマンドが見当たらない場合は終了
+timeout="`/usr/bin/which timeout`"
+if [ ${?} -ne 0 ]; then
+        echo "timeout command required"
+        exit 1
+fi
+
 
 
 #### 各種変数定義
 lisp_implementation="`$roswell -e '(princ (string-downcase (lisp-implementation-type)))'`"
 lisp_implementation_version="`$roswell -e '(princ (lisp-implementation-version))'`"
+test_duration_time=180
 
 ##   プロジェクトルートを取得する(sbclの場合はsb-coverを読ませたいので呼び分ける)
 case "${lisp_implementation}" in 
@@ -37,14 +45,26 @@ coverage_path="${project_root}/coverage/"
 
 
 #### 処理系ごとにテスト実行(sbclの場合はcoverageを出力したいため呼び分ける)
+test_result=0
 case "${lisp_implementation}" in 
-        "sbcl" ) $roswell -s sb-cover \
-                   -s clover-test  \
-                   -e '(1am:run)' \
-                   -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)))';;
-        *      ) $roswell -s clover-test \
-                   -e '(1am:run)'
+        "sbcl" ) $timeout $test_duration_time \
+                   $roswell -s sb-cover \
+                            -s clover-test  \
+                            -e '(1am:run)' \
+                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)))'
+                 test_result=$?;;
+        *      ) $timeout $test_duration_time \
+                   $roswell -s clover-test \
+                            -e '(1am:run)'
+                 test_result=$?
 esac
+
+if [ $test_result -ne 0 ]; then
+        echo ""
+        echo "test execution timeouted"
+        echo "test aborted"
+        exit $test_result
+fi
 
 
 
@@ -59,3 +79,5 @@ else
         echo "test skipped"
         exit 1
 fi
+
+exit 0
