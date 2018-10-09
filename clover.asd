@@ -43,7 +43,9 @@
                  (:file "simplify")
                  (:file "resolution")
                  (:file "clover")
-                 (:file "rendertree"))))
+                 (:file "rendertree")
+                 (:file "parser")
+                 (:file "interface"))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string
