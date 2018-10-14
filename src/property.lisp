@@ -5,6 +5,7 @@
     :*vterm-gensym-prefix*
     :*resolution-search-depth*
     :*resolution-algorithm*
+    :*parsed-symbol-intern-package*
     )
   )
 (in-package :clover.property)
@@ -21,3 +22,6 @@
 
 (defparameter *resolution-algorithm* :exhaustive
   "default resolution algorithm")
+
+(defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
+  "where to intern symbol ")
