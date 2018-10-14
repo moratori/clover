@@ -8,16 +8,14 @@
         :clover.util
         )
   (:export 
-    :*symbol-intern-package*
     :parse-premise-logical-expression
     :parse-goal-logical-expression))
 
 (in-package :clover.parser)
 
-(defparameter *symbol-intern-package* "CLOVER.PARSER")
 
 (defun %intern-symbol-to-specified-package (string)
-  (intern string *symbol-intern-package*))
+  (intern string *parsed-symbol-intern-package*))
 
 (defun parse-premise-logical-expression (string)
   (parse-with-lexer 
