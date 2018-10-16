@@ -18,14 +18,24 @@
   (intern string *parsed-symbol-intern-package*))
 
 (defun parse-premise-logical-expression (string)
-  (parse-with-lexer 
-    (%premise-expression-lexer string)
-    %premise-expression-parser)) 
+  (handler-case
+      (parse-with-lexer 
+        (%premise-expression-lexer string)
+        %premise-expression-parser)
+    (condition (con)
+      (error (make-condition 'expr-parse-error 
+                             :message 
+                             (format nil "error occurred while parsing string: ~A" string)))))) 
 
 (defun parse-goal-logical-expression (string)
-  (parse-with-lexer 
-    (%goal-expression-lexer string)
-    %goal-expression-parser))
+  (handler-case 
+      (parse-with-lexer 
+        (%goal-expression-lexer string)
+        %goal-expression-parser)
+    (condition (con)
+      (error (make-condition 'expr-parse-error 
+                             :message 
+                             (format nil "error occurred while parsing string: ~A" string))))))
 
 
 (define-string-lexer %premise-expression-lexer
