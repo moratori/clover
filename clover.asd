@@ -15,6 +15,7 @@
                :bordeaux-threads
                :yacc
                :cl-lex
+               :cl-ppcre
                #+sbcl :sb-cover)
   :components ((:module "src"
                 :around-compile 
