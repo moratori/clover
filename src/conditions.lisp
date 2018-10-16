@@ -11,6 +11,7 @@
     :message-of
     :unimplemented-resolution-algorithm
     :null-clause-not-found
+    :expr-parse-error
     )
   )
 (in-package :clover.conditions)
@@ -66,6 +67,9 @@
   ())
 
 (define-condition null-clause-not-found (clover-toplevel-condition)
+  ())
+
+(define-condition expr-parse-error (clover-toplevel-condition)
   ())
 
 
