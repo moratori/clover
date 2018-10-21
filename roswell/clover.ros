@@ -1,0 +1,23 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+sbcl #+quicklisp (ql:quickload '(:sb-cover) :silent t)
+  #+quicklisp(ql:quickload '(:clover) :silent t)
+  )
+
+(defpackage :ros.script.clover.3749094754
+  (:use :cl))
+(in-package :ros.script.clover.3749094754)
+
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+
+  (when (find-package "CLOVER.INTERFACE")
+    (clover.interface:main)))
+
+;;; vim: set ft=lisp lisp:
