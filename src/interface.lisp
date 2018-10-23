@@ -166,19 +166,28 @@
     (when *render-tree-path-name*
       (setf *save-resolution-history* t))
 
-    (multiple-value-bind (depth clause-set)
-        (start_resolution 
-          (clause-set 
-            (cons expr clauses)))
-      (cond 
-        (depth
-         (%stdout "PROVABLE under the ~A~%~%"
-                  *current-axiomatic-system*)
-         (when *render-tree-path-name*
-           (render-refutation-tree clause-set *render-tree-path-name*)))
-        (t
-         (%stdout "unknown provability under the ~A~%~%"
-                  *current-axiomatic-system*))))))
+    (catch 'exit 
+        (multiple-value-bind (depth clause-set)
+            (time 
+              (handler-case
+                  (start_resolution 
+                    (clause-set (cons expr clauses)))
+                (clover-toplevel-condition (con)
+                  (%stdout "unexpected error occurred: ~A~%" con)
+                  (throw 'exit nil))
+                (condition (con)
+                  (%stdout "caught an signal : ~A~%" con)
+                  (%stdout "process canceled~%~%")
+                  (values nil nil))))
+          (cond 
+            (depth
+             (%stdout "PROVABLE under the ~A~%~%"
+                      *current-axiomatic-system*)
+             (when *render-tree-path-name*
+               (render-refutation-tree clause-set *render-tree-path-name*)))
+            (t
+             (%stdout "unknown provability under the ~A~%~%"
+                      *current-axiomatic-system*)))))))
 
 
 
