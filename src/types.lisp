@@ -101,22 +101,23 @@
 (defstruct (vterm
              (:print-object
                (lambda (object stream)
-                 (format stream "~A" (vterm.var object))))
+                 (format stream "~A" (string-downcase (symbol-name (vterm.var object))))))
              (:include term)
              (:constructor vterm (var))
              (:conc-name vterm.))
-  "変数項、定数項を表現する構造体
+  "変数項を表現する構造体
    シンボルを保持する"
    (var (error "default value required") :type symbol :read-only t))
 
 (defstruct (fterm
              (:print-object 
                (lambda (object stream)
-                 (let ((fsymbol (fterm.fsymbol object))
-                       (args    (fterm.args object)))
+                 (let* ((fsymbol (fterm.fsymbol object))
+                        (fsymbol-name (symbol-name fsymbol))
+                        (args    (fterm.args object)))
                    (if (null args)
-                     (format stream "~A" fsymbol)
-                     (format stream "~A(~{~A~^,~})" fsymbol args)))))
+                     (format stream "~A" (string-upcase fsymbol-name))
+                     (format stream "~A(~{~A~^,~})" (string-downcase fsymbol-name) args)))))
              (:include term)
              (:constructor fterm (fsymbol args))
              (:conc-name fterm.))
