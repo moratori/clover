@@ -23,6 +23,9 @@
 (defparameter *render-tree-path-name* nil
   "file path to output refutation tree")
 
+(defparameter *statistical-profiler* nil
+  "whether to profile resolution process")
+
 
 (defmacro %stdout (control-string &rest values)
   `(progn
@@ -63,6 +66,7 @@
     :def-axiom    <name>    define an axiomatic system <name>
     :set-axiom    <name>    set current axiomatic system to <name>
     :show-strategy          show the current strategy for resolution
+    :set-profiler           enable statistical profiler
     :set-strategy <algorithm> <depth> set specific resolution algorithm
     :save-tree    <path>    save Graphviz code express refutation tree to <path>~%"))
 
@@ -78,6 +82,13 @@
   (%stdout "Algorithm : ~A~%Search Depth : ~A~%"
            *resolution-algorithm*
            *resolution-search-depth*))
+
+
+(defmethod %perform-command ((command (eql :set-profiler)) args)
+  (setf *statistical-profiler* (not *statistical-profiler*))
+  (if *statistical-profiler*
+    (%stdout "statistical profiler enabled~%")
+    (%stdout "statistical profiler disabled~%")))
 
 
 
@@ -168,17 +179,30 @@
 
     (catch 'exit 
         (multiple-value-bind (depth clause-set)
-            (time 
-              (handler-case
-                  (start_resolution 
-                    (clause-set (cons expr clauses)))
-                (clover-toplevel-condition (con)
-                  (%stdout "unexpected error occurred: ~A~%" con)
-                  (throw 'exit nil))
-                (condition (con)
-                  (%stdout "caught an signal : ~A~%" con)
-                  (%stdout "process canceled~%~%")
-                  (values nil nil))))
+            (handler-case
+                (if *statistical-profiler*
+                  (progn
+                    #+sbcl 
+                    (sb-sprof:with-profiling 
+                      (:max-samples 3000
+                       :report :flat
+                       :loop nil
+                       :mode :cpu
+                       :show-progress nil)
+                      (time (start_resolution 
+                              (clause-set (cons expr clauses)))))
+                    #-sbcl 
+                    (time (start_resolution 
+                            (clause-set (cons expr clauses)))))
+                  (time (start_resolution 
+                          (clause-set (cons expr clauses)))))
+            (clover-toplevel-condition (con)
+              (%stdout "unexpected error occurred: ~A~%" con)
+              (throw 'exit nil))
+            (condition (con)
+              (%stdout "caught an signal : ~A~%" con)
+              (%stdout "process canceled~%~%")
+              (values nil nil)))
           (cond 
             (depth
              (%stdout "PROVABLE under the ~A~%~%"
