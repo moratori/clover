@@ -159,14 +159,10 @@
                  (let ((negation (literal.negation object))
                        (predicate (literal.predicate object))
                        (args (literal.args object)))
-                   (if (null args)
-                     (format stream "~A~A"
-                         (if negation "!" "")
-                         predicate)
-                     (format stream "~A~A(~{~A~^,~})"
-                         (if negation "!" "")
-                         predicate
-                         args)))))
+                   (format stream "~A~A(~{~A~^,~})"
+                           (if negation "!" "")
+                           (string-downcase (symbol-name predicate))
+                           args))))
              (:include logical-expression)
              (:constructor literal (negation predicate args))
              (:conc-name literal.))
@@ -184,7 +180,7 @@
                    ((null (clause.literals object))
                     (format stream "□"))
                    (t
-                    (format stream "~{~A ~^v ~}"
+                    (format stream "~{~A ~^| ~}"
                          (clause.literals object))))))
              (:include logical-expression)
              (:constructor clause (literals &optional parent1 parent2 focus-literal unifier clause-type))
@@ -202,7 +198,7 @@
 (defstruct (clause-set
              (:print-object 
                (lambda (object stream)
-                 (format stream "{~{~A~^, ~}}"
+                 (format stream "~{~A~%~}"
                          (clause-set.clauses object))))
              (:include abstract-node)
              (:constructor clause-set (clauses))
