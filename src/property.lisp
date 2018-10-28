@@ -15,7 +15,7 @@
 (defparameter *save-resolution-history* nil
   "whether to save resolution history")
 
-(defparameter *vterm-gensym-prefix* "V_"
+(defparameter *vterm-gensym-prefix* "v"
   "prefix of generated symbol for rename process")
 
 (defparameter *resolution-search-depth* 20
