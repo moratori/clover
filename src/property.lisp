@@ -21,7 +21,7 @@
 (defparameter *resolution-search-depth* 20
   "depth for search algorithms")
 
-(defparameter *resolution-algorithm* :exhaustive
+(defparameter *resolution-algorithm* :horn
   "default resolution algorithm.
    one of *supported-resolution-algorithms* must be selected here")
 
