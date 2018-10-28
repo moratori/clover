@@ -45,7 +45,7 @@
   ("\\("       (return (values :lparen 'lparen)))
   ("\\)"       (return (values :rparen 'rparen)))
   ("[A-Z]+"    (return (values :constant $@)))
-  ("[a-z]+"    (return (values :symbol $@))))
+  ("[a-z0-9]+" (return (values :symbol $@))))
 
 (define-string-lexer %goal-expression-lexer
   ("\\&"       (return (values :and     'and)))
@@ -54,7 +54,7 @@
   ("\\("       (return (values :lparen 'lparen)))
   ("\\)"       (return (values :rparen 'rparen)))
   ("[A-Z]+"    (return (values :constant $@)))
-  ("[a-z]+"    (return (values :symbol $@))))
+  ("[a-z0-9]+" (return (values :symbol $@))))
 
 (define-parser %premise-expression-parser 
   (:start-symbol premise)
