@@ -16,7 +16,9 @@
                :yacc
                :cl-lex
                :cl-ppcre
-               #+sbcl :sb-cover)
+               #+sbcl :sb-cover
+               #+sbcl :sb-sprof
+               )
   :components ((:module "src"
                 :around-compile 
                  (lambda (thunk)
