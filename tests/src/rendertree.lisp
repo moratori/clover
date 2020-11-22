@@ -11,7 +11,7 @@
 
 
 (defparameter *graphviz-output-dir* (merge-pathnames 
-                                      #P"test-output-files/graphviz/"
+                                      #P"tests/test-output-files/graphviz/"
                                       (asdf:system-source-directory :clover)))
 
 (test clover.tests.rendertree.render-refutation-tree.test1

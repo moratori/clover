@@ -20,17 +20,19 @@
                )
   :components ((:module "tests"
                 :components
-                ((:module "search"
+                ((:module "src"
                   :components 
-                  ((:file "iddfs")))
-                 (:file "clover")
-                 (:file "types")
-                 (:file "unify")
-                 (:file "util")
-                 (:file "rename")
-                 (:file "simplify")
-                 (:file "substitute")
-                 (:file "resolution")
-                 (:file "rendertree")
-                 (:file "parser"))))
+                  ((:module "search"
+                    :components 
+                    ((:file "iddfs")))
+                   (:file "clover")
+                   (:file "types")
+                   (:file "unify")
+                   (:file "util")
+                   (:file "rename")
+                   (:file "simplify")
+                   (:file "substitute")
+                   (:file "resolution")
+                   (:file "rendertree")
+                   (:file "parser"))))))
   :description "Test system for clover")

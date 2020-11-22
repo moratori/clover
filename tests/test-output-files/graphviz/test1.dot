@@ -1,0 +1,9 @@
+digraph refutation_tree {
+  CLAUSE_2[label = "p() "];
+  CLAUSE_1[label = "□"];
+  CLAUSE_3[label = "!p() "];
+
+  CLAUSE_2 -> CLAUSE_1[label = "{}"];
+  CLAUSE_3 -> CLAUSE_1;
+
+}
