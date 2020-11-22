@@ -30,7 +30,7 @@ if [ ! -d "${project_root}" ]; then
 fi
 
 project_root="${project_root%/}"
-dot_src_path="${project_root}/test-output-files/graphviz/"
+dot_src_path="${project_root}/tests/test-output-files/graphviz/"
 coverage_path="${project_root}/coverage/"
 
 
