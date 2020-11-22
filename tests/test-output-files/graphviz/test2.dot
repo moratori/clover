@@ -1,17 +1,17 @@
 digraph refutation_tree {
-  CLAUSE_8[label = "!len(cons(A,cons(B,NIL)),v704) "];
-  CLAUSE_4[label = "!len(cons(B,NIL),v705) "];
-  CLAUSE_9[label = "!len(v702,v703) | len(cons(v701,v702),succ(v703)) "];
-  CLAUSE_2[label = "!len(NIL,v710) "];
-  CLAUSE_5[label = "!len(v708,v709) | len(cons(v707,v708),succ(v709)) "];
+  CLAUSE_8[label = "!len(cons(A,cons(B,NIL)),v1062) "];
+  CLAUSE_4[label = "!len(cons(B,NIL),v1063) "];
+  CLAUSE_9[label = "!len(v1060,v1061) | len(cons(v1059,v1060),succ(v1061)) "];
+  CLAUSE_2[label = "!len(NIL,v1068) "];
+  CLAUSE_5[label = "!len(v1066,v1067) | len(cons(v1065,v1066),succ(v1067)) "];
   CLAUSE_1[label = "□"];
   CLAUSE_3[label = "len(NIL,ZERO) "];
 
-  CLAUSE_8 -> CLAUSE_4[label = "{v701->A,v702->cons(B,NIL),v704->succ(v703)}"];
+  CLAUSE_8 -> CLAUSE_4[label = "{v1059->A,v1060->cons(B,NIL),v1062->succ(v1061)}"];
   CLAUSE_9 -> CLAUSE_4;
-  CLAUSE_4 -> CLAUSE_2[label = "{v707->B,v708->NIL,v705->succ(v709)}"];
+  CLAUSE_4 -> CLAUSE_2[label = "{v1065->B,v1066->NIL,v1063->succ(v1067)}"];
   CLAUSE_5 -> CLAUSE_2;
-  CLAUSE_2 -> CLAUSE_1[label = "{v710->ZERO}"];
+  CLAUSE_2 -> CLAUSE_1[label = "{v1068->ZERO}"];
   CLAUSE_3 -> CLAUSE_1;
 
 }

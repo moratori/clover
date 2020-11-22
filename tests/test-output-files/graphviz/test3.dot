@@ -1,17 +1,17 @@
 digraph refutation_tree {
-  CLAUSE_8[label = "!r(v1890,v1889) | !r(v1889,v1890) | p(v1890) "];
+  CLAUSE_8[label = "!r(v819,v818) | !r(v818,v819) | p(v819) "];
   CLAUSE_4[label = "!r(B,A) | p(A) "];
   CLAUSE_9[label = "r(A,B) "];
   CLAUSE_2[label = "p(A) "];
   CLAUSE_5[label = "r(B,A) "];
   CLAUSE_1[label = "□"];
-  CLAUSE_3[label = "!p(v1903) "];
+  CLAUSE_3[label = "!p(v832) "];
 
-  CLAUSE_8 -> CLAUSE_4[label = "{v1890->A,v1889->B}"];
+  CLAUSE_8 -> CLAUSE_4[label = "{v819->A,v818->B}"];
   CLAUSE_9 -> CLAUSE_4;
   CLAUSE_4 -> CLAUSE_2[label = "{}"];
   CLAUSE_5 -> CLAUSE_2;
-  CLAUSE_2 -> CLAUSE_1[label = "{v1903->A}"];
+  CLAUSE_2 -> CLAUSE_1[label = "{v832->A}"];
   CLAUSE_3 -> CLAUSE_1;
 
 }

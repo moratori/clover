@@ -1,25 +1,25 @@
 digraph refutation_tree {
-  CLAUSE_32[label = "!nephew(TARA,v1659) "];
-  CLAUSE_16[label = "!sibling(v1661,v1660) | !parent(v1661,TARA) | !male(TARA) "];
-  CLAUSE_33[label = "!sibling(v1656,v1658) | !parent(v1656,v1657) | !male(v1657) | nephew(v1657,v1658) "];
-  CLAUSE_8[label = "!sibling(SAZAE,v1677) | !male(TARA) "];
+  CLAUSE_32[label = "!nephew(TARA,v1934) "];
+  CLAUSE_16[label = "!sibling(v1936,v1935) | !parent(v1936,TARA) | !male(TARA) "];
+  CLAUSE_33[label = "!sibling(v1931,v1933) | !parent(v1931,v1932) | !male(v1932) | nephew(v1932,v1933) "];
+  CLAUSE_8[label = "!sibling(SAZAE,v1952) | !male(TARA) "];
   CLAUSE_17[label = "parent(SAZAE,TARA) "];
-  CLAUSE_4[label = "!sibling(SAZAE,v1695) "];
+  CLAUSE_4[label = "!sibling(SAZAE,v1970) "];
   CLAUSE_9[label = "male(TARA) "];
-  CLAUSE_2[label = "!parent(v1714,SAZAE) | !parent(v1714,v1715) "];
-  CLAUSE_5[label = "!parent(v1708,v1709) | !parent(v1708,v1710) | sibling(v1709,v1710) "];
+  CLAUSE_2[label = "!parent(v1989,SAZAE) | !parent(v1989,v1990) "];
+  CLAUSE_5[label = "!parent(v1983,v1984) | !parent(v1983,v1985) | sibling(v1984,v1985) "];
   CLAUSE_1[label = "□"];
   CLAUSE_3[label = "parent(NAMIHEI,SAZAE) "];
 
-  CLAUSE_32 -> CLAUSE_16[label = "{v1657->TARA,v1659->v1658}"];
+  CLAUSE_32 -> CLAUSE_16[label = "{v1932->TARA,v1934->v1933}"];
   CLAUSE_33 -> CLAUSE_16;
-  CLAUSE_16 -> CLAUSE_8[label = "{v1661->SAZAE}"];
+  CLAUSE_16 -> CLAUSE_8[label = "{v1936->SAZAE}"];
   CLAUSE_17 -> CLAUSE_8;
   CLAUSE_8 -> CLAUSE_4[label = "{}"];
   CLAUSE_9 -> CLAUSE_4;
-  CLAUSE_4 -> CLAUSE_2[label = "{v1709->SAZAE,v1695->v1710}"];
+  CLAUSE_4 -> CLAUSE_2[label = "{v1984->SAZAE,v1970->v1985}"];
   CLAUSE_5 -> CLAUSE_2;
-  CLAUSE_2 -> CLAUSE_1[label = "{v1714->NAMIHEI,v1715->SAZAE}"];
+  CLAUSE_2 -> CLAUSE_1[label = "{v1989->NAMIHEI,v1990->SAZAE}"];
   CLAUSE_3 -> CLAUSE_1;
 
 }
