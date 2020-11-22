@@ -109,7 +109,6 @@
          clauses)
 
     (%stdout "input . to finish definition~%")
-    
     (%prompt-def cnt)
     
     (loop
@@ -133,7 +132,9 @@
                     (destructuring-bind (current-name . _) x
                       (declare (ignore _))
                       (string= current-name name)))
-                  *axiomatic-system-list*)))))
+                  *axiomatic-system-list*))
+          *current-axiomatic-system*
+          (first (assoc name *axiomatic-system-list* :test #'string=)))))
 
 
 
