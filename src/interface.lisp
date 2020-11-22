@@ -57,25 +57,30 @@
   (throw 'exit nil))
 
 (defmethod %perform-command ((command (eql :HELP)) args)
-  ;; todo: implement :save-axiom and :load-axiom :unsave-tree
+  ;; todo: implement :save-axiom and :load-axiom
   (%stdout
    "Command help
-    :help                   show this help
-    :quit                   quit from REPL
-    :show-axiom             enumerate the axiomatic system that are currently defined
-    :def-axiom    <name>    define an axiomatic system <name>
-    :set-axiom    <name>    set current axiomatic system to <name>
-    :show-strategy          show the current strategy for resolution
-    :set-profiler           enable statistical profiler
+    :help                    show this help
+    :quit                    quit from REPL
+    :def-axiom    <name>     define an axiomatic system <name>
+    :show-axiom              enumerate all axiomatic system that are currently defined
+    :show-strategy           show the current strategy for resolution
+    :set-axiom    <name>     set current axiomatic system to <name>
     :set-strategy <algorithm> <depth> set specific resolution algorithm
-    :save-tree    <path>    save Graphviz code express refutation tree to <path>~%"))
+    :set-history             keep resolution history. this option automatically 
+                             enabled if save-tree option on.
+    :unset-history           disable history
+    :set-profiler            enable statistical profiler
+    :unset-profiler          disable statistical profiler
+    :save-tree    <path>     save Graphviz code tree to <path>
+    :unsave-tree~%"))
 
 
 (defmethod %perform-command ((command (eql :SHOW-AXIOM)) args)
   (loop
     :for (name . ax) :in *axiomatic-system-list*
     :do
-    (%stdout "~A~%   ~A~%" name ax)))
+    (%stdout "===Axiom: ~A===~%~A~%" name ax)))
 
 
 (defmethod %perform-command ((command (eql :SHOW-STRATEGY)) args)
@@ -85,11 +90,12 @@
 
 
 (defmethod %perform-command ((command (eql :set-profiler)) args)
-  (setf *statistical-profiler* (not *statistical-profiler*))
-  (if *statistical-profiler*
-    (%stdout "statistical profiler enabled~%")
-    (%stdout "statistical profiler disabled~%")))
+  (setf *statistical-profiler* t)
+  (%stdout "statistical profiler enabled~%"))
 
+(defmethod %perform-command ((command (eql :unset-profiler)) args)
+  (setf *statistical-profiler* nil)
+  (%stdout "statistical profiler disabled~%"))
 
 
 (defmethod %perform-command :around ((command (eql :DEF-AXIOM)) args)
@@ -258,8 +264,14 @@
 (defmethod %perform-command ((command (eql :SAVE-TREE)) args)
   (setf *render-tree-path-name* (pathname (first args))))
 
+(defmethod %perform-command ((command (eql :UNSAVE-TREE)) args)
+  (setf *render-tree-path-name* nil))
+ 
+(defmethod %perform-command ((command (eql :set-history)) args)
+  (setf *save-resolution-history* t))
 
-
+(defmethod %perform-command ((command (eql :unset-history)) args)
+  (setf *save-resolution-history* nil))
 
 
 (defun %parse-input-line (line)
