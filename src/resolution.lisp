@@ -30,7 +30,8 @@
                                     (find-most-general-unifier-set
                                       literal1 literal2)
                                   (ununifiable-literal-error (e) nil))
-                     :if us 
+                     :if (and us (not (eq (literal.negation literal1)
+                                          (literal.negation literal2))))
                      :collect us)
           :if unifier-set-list 
           :append (loop :for unifier-set :in unifier-set-list
