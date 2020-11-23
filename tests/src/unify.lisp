@@ -151,3 +151,77 @@
 
       )
 
+
+(test clover.tests.unify.subsumption-clause-p.test1
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P 
+                                     (list (vterm 'x)))))
+              (clause (list (literal nil 'P 
+                                     (list (fterm 'f (list (vterm 'y)))))
+                            (literal t 'Q
+                                     (list (vterm 'y) (vterm 'z)))))))
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P 
+                                     (list (vterm 'x)))))
+              (clause (list (literal nil 'P 
+                                     (list (fterm 'g (list (vterm 'y)))))
+                            (literal nil 'Q
+                                     (list (vterm 'y)))))))
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P 
+                                     (list (vterm 'x) (vterm 'y)))))
+              (clause (list (literal nil 'P 
+                                     (list (fterm 'A nil) (fterm 'B nil)))
+                            (literal nil 'Q
+                                     (list (fterm 'A nil) (fterm 'B nil)))))))
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P 
+                                     (list (vterm 'x) (vterm 'y)))))
+              (clause (list (literal nil 'P 
+                                     (list (fterm 'A nil) 
+                                           (fterm 'f (list (vterm 'z)))))))))
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P 
+                                     (list (vterm 'x) (vterm 'y)))
+                            (literal nil 'Q
+                                     (list (vterm 'y) (vterm 'x)))))
+
+              (clause (list (literal nil 'P 
+                                     (list (fterm 'B nil) 
+                                           (fterm 'f (list (vterm 'z)
+                                                           (fterm 'g (list (vterm 'w)))))))
+                            (literal nil 'Q
+                                     (list (fterm 'f (list (vterm 'z)
+                                                           (fterm 'g (list (vterm 'w)))))
+                                           (fterm 'B nil)))
+                            (literal t 'R 
+                                     (list (fterm 'A nil)
+                                           (fterm 'f (list (vterm 'z))))))))))
+
+(test clover.tests.unify.subsumption-clause-p.test2
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P
+                                        (list (vterm 'x)))
+                               (literal nil 'Q
+                                        (list (vterm 'x) (vterm 'y)))))
+                 (clause (list (literal nil 'P
+                                        (list (fterm 'A nil)))
+                               (literal nil 'Q
+                                        (list (vterm 'w) (fterm 'B nil)))
+                               (literal nil 'R
+                                        (list (vterm 'w) (vterm 'z))))))))
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P
+                                        (list (vterm 'x) (vterm 'y)))))
+                 (clause (list (literal t 'P
+                                        (list (fterm 'A nil) (fterm 'B nil)))
+                               (literal nil 'Q
+                                        (list (fterm 'A nil) (fterm 'B nil))))))))
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P
+                                        (list (fterm 'A nil)))))
+                 (clause (list (literal nil 'P
+                                        (list (vterm 'x)))
+                               (literal t 'Q
+                                        (list (vterm 'x))))))))
+      )

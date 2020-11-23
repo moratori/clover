@@ -5,6 +5,7 @@
         :clover.substitute
         :clover.types)
   (:export 
+    :subsumption-clause-p
     :find-most-general-unifier-set)
   )
 (in-package :clover.unify)
@@ -145,8 +146,6 @@
 (defmethod find-most-general-unifier-set ((literal1 literal) (literal2 literal))
   (unless (and (eq (literal.predicate literal1)
                    (literal.predicate literal2))
-               (not (eq (literal.negation literal1)
-                        (literal.negation literal2)))
                (= (length (literal.args literal1))
                   (length (literal.args literal2))))
     (error (make-condition 'ununifiable-literal-error
@@ -184,3 +183,25 @@
                              :literal1 literal1
                              :literal2 literal2)))))
 
+
+(defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
+  ;; clause1がclause2を包摂するかを判定する
+  ;; clause1がclause2を包摂する <=>
+  ;; len(clause1) <= len(clause2) 且つ
+  ;; ある代入S が存在して、clause1・S subset-of clause2
+  (when (<= (clause-length clause1)
+            (clause-length clause2))
+    (some 
+      (lambda (lit1)
+        (some 
+          (lambda (lit2)
+            (let ((mgu
+                    (handler-case 
+                        (find-most-general-unifier-set lit1 lit2)
+                      (ununifiable-literal-error (e) nil))))
+              (when mgu
+                (clause-subset
+                  (apply-unifier-set clause1 mgu)
+                  clause2))))
+          (clause.literals clause2)))
+      (clause.literals clause1))))
