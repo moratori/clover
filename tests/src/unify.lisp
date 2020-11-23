@@ -224,4 +224,7 @@
                                         (list (vterm 'x)))
                                (literal t 'Q
                                         (list (vterm 'x))))))))
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P nil)))
+                 (clause (list (literal t 'P nil))))))
       )
