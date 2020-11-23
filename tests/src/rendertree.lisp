@@ -14,6 +14,36 @@
                                       #P"tests/test-output-files/graphviz/"
                                       (asdf:system-source-directory :clover)))
 
+(test clover.tests.rendertree.%check-renderable-to-terminal.test1
+      (is (clover.rendertree::%check-renderable-to-terminal
+            (clause (list (literal nil 'P nil) (literal nil 'P nil)))))
+      (is (clover.rendertree::%check-renderable-to-terminal
+            (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                    (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                    (clause (list (literal nil 'P nil) (literal nil 'P nil))))))
+      (is (clover.rendertree::%check-renderable-to-terminal
+            (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                    (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                    (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                            (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                            (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                                    (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                                    (clause (list (literal nil 'P nil) (literal nil 'P nil))))))))
+ )
+
+(test clover.tests.rendertree.%check-renderable-to-terminal.test2
+      (is (not (clover.rendertree::%check-renderable-to-terminal
+                 (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                         (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                         (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                                 (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                                         (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                                         (clause (list (literal nil 'P nil) (literal nil 'P nil))))
+                                 (clause (list (literal nil 'P nil) (literal nil 'P nil))
+                                         (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+                                         (clause (list (literal nil 'P nil) (literal nil 'P nil)))))))))
+      )
+
 (test clover.tests.rendertree.render-refutation-tree.test1
       (is (progn
             (setf *save-resolution-history* t)

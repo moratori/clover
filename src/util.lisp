@@ -8,6 +8,7 @@
     :unifier-set=
     :literal=
     :complement-literal-p
+    :has-parent-p
     :clause=
     :clause-subset
     :clause-set=
@@ -104,6 +105,10 @@
         (find lit1 clause2-literals
               :test #'literal=))
     (clause.literals clause1))))
+
+(defmethod has-parent-p ((clause clause))
+  (and (not (null (clause.parent1 clause)))
+       (not (null (clause.parent2 clause)))))
 
 (defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
   ;; todo: implement the logic

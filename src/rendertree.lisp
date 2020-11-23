@@ -41,8 +41,66 @@
            (append parent1-nodes myself parent2-nodes)
            (append parent1-edges neighbor-edges parent2-edges)))))))
 
+(defmethod %check-renderable-to-terminal ((clause clause))
+  (let* ((parent1 (clause.parent1 clause))
+         (parent2 (clause.parent2 clause)))
+    (cond
+      ((not (has-parent-p clause)) t)
+      ((not (has-parent-p parent1))
+       (%check-renderable-to-terminal parent2))
+      ((not (has-parent-p parent2))
+       (%check-renderable-to-terminal parent1))
+      (t nil))))
 
-(defmethod render-refutation-tree ((clause-set clause-set) (filepath pathname))
+(defmethod %render-refutation-tree-terminal ((clause clause) (output stream))
+  (let* ((parent1 (clause.parent1 clause))
+         (parent2 (clause.parent2 clause))
+         (right (cond
+                 ((and parent1 (not (has-parent-p parent1)))
+                  parent1)
+                 ((and parent2 (not (has-parent-p parent2)))
+                  parent2)
+                 (t nil)))
+         (down (cond
+                  ((and parent1 (has-parent-p parent1))
+                   parent1)
+                  ((and parent2 (has-parent-p parent2))
+                   parent2)
+                  ((and parent1 parent2)
+                   (find-if 
+                     (lambda (p) (not (clause= p right)))
+                     (list parent1 parent2)))
+                  (t nil))))
+    (cond
+      ((and (null right) (null down))
+       (format output " ~A~%" clause))
+      (t 
+       (let* ((space-size 
+                (floor (/ (length (format nil "~A" clause)) 2)))
+              (pad
+                (loop :for i :from 0 :to space-size :collect " ")))
+         (format output " ~A ←← ~A~%" clause right)
+         (format output "~{~A~}↑~%" pad)
+         (format output "~{~A~}↑~%" pad))
+       (%render-refutation-tree-terminal down output)))))
+
+(defmethod render-refutation-tree ((clause-set clause-set) (output stream))
+  ;; 証明できた時に、画面に出力する為のメソッド
+  ;; 線形探索でない場合の証明図は、端末に表示するのが困難であるため出力しない
+  (let* ((target-clause
+           (find-if 
+             #'null-clause-p
+             (clause-set.clauses clause-set))))
+
+    (unless target-clause
+      (error 
+        (make-condition 'null-clause-not-found
+                        :message "null clause not found for redering refutation tree")))
+    (when (%check-renderable-to-terminal target-clause)
+      (%render-refutation-tree-terminal target-clause output)))) 
+
+
+(defmethod render-refutation-tree ((clause-set clause-set) (output pathname))
   (let ((target-clause
           (find-if 
             #'null-clause-p
@@ -56,10 +114,10 @@
     (multiple-value-bind (nodes edges) 
         (%collect-graphviz-node-and-edges target-clause 1)
 
-      (with-open-file (stream filepath :direction :output :if-exists :supersede)
-        (format stream "digraph refutation_tree {~%")
-        (format stream "~{  ~A~%~}~%" nodes)
-        (format stream "~{  ~A~%~}~%" edges)
-        (format stream "}")))))
+      (with-open-file (handle output :direction :output :if-exists :supersede)
+        (format handle "digraph refutation_tree {~%")
+        (format handle "~{  ~A~%~}~%" nodes)
+        (format handle "~{  ~A~%~}~%" edges)
+        (format handle "}")))))
 
 

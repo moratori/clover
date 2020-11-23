@@ -215,7 +215,9 @@
              (%stdout "PROVABLE under the ~A~%~%"
                       *current-axiomatic-system*)
              (when *render-tree-path-name*
-               (render-refutation-tree clause-set *render-tree-path-name*)))
+               (render-refutation-tree clause-set *render-tree-path-name*))
+             (when *save-resolution-history*
+               (render-refutation-tree clause-set *standard-output*)))
             (t
              (%stdout "unknown provability under the ~A~%~%"
                       *current-axiomatic-system*)))))))
