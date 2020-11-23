@@ -22,6 +22,92 @@
 
 )
 
+(test clover.tests.util.clause-subset.test1
+      (is (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal t   'R (list (vterm 'x)))))))
+      (is (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal nil 'R (list (vterm 'x)))))))
+      (is (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                (literal nil 'Q (list (vterm 'x)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal t   'R (list (vterm 'x)))))))
+      (is (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                (literal nil 'Q (list (vterm 'x)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal nil 'R (list (vterm 'x)))))))
+      )
+
+(test clover.tests.util.clause-subset.test2
+      (is (not (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'y) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal t   'R (list (vterm 'x))))))))
+      (is (not (clause-subset
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'z)))))
+            (clause 
+              (list
+                (literal nil 'P (list (vterm 'x) (vterm 'y)))
+                (literal nil 'Q (list (vterm 'x)))
+                (literal nil 'R (list (vterm 'x))))))))
+      (is (not (clause-subset
+                 (clause 
+                   (list
+                     (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                     (literal nil 'Q (list (vterm 'x)))))
+                 (clause 
+                   (list
+                     (literal nil 'S (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                     (literal nil 'T (list (vterm 'x)))
+                     (literal t   'R (list (vterm 'x))))))))
+      (is (not (clause-subset
+                 (clause 
+                   (list
+                     (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'y)))))
+                     (literal nil 'Q (list (vterm 'x)))))
+                 (clause 
+                   (list
+                     (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'z)))))
+                     (literal nil 'Q (list (vterm 'x)))
+                     (literal nil 'R (list (vterm 'x))))))))
+      )
+
 
 (test clover.tests.util.literal=
 

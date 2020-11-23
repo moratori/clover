@@ -9,6 +9,7 @@
     :literal=
     :complement-literal-p
     :clause=
+    :clause-subset
     :clause-set=
     :null-clause-p
     :alphabet-clause=
@@ -93,6 +94,16 @@
             (clause.literals clause2)
             (clause.literals clause1)
             :test #'literal=))))
+
+(defmethod clause-subset ((clause1 clause) (clause2 clause))
+  ;; clause1がclause2に含まれるか
+  (let ((clause2-literals
+          (clause.literals clause2)))
+    (every 
+      (lambda (lit1)
+        (find lit1 clause2-literals
+              :test #'literal=))
+    (clause.literals clause1))))
 
 (defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
   ;; todo: implement the logic
