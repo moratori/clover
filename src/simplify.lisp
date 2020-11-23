@@ -79,6 +79,21 @@
       elim-target-predicates
       :initial-value clauses)))
 
+(defun %remove-subsumption (clauses)
+  (loop 
+    :for target-clause :in clauses
+    :for i :from 0
+    :for subsumptioned := 
+    (loop
+      :named exit
+      :for clause :in clauses
+      :for j :from 0
+      :if (and (> j i)
+               (subsumption-clause-p clause target-clause))
+      :do (return-from exit t))
+    :if (not subsumptioned)
+    :collect target-clause))
+
 
 (defmethod simplify ((clause clause))
   (%remove-duplicates-literal clause))
@@ -90,6 +105,8 @@
            (mapcar #'simplify clauses))
          (next-clauses ;; トートロジーを含む節の削除
            (remove-if #'%include-law-of-exclude-middle-p next-clauses))
+         (next-clauses ;; subsumption
+           (%remove-subsumption next-clauses))
          (eliminated-clause-list nil)
          (next-clauses ;; アルファベット同値な節ペアのうち1つを削除
            (remove-if 
