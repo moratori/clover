@@ -160,6 +160,12 @@
               :while unifier
               :do    (setf result (%flatten-disagreement-set result unifier)))
 
+        (unless (consistent-unifier-set-p result)
+          (error (make-condition 'ununifiable-literal-error
+                                 :message "ununifiable literal error because of unmathing fterm exists"
+                                 :literal1 literal1
+                                 :literal2 literal2)))
+
         result)
 
     (unmatching-fterm-error (e)
@@ -191,17 +197,35 @@
   ;; ある代入S が存在して、clause1・S subset-of clause2
   (when (<= (clause-length clause1)
             (clause-length clause2))
-    (some 
-      (lambda (lit1)
-        (some 
-          (lambda (lit2)
-            (let ((mgu
-                    (handler-case 
-                        (find-most-general-unifier-set lit1 lit2)
-                      (ununifiable-literal-error (e) nil))))
-              (when mgu
-                (clause-subset
-                  (apply-unifier-set clause1 mgu)
-                  clause2))))
-          (clause.literals clause2)))
-      (clause.literals clause1))))
+    (let (unifier-set-list found-isolated-literal)
+      (loop
+        :named exit2
+        :for lit1 :in (clause.literals clause1)
+        :for first-found-mgu := 
+        (loop
+          :named exit1
+          :for lit2 :in (clause.literals clause2)
+          :for mgu := (handler-case
+                         (find-most-general-unifier-set lit1 lit2)
+                        (ununifiable-literal-error (e) nil))
+          :if mgu
+          :do (return-from exit1 mgu))
+        :if first-found-mgu
+        :do (push first-found-mgu unifier-set-list)
+        :if (not first-found-mgu)
+        :do (progn
+              (setf found-isolated-literal t)
+              (return-from exit2)))
+      (unless found-isolated-literal
+        (let ((theta 
+                (unifier-set
+                  (mapcan 
+                    (lambda (us)
+                      (unifier-set.unifiers us))
+                    unifier-set-list))))
+          (and 
+            (consistent-unifier-set-p theta)
+            (clause-subset 
+              (apply-unifier-set clause1 theta)
+              clause2)))))))
+

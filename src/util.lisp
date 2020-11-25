@@ -15,6 +15,7 @@
     :null-clause-p
     :alphabet-clause=
     :clause-length
+    :consistent-unifier-set-p
     )
   )
 (in-package :clover.util)
@@ -80,6 +81,20 @@
             (unifier-set.unifiers unifier-set2)
             (unifier-set.unifiers unifier-set1)
             :test #'unifier=))))
+
+(defmethod consistent-unifier-set-p ((unifier-set unifier-set))
+  ;; どのunifier A Bをとっても、A.src = B.src　ならば A.dst = B.dst
+  (let ((unifiers (unifier-set.unifiers unifier-set)))
+    (every 
+      (lambda (unifier)
+        (let ((src (unifier.src unifier))
+              (dst (unifier.dst unifier)))
+          (every
+            (lambda (target)
+              (or (not (term= src (unifier.src target)))
+                  (term= dst (unifier.dst target))))
+            unifiers)))
+      unifiers)))
 
 (defmethod clause-length ((clause clause))
   (length 

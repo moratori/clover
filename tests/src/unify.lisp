@@ -227,4 +227,21 @@
       (is (not (subsumption-clause-p
                  (clause (list (literal nil 'P nil)))
                  (clause (list (literal t 'P nil))))))
+
+      (is (not (subsumption-clause-p
+              (clause (list (literal nil 'P (list (vterm 'x)))
+                            (literal nil 'Q (list (vterm 'x) (vterm 'z)))))
+              (clause (list (literal nil 'P (list (fterm 'A nil)))
+                            (literal nil 'Q (list (vterm 'w) (vterm 'u)))
+                            (literal nil 'R (list (vterm 'w))))))))
       )
+
+(test clover.tests.unify.subsumption-clause-p.test3
+      (is (subsumption-clause-p
+              (clause (list (literal nil 'P (list (vterm 'x)))
+                            (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+              (clause (list (literal nil 'P (list (fterm 'A nil)))
+                            (literal nil 'Q (list (vterm 'w) (vterm 'u)))
+                            (literal nil 'R (list (vterm 'w)))))))
+      )
+
