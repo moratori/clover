@@ -13,24 +13,45 @@
 ```
 $ ./roswell/clover.ros
 Command help
-    :help                   show this help
-    :quit                   quit from REPL
-    :show-axiom             enumerate the axiomatic system that are currently defined
-    :def-axiom    <name>    define an axiomatic system <name>
-    :set-axiom    <name>    set current axiomatic system to <name>
-    :show-strategy          show the current strategy for resolution
+    :help                    show this help
+    :quit                    quit from REPL
+    :def-axiom    <name>     define an axiomatic system <name>
+    :show-axiom              enumerate all axiomatic system that are currently defined
+    :show-strategy           show the current strategy for resolution
+    :set-axiom    <name>     set current axiomatic system to <name>
     :set-strategy <algorithm> <depth> set specific resolution algorithm
-    :save-tree    <path>    save Graphviz code express refutation tree to <path>
+    :set-history             keep resolution history. this option automatically
+                             enabled if save-tree option on.
+    :unset-history           disable history
+    :set-profiler            enable statistical profiler
+    :unset-profiler          disable statistical profiler
+    :save-tree    <path>     save Graphviz code tree to <path>
+    :unsave-tree
 (NIL)>>> :def-axiom human
 input . to finish definition
 axiom[1]>>> !human(x) | mortal(x)
 axiom[2]>>> human(SOCRATES)
 axiom[3]>>> .
-(NIL)>>> :set-axiom human
+(human)>>> :set-history
 (human)>>> mortal(SOCRATES)
+
+Evaluation took:
+  0.060 seconds of real time
+  0.058466 seconds of total run time (0.058466 user, 0.000000 system)
+  96.67% CPU
+  270 lambdas converted
+  116,444,867 processor cycles
+  15,177,920 bytes consed
+
 PROVABLE under the human
 
-(human)>>>
+ □ ←← human(SOCRATES)
+ ↑
+ ↑
+ !human(SOCRATES)  ←← !mortal(SOCRATES)
+         ↑
+         ↑
+ !human(v722) | mortal(v722) 
 ```
 
 ## Installation
