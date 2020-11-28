@@ -79,14 +79,10 @@
   (and 
     (typep obj 'symbol)
     (or 
-      (eq obj :fact)
-      (eq obj :rule)
       (eq obj :goal)
       (eq obj :center)
-      (eq obj :horn)
       (eq obj :premise)
-      (eq obj :resolvent)
-      (eq obj :inputted))))
+      (eq obj :resolvent))))
 
 (deftype %clause-type ()
   '(satisfies %%clause-type))
