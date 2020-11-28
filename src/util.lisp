@@ -125,10 +125,6 @@
   (and (not (null (clause.parent1 clause)))
        (not (null (clause.parent2 clause)))))
 
-(defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
-  ;; todo: implement the logic
-  nil
-  )
 
 (defmethod clause-set= ((clause-set1 clause-set) (clause-set2 clause-set))
   (and 

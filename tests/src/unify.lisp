@@ -245,3 +245,71 @@
                             (literal nil 'R (list (vterm 'w)))))))
       )
 
+
+(test clover.tests.unify.alphabet-clause=.test1
+      (is (alphabet-clause=
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
+                                                (vterm 'y)))
+                          (literal t 'Q (list (fterm 'g (list (vterm 'y)))
+                                              (fterm 'g (list (vterm 'z)))))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'w)))
+                                                (vterm 'u)))
+                          (literal t 'Q (list (fterm 'g (list (vterm 'u)))
+                                              (fterm 'g (list (vterm 'v)))))))))
+      (is (alphabet-clause=
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
+                                                (vterm 'y)))
+                          (literal t 'Q (list (fterm 'g (list (vterm 'y)))
+                                              (fterm 'g (list (fterm 'A nil)))))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'w)))
+                                                (vterm 'u)))
+                          (literal t 'Q (list (fterm 'g (list (vterm 'u)))
+                                              (fterm 'g (list (fterm 'A nil)))))))))
+      (is (alphabet-clause= 
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (vterm 'v)))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
+      (is (alphabet-clause= 
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
+      (is (alphabet-clause= 
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v))))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (fterm 'g (list (vterm 'v)))))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (fterm 'A nil)))))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (fterm 'A nil)))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (vterm 'v)))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (fterm 'A nil)))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'P (list (fterm 'A nil)))
+                          (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
+      (is (not (alphabet-clause= 
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
+            (clause (list (literal nil 'Q (list (vterm 'v)))
+                          (literal nil 'P (list (vterm 'w) (vterm 'u))))))))
+)

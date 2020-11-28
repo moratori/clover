@@ -6,6 +6,7 @@
         :clover.types)
   (:export 
     :subsumption-clause-p
+    :alphabet-clause=
     :find-most-general-unifier-set)
   )
 (in-package :clover.unify)
@@ -229,3 +230,7 @@
               (apply-unifier-set clause1 theta)
               clause2)))))))
 
+
+(defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
+  (and (subsumption-clause-p clause2 clause1)
+       (subsumption-clause-p clause1 clause2)))

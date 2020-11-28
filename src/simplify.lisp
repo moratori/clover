@@ -94,6 +94,21 @@
     :if (not subsumptioned)
     :collect target-clause))
 
+(defun %remove-alphabet-equal-clause (clauses)
+  (loop 
+    :for target-clause :in clauses
+    :for i :from 0
+    :for alphabet-clause := 
+    (loop
+      :named exit
+      :for clause :in clauses
+      :for j :from 0
+      :if (and (> j i)
+               (alphabet-clause= clause target-clause))
+      :do (return-from exit t))
+    :if (not alphabet-clause)
+    :collect target-clause))
+
 
 (defmethod simplify ((clause clause))
   (%remove-duplicates-literal clause))
@@ -107,21 +122,8 @@
            (remove-if #'%include-law-of-exclude-middle-p next-clauses))
          (next-clauses ;; subsumption
            (%remove-subsumption next-clauses))
-         (eliminated-clause-list nil)
          (next-clauses ;; アルファベット同値な節ペアのうち1つを削除
-           (remove-if 
-             (lambda (c1)
-               (some
-                 (lambda (c2) 
-                   (when (and (not (clause= c1 c2))
-                              (alphabet-clause= c1 c2)
-                              (not (member c1 eliminated-clause-list 
-                                           :test #'alphabet-clause=)))
-                     (setf eliminated-clause-list 
-                           (push c1 eliminated-clause-list))
-                     t))
-                 next-clauses))
-             next-clauses))
+           (%remove-alphabet-equal-clause next-clauses))
          (next-clauses ;; 単一述語の除去
            (%remove-independent-clause next-clauses)))
     (clause-set next-clauses)))
