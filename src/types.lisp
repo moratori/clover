@@ -11,7 +11,6 @@
         :clause.literals
         :clause.parent1
         :clause.parent2
-        :clause.focus-literal
         :clause.unifier
         :clause.clause-type
         :literal
@@ -29,8 +28,6 @@
         :unifier.dst
         :unifier-set
         :unifier-set.unifiers
-        :res-cand.focus-literal
-        :res-cand.cand-unifiers
   ))
 (in-package :clover.types)
 
@@ -184,14 +181,13 @@
                     (format stream "~{~A ~^| ~}"
                          (clause.literals object))))))
              (:include logical-expression)
-             (:constructor clause (literals &optional parent1 parent2 focus-literal unifier clause-type))
+             (:constructor clause (literals &optional parent1 parent2 unifier clause-type))
              (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
    (literals nil :type %clause :read-only t)
    (parent1  nil :type (or null clause)  :read-only t)
    (parent2  nil :type (or null clause)  :read-only t)
-   (focus-literal nil :type (or null literal) :read-only t)
    (unifier  nil :type (or null unifier-set) :read-only t)
    (clause-type :premise :type %clause-type :read-only t))
 

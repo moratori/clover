@@ -51,7 +51,6 @@
                           resolvent
                           (when *save-resolution-history* clause1)
                           (when *save-resolution-history* clause2)
-                          (when *save-resolution-history* literal1)
                           (when *save-resolution-history* unifier-set)
                           (funcall get-clause-type resolvent))))))
 
@@ -114,7 +113,6 @@
                   (clause.literals center-clause)
                   (clause.parent1 center-clause)
                   (clause.parent2 center-clause)
-                  (clause.focus-literal center-clause)
                   (clause.unifier center-clause)
                   :resolvent)
                 (remove-if 

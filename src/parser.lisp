@@ -201,7 +201,7 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil nil :goal
+         nil nil nil :goal
          )))
 
     (:not :symbol argument
@@ -214,7 +214,7 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil nil :goal
+         nil nil nil :goal
          )))
 
     (goal :and :symbol argument
@@ -229,7 +229,7 @@
                (%intern-symbol-to-specified-package 
                  (string-upcase symbol))
                argument)))
-         nil nil nil nil :goal
+         nil nil nil :goal
          )))
 
     (goal :and :not :symbol argument
@@ -244,7 +244,7 @@
                (%intern-symbol-to-specified-package
                  (string-upcase symbol) )
                argument)))
-         nil nil nil nil :goal
+         nil nil nil :goal
          ))))
 
   (argument

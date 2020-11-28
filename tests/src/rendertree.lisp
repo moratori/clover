@@ -77,7 +77,7 @@
                           (clause 
                             (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
                                                                            (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
-                                                        (vterm 'x)))) nil nil nil nil :center))))
+                                                        (vterm 'x)))) nil nil nil :center))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test2.dot"  *graphviz-output-dir*))
@@ -160,7 +160,7 @@
                                          (literal t 'parent (list (vterm 'x) (vterm 'z)))
                                          (literal t 'male (list (vterm 'z)))
                                          (literal nil 'nephew (list (vterm 'z) (vterm 'y)))))
-                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil nil :center))))
+                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil :center))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test4.dot"  *graphviz-output-dir*))
