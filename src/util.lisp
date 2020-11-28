@@ -3,21 +3,22 @@
         :clover.conditions
         :clover.types)
   (:export
+    :clause-length
+    :complement-literal-p
+    :has-parent-p
+    :null-clause-p
+    :consistent-unifier-set-p 
+    :horn-clause-p
+    :horn-clause-set-p
+    :clause-subset
     :term=
     :unifier=
     :unifier-set=
     :literal=
-    :complement-literal-p
-    :has-parent-p
     :clause=
-    :clause-subset
     :clause-set=
-    :null-clause-p
     :alphabet-clause=
-    :clause-length
-    :consistent-unifier-set-p
-    )
-  )
+    ))
 (in-package :clover.util)
 
 
@@ -137,3 +138,11 @@
             (clause-set.clauses clause-set1)
             :test #'clause=))))
 
+(defmethod horn-clause-p ((clause clause))
+  (<= (count-if 
+        (lambda (lit)
+          (eq (literal.negation lit) nil))
+        (clause.literals clause)) 1))
+
+(defmethod horn-clause-set-p ((clause-set clause-set))
+  (every #'horn-clause-p (clause-set.clauses clause-set)))
