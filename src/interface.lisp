@@ -33,10 +33,14 @@
      (force-output *standard-output*)))
 
 (defun %prompt-toplevel ()
-  (%stdout "(~A)>>> " *current-axiomatic-system*))
+  (%stdout 
+    (make-bold-string 
+      (format nil "(~A)>>> " *current-axiomatic-system*))))
 
 (defun %prompt-def (counter)
-  (%stdout "axiom[~A]>>> " counter))
+  (%stdout 
+    (make-bold-string
+      (format nil "axiom[~A]>>> " counter))))
 
 (defun %read-line-with-sigint-guard ()
   (handler-case
@@ -45,7 +49,12 @@
       (declare (ignore con))
       nil)))
 
-
+(defun make-bold-string (str)
+    (format nil "~C[~Am~A~C[0m" 
+            (code-char #o33) 
+            "1" 
+            str
+            (code-char #o33)))
 
 
 (defmethod %perform-command ((command (eql :SKIPP)) args))
@@ -204,7 +213,8 @@
               (values nil nil)))
           (cond 
             (depth
-             (%stdout "PROVABLE under the ~A~%~%"
+             (%stdout "~A under the ~A~%~%"
+                      (make-bold-string "PROVABLE")
                       *current-axiomatic-system*)
              (when *render-tree-path-name*
                (render-refutation-tree clause-set *render-tree-path-name*))
