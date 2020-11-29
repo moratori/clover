@@ -14,6 +14,7 @@
         :clause.parent2
         :clause.unifier
         :clause.clause-type
+        :clause.used-cnt
         :literal
         :literal.negation
         :literal.predicate
@@ -82,6 +83,7 @@
     (or 
       (eq obj :conseq)
       (eq obj :premise)
+      (eq obj :goal)
       (eq obj :center)
       (eq obj :resolvent))))
 
@@ -178,7 +180,7 @@
                     (format stream "~{~A ~^| ~}"
                          (clause.literals object))))))
              (:include logical-expression)
-             (:constructor clause (literals &optional parent1 parent2 unifier clause-type))
+             (:constructor clause (literals &optional parent1 parent2 unifier clause-type used-cnt))
              (:conc-name clause.))
   "節を表現する構造体
    基本論理式のリストを保持する構造体"
@@ -186,7 +188,8 @@
    (parent1  nil :type (or null clause)  :read-only t)
    (parent2  nil :type (or null clause)  :read-only t)
    (unifier  nil :type (or null unifier-set) :read-only t)
-   (clause-type :premise :type %clause-type :read-only t))
+   (clause-type :premise :type %clause-type :read-only t)
+   (used-cnt 0 :type integer :read-only t))
 
 
 (defstruct (clause-set

@@ -4,6 +4,7 @@
         :clover.types)
   (:export
     :sort-clause-set-list-short-to-long
+    :sort-clause-list-unusable-to-usable
     :clause-length
     :complement-literal-p
     :has-parent-p
@@ -162,3 +163,10 @@
       (<
         (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set1)))
         (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set2)))))))
+
+(defun sort-clause-list-unusable-to-usable (clauses)
+  (sort
+    clauses
+    (lambda (clause1 clause2)
+      (< (clause.used-cnt clause1) 
+         (clause.used-cnt clause2)))))

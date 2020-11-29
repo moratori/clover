@@ -66,18 +66,18 @@
                     (list (clause 
                             (list (literal nil 'LEN (list (fterm 'NIL nil)
                                                           (fterm 'ZERO nil))))
-                            nil nil nil :premise)
+                            nil nil nil)
                           (clause 
                             (list (literal t 'LEN (list (vterm 'c)
                                                         (vterm 'n)))
                                   (literal nil 'LEN (list (fterm 'CONS (list (vterm 'e)
                                                                              (vterm 'c)))
                                                           (fterm 'SUCC (list (vterm 'n))))))
-                            nil nil nil :premise)
+                            nil nil nil)
                           (clause 
                             (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
                                                                            (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
-                                                        (vterm 'x)))) nil nil nil :conseq))))
+                                                        (vterm 'x)))) nil nil nil))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test2.dot"  *graphviz-output-dir*))
@@ -158,7 +158,7 @@
                                          (literal t 'parent (list (vterm 'x) (vterm 'z)))
                                          (literal t 'male (list (vterm 'z)))
                                          (literal nil 'nephew (list (vterm 'z) (vterm 'y)))))
-                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil :conseq))))
+                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test4.dot"  *graphviz-output-dir*))

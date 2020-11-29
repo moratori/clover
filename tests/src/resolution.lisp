@@ -23,7 +23,11 @@
                        (literal t 'P (list (vterm 'w) (fterm 'F (list (vterm 'w)))))
                        (literal t 'Q (list (vterm 'w))))))
                  (res 
-                   (%resolution clause1 clause2))
+                   (multiple-value-bind 
+                       (a b resoluted)
+                       (%resolution clause1 clause2)
+                     (declare (ignore a b))
+                     resoluted))
                  (expected
                    (list 
                      (clause 

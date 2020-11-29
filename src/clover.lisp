@@ -23,23 +23,40 @@
 
 
 (defmethod start_resolution ((clause-set clause-set))
+  (when (find-if 
+          (lambda (c) (null (clause.clause-type c)))
+          (clause-set.clauses clause-set))
+    (error "clause type mustn't be null"))
   (cond
     ((and (horn-clause-set-p clause-set)
           (find-if #'goal-clause-p 
                    (clause-set.clauses clause-set)))
      (horn-resolution clause-set))
     (t 
-     (precipitately-resolution clause-set)
-     ))
-  )
+     (precipitately-resolution clause-set))))
 
 
 (defmethod horn-resolution ((clause-set clause-set))
-
-  (iddfs (clause-set 
-           (clause-set.clauses clause-set)
-           :horn) 
-         *resolution-search-depth*))
+  (let ((clauses (clause-set.clauses clause-set)))
+    (loop
+      :named exit
+      :for raw :in (remove-if-not #'goal-clause-p clauses)
+      :for goal-clause := (clause 
+                            (clause.literals raw)
+                            (clause.parent1 raw)
+                            (clause.parent2 raw)
+                            (clause.unifier raw)
+                            :goal)
+      :for goal-clauses := (cons goal-clause 
+                                 (remove raw
+                                         clauses 
+                                         :test #'clause=))
+      :do 
+      (multiple-value-bind 
+          (cnt value) (iddfs (clause-set goal-clauses :horn-snl) 
+                             *resolution-search-depth*)
+        (when cnt
+          (return-from exit (values cnt value)))))))
 
 (defmethod precipitately-resolution ((clause-set clause-set))
   (let ((clauses (clause-set.clauses clause-set)))
