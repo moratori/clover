@@ -126,7 +126,7 @@
     (when center-clause
       (sort-clause-set-list-short-to-long
         (loop
-          :for clause :in clauses
+          :for clause :in (sort-clause-list-unusable-to-usable clauses)
           :for clause-type := (clause.clause-type clause)
           :if (not (clause= clause center-clause))
           :append (%resolution-wrapper 
@@ -156,7 +156,7 @@
     (when goal-clause
       (sort-clause-set-list-short-to-long
         (loop
-          :for clause :in clauses
+          :for clause :in (sort-clause-list-unusable-to-usable clauses)
           :for clause-type := (clause.clause-type clause)
           ;; SNL導出の側節は、入力節だけ
           :if (or (eq clause-type :premise)
