@@ -15,6 +15,7 @@
                :bordeaux-threads
                :yacc
                :cl-lex
+               :alexandria
                :cl-ppcre
                #+sbcl :sb-cover
                #+sbcl :sb-sprof

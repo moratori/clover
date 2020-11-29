@@ -3,6 +3,7 @@
         :clover.conditions
         :clover.types)
   (:export
+    :sort-clause-set-list-short-to-long
     :clause-length
     :complement-literal-p
     :has-parent-p
@@ -10,6 +11,7 @@
     :consistent-unifier-set-p 
     :horn-clause-p
     :horn-clause-set-p
+    :goal-clause-p
     :clause-subset
     :term=
     :unifier=
@@ -144,5 +146,19 @@
           (eq (literal.negation lit) nil))
         (clause.literals clause)) 1))
 
+(defmethod goal-clause-p ((clause clause))
+  (every
+    (lambda (lit)
+      (eq (literal.negation lit) t))
+    (clause.literals clause)))
+
 (defmethod horn-clause-set-p ((clause-set clause-set))
   (every #'horn-clause-p (clause-set.clauses clause-set)))
+
+(defun sort-clause-set-list-short-to-long (clause-set-list)
+  (sort 
+    clause-set-list
+    (lambda (clause-set1 clause-set2)
+      (<
+        (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set1)))
+        (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set2)))))))

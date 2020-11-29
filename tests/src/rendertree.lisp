@@ -47,7 +47,6 @@
 (test clover.tests.rendertree.render-refutation-tree.test1
       (is (progn
             (setf *save-resolution-history* t)
-            (setf *resolution-algorithm* :exhaustive)
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set (list (clause (list (literal nil 'P nil) (literal nil 'P nil)))
@@ -61,23 +60,24 @@
 (test clover.tests.rendertree.render-refutation-tree.test2
       (is (progn
             (setf *save-resolution-history* t)
-            (setf *resolution-algorithm* :linear)
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set 
                     (list (clause 
                             (list (literal nil 'LEN (list (fterm 'NIL nil)
-                                                          (fterm 'ZERO nil)))))
+                                                          (fterm 'ZERO nil))))
+                            nil nil nil :premise)
                           (clause 
                             (list (literal t 'LEN (list (vterm 'c)
                                                         (vterm 'n)))
                                   (literal nil 'LEN (list (fterm 'CONS (list (vterm 'e)
                                                                              (vterm 'c)))
-                                                          (fterm 'SUCC (list (vterm 'n)))))))
+                                                          (fterm 'SUCC (list (vterm 'n))))))
+                            nil nil nil :premise)
                           (clause 
                             (list (literal t 'LEN (list (fterm 'CONS (list (fterm 'A nil) 
                                                                            (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
-                                                        (vterm 'x)))) nil nil nil :center))))
+                                                        (vterm 'x)))) nil nil nil :conseq))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test2.dot"  *graphviz-output-dir*))
@@ -86,7 +86,6 @@
 (test clover.tests.rendertree.render-refutation-tree.test3
       (is (progn
             (setf *save-resolution-history* t)
-            (setf *resolution-algorithm* :exhaustive)
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set 
@@ -111,7 +110,6 @@
 (test clover.tests.rendertree.render-refutation-tree.test4
       (is (progn
             (setf *save-resolution-history* t)
-            (setf *resolution-algorithm* :linear)
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set 
@@ -160,7 +158,7 @@
                                          (literal t 'parent (list (vterm 'x) (vterm 'z)))
                                          (literal t 'male (list (vterm 'z)))
                                          (literal nil 'nephew (list (vterm 'z) (vterm 'y)))))
-                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil :center))))
+                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil :conseq))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test4.dot"  *graphviz-output-dir*))

@@ -9,7 +9,6 @@
     :unmatching-literal-error
     :unexpected-unifier-source
     :message-of
-    :unimplemented-resolution-algorithm
     :null-clause-not-found
     :expr-parse-error
     )
@@ -62,9 +61,6 @@
      :initarg :src
      :initform nil
      :accessor src-of)))
-
-(define-condition unimplemented-resolution-algorithm (clover-toplevel-condition)
-  ())
 
 (define-condition null-clause-not-found (clover-toplevel-condition)
   ())

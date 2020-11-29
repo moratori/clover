@@ -7,6 +7,7 @@
         :logical-expression
         :clause-set
         :clause-set.clauses
+        :clause-set.resolution-mode
         :clause
         :clause.literals
         :clause.parent1
@@ -79,9 +80,9 @@
   (and 
     (typep obj 'symbol)
     (or 
-      (eq obj :goal)
-      (eq obj :center)
+      (eq obj :conseq)
       (eq obj :premise)
+      (eq obj :center)
       (eq obj :resolvent))))
 
 (deftype %clause-type ()
@@ -194,10 +195,11 @@
                  (format stream "~{~A~%~}"
                          (clause-set.clauses object))))
              (:include abstract-node)
-             (:constructor clause-set (clauses))
+             (:constructor clause-set (clauses &optional resolution-mode))
              (:conc-name clause-set.))
   "節集合を表現する構造体
    節のリストを保持する"
-   (clauses nil :type %clause-set :read-only t))
+   (clauses nil :type %clause-set :read-only t)
+   (resolution-mode nil :type symbol :read-only t))
 
 

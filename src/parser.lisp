@@ -9,7 +9,7 @@
         )
   (:export 
     :parse-premise-logical-expression
-    :parse-goal-logical-expression))
+    :parse-conseq-logical-expression))
 
 (in-package :clover.parser)
 
@@ -27,11 +27,11 @@
                              :message 
                              (format nil "error occurred while parsing string: ~A" string)))))) 
 
-(defun parse-goal-logical-expression (string)
+(defun parse-conseq-logical-expression (string)
   (handler-case 
       (parse-with-lexer 
-        (%goal-expression-lexer string)
-        %goal-expression-parser)
+        (%conseq-expression-lexer string)
+        %conseq-expression-parser)
     (condition (con)
       (error (make-condition 'expr-parse-error 
                              :message 
@@ -47,7 +47,7 @@
   ("[A-Z]+"    (return (values :constant $@)))
   ("[a-z0-9]+" (return (values :symbol $@))))
 
-(define-string-lexer %goal-expression-lexer
+(define-string-lexer %conseq-expression-lexer
   ("\\&"       (return (values :and     'and)))
   ("\\!"       (return (values :not    'not)))
   (","         (return (values :comma  'comma)))
@@ -181,8 +181,8 @@
                    termseq2)))))))
 
 
-(define-parser %goal-expression-parser 
-  (:start-symbol goal)
+(define-parser %conseq-expression-parser 
+  (:start-symbol conseq)
   (:terminals    (:and
                   :not
                   :lparen
@@ -190,7 +190,7 @@
                   :comma
                   :constant
                   :symbol))
-  (goal
+  (conseq
 
     (:symbol argument
      (lambda (symbol argument)
@@ -201,7 +201,7 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil :goal
+         nil nil nil :conseq
          )))
 
     (:not :symbol argument
@@ -214,37 +214,37 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil :goal
+         nil nil nil :conseq
          )))
 
-    (goal :and :symbol argument
-     (lambda (goal and symbol argument)
+    (conseq :and :symbol argument
+     (lambda (conseq and symbol argument)
        (declare (ignore and))
        (clause 
          (append 
-           (clause.literals goal)
+           (clause.literals conseq)
            (list 
              (literal
                t
                (%intern-symbol-to-specified-package 
                  (string-upcase symbol))
                argument)))
-         nil nil nil :goal
+         nil nil nil :conseq
          )))
 
-    (goal :and :not :symbol argument
-     (lambda (goal and not symbol argument)
+    (conseq :and :not :symbol argument
+     (lambda (conseq and not symbol argument)
        (declare (ignore and not))
        (clause 
          (append 
-           (clause.literals goal)
+           (clause.literals conseq)
            (list 
              (literal
                nil
                (%intern-symbol-to-specified-package
                  (string-upcase symbol) )
                argument)))
-         nil nil nil :goal
+         nil nil nil :conseq
          ))))
 
   (argument

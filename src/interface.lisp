@@ -64,9 +64,7 @@
     :quit                    quit from REPL
     :def-axiom    <name>     define an axiomatic system <name>
     :show-axiom              enumerate all axiomatic system that are currently defined
-    :show-strategy           show the current strategy for resolution
     :set-axiom    <name>     set current axiomatic system to <name>
-    :set-strategy <algorithm> <depth> set specific resolution algorithm
     :set-history             keep resolution history. this option automatically 
                              enabled if save-tree option on.
     :unset-history           disable history
@@ -81,12 +79,6 @@
     :for (name . ax) :in *axiomatic-system-list*
     :do
     (%stdout "===Axiom: ~A===~%~A~%" name ax)))
-
-
-(defmethod %perform-command ((command (eql :SHOW-STRATEGY)) args)
-  (%stdout "Algorithm : ~A~%Search Depth : ~A~%"
-           *resolution-algorithm*
-           *resolution-search-depth*))
 
 
 (defmethod %perform-command ((command (eql :set-profiler)) args)
@@ -174,7 +166,7 @@
 
 (defmethod %perform-command ((command (eql :DEFAULT)) args)
   (let* ((line (first args))
-         (expr (parse-goal-logical-expression line))
+         (expr (parse-conseq-logical-expression line))
          (axiomatic-system 
            (cdr (assoc *current-axiomatic-system* *axiomatic-system-list* :test #'string=)))
          (clauses
@@ -222,35 +214,6 @@
              (%stdout "unknown provability under the ~A~%~%"
                       *current-axiomatic-system*)))))))
 
-
-
-(defmethod %perform-command :around ((command (eql :SET-STRATEGY)) args)
-  (cond 
-    ((and 
-          (= 2 (length args))
-          (stringp (first args))
-          (ppcre:scan "^[a-zA-Z]+" (first args))
-          (ppcre:scan "^[0-9]+" (second args)))
-     (call-next-method))
-    (t 
-     (%stdout "invalid command argument: ~A~%" args))))
-
-(defmethod %perform-command ((command (eql :SET-STRATEGY)) args)
-  (let* ((algorithm-name
-           (string-upcase (first args)))
-         (algorithm
-           (intern algorithm-name "KEYWORD"))
-         (depth
-           (parse-integer (second args))))
-    (cond 
-      ((not (member algorithm *supported-resolution-algorithms* :test #'eq))
-       (%stdout "unsupported algorithm: ~A~%" algorithm-name)
-       (%stdout "select one of ~A~%" *supported-resolution-algorithms*))
-      (t 
-       (setf *resolution-algorithm* algorithm
-             *resolution-search-depth* depth)
-       (%stdout "~%")
-       (%perform-command :SHOW-STRATEGY nil)))))
 
 
 (defmethod %perform-command :around ((command (eql :SAVE-TREE)) args)

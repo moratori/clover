@@ -129,10 +129,10 @@
 
 
 
-(test clover.tests.parser.parse-goal-logical-expression
+(test clover.tests.parser.parse-conseq-logical-expression
       
       (is (clause=
-               (parse-goal-logical-expression "pred(x)")
+               (parse-conseq-logical-expression "pred(x)")
                (clause 
                  (list 
                    (literal t
@@ -140,7 +140,7 @@
                             (list (vterm 'CLOVER.PARSER::X))))))) 
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(x)")
+               (parse-conseq-logical-expression "!pred(x)")
                (clause 
                  (list 
                    (literal nil
@@ -148,7 +148,7 @@
                             (list (vterm 'CLOVER.PARSER::X)))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(x,y)")
+               (parse-conseq-logical-expression "!pred(x,y)")
                (clause 
                  (list 
                    (literal nil
@@ -157,7 +157,7 @@
                                   (vterm 'CLOVER.PARSER::Y)))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(f(x),y)")
+               (parse-conseq-logical-expression "!pred(f(x),y)")
                (clause 
                  (list 
                    (literal nil
@@ -166,7 +166,7 @@
                                   (vterm 'CLOVER.PARSER::Y)))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(y,f(x))")
+               (parse-conseq-logical-expression "!pred(y,f(x))")
                (clause 
                  (list 
                    (literal nil
@@ -175,7 +175,7 @@
                                   (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(g(y),f(x))")
+               (parse-conseq-logical-expression "!pred(g(y),f(x))")
                (clause 
                  (list 
                    (literal nil
@@ -184,7 +184,7 @@
                                   (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(A,f(x))")
+               (parse-conseq-logical-expression "!pred(A,f(x))")
                (clause 
                  (list 
                    (literal nil
@@ -193,7 +193,7 @@
                                   (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(f(x),A)")
+               (parse-conseq-logical-expression "!pred(f(x),A)")
                (clause 
                  (list 
                    (literal nil
@@ -202,7 +202,7 @@
                                   (fterm 'CLOVER.PARSER::A nil)))))))
       
       (is (clause=
-               (parse-goal-logical-expression "!pred(g(f(x)),A)")
+               (parse-conseq-logical-expression "!pred(g(f(x)),A)")
                (clause 
                  (list 
                    (literal nil
@@ -211,7 +211,7 @@
                                   (fterm 'CLOVER.PARSER::A nil)))))))
 
       (is (clause=
-               (parse-goal-logical-expression "!pred(g(f(x)),A) & q(A, B) & !r(x,y,fun(ABC))")
+               (parse-conseq-logical-expression "!pred(g(f(x)),A) & q(A, B) & !r(x,y,fun(ABC))")
                (clause 
                  (list 
                    (literal nil
@@ -230,7 +230,7 @@
       
       (is (clause=
                (parse-premise-logical-expression
-                 (format nil "~A"(parse-goal-logical-expression "!pred(g(f(x)),A) & q(A, B) & !r(x,y,fun(ABC))")))
+                 (format nil "~A"(parse-conseq-logical-expression "!pred(g(f(x)),A) & q(A, B) & !r(x,y,fun(ABC))")))
                (clause 
                  (list 
                    (literal nil

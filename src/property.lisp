@@ -4,8 +4,7 @@
     :*save-resolution-history*
     :*vterm-gensym-prefix*
     :*resolution-search-depth*
-    :*resolution-algorithm*
-    :*supported-resolution-algorithms*
+    :*opener-algorithm*
     :*parsed-symbol-intern-package*
     )
   )
@@ -18,16 +17,8 @@
 (defparameter *vterm-gensym-prefix* "v"
   "prefix of generated symbol for rename process")
 
-(defparameter *resolution-search-depth* 20
+(defparameter *resolution-search-depth* 35
   "depth for search algorithms")
-
-(defparameter *resolution-algorithm* :horn
-  "default resolution algorithm.
-   one of *supported-resolution-algorithms* must be selected here")
-
-(defparameter *supported-resolution-algorithms*
-  '(:exhaustive :linear :horn)
-  "here algorithms must be implemented in clover.resolution package")
 
 (defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
   "where to intern symbol ")

@@ -13,7 +13,8 @@
 
 
 (defmethod open-nodes ((clause-set clause-set))
-  (opener_clause-set clause-set *resolution-algorithm*))
+  (opener_clause-set clause-set 
+                     (clause-set.resolution-mode clause-set)))
 
 
 (defmethod finish ((clause-set clause-set))
@@ -22,4 +23,73 @@
 
 
 (defmethod start_resolution ((clause-set clause-set))
-  (iddfs clause-set *resolution-search-depth*))
+  (cond
+    ((and (horn-clause-set-p clause-set)
+          (find-if #'goal-clause-p 
+                   (clause-set.clauses clause-set)))
+     (horn-resolution clause-set))
+    (t 
+     (precipitately-resolution clause-set)
+     ))
+  )
+
+
+(defmethod horn-resolution ((clause-set clause-set))
+
+  (iddfs (clause-set 
+           (clause-set.clauses clause-set)
+           :horn) 
+         *resolution-search-depth*))
+
+(defmethod precipitately-resolution ((clause-set clause-set))
+  (let ((clauses (clause-set.clauses clause-set)))
+   (loop
+    :named exit
+    :for max-depth :from 0 :upto *resolution-search-depth*
+    :do
+    (loop
+      :for raw :in clauses
+      :for centerlized-clause := (clause 
+                                   (clause.literals raw)
+                                   (clause.parent1 raw)
+                                   (clause.parent2 raw)
+                                   (clause.unifier raw)
+                                   :center)
+      :for centerlized-clauses := (cons centerlized-clause 
+                                           (remove raw
+                                                   clauses 
+                                                   :test #'clause=))
+      :do 
+      (multiple-value-bind 
+          (cnt value) (iddfs (clause-set centerlized-clauses
+                                         :precipitately) 
+                             max-depth)
+        (when cnt
+          (return-from exit (values cnt value))))))))
+
+(defmethod default-resolution ((clause-set clause-set))
+  (let ((clauses (clause-set.clauses clause-set)))
+   (loop
+    :named exit
+    :for max-depth :from 0 :upto *resolution-search-depth*
+    :do
+    (loop
+      :for raw :in clauses
+      :for centerlized-clause := (clause 
+                                   (clause.literals raw)
+                                   (clause.parent1 raw)
+                                   (clause.parent2 raw)
+                                   (clause.unifier raw)
+                                   :center)
+      :for centerlized-clauses := (cons centerlized-clause 
+                                           (remove raw
+                                                   clauses 
+                                                   :test #'clause=))
+      :do 
+      (multiple-value-bind 
+          (cnt value) (iddfs (clause-set centerlized-clauses
+                                         :default) 
+                             max-depth)
+        (when cnt
+          (return-from exit (values cnt value))))))))
+
