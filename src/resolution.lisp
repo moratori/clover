@@ -108,19 +108,21 @@
       (rename clause-set))
     resolution-mode))
 
+(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :default)))
+  (when (< 1 (count-if 
+               (lambda (c) 
+                 (eq (clause.clause-type c) :center))
+               (clause-set.clauses clause-set)))
+    (error (make-condition 'multiple-clause-found
+                           :message ":center"))))
+
 (defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :default)))
   (let* ((clauses 
            (clause-set.clauses clause-set))
          (center-clause
            (find-if 
              (lambda (c) (eq (clause.clause-type c) :center))
-             clauses)))
-    (when (< 1 (count-if 
-                   (lambda (c) 
-                     (eq (clause.clause-type c) :center))
-                   clauses))
-      (error (make-condition 'multiple-clause-found
-                             :message ":center")))
+             clauses))) 
     (when center-clause
       (sort-clause-set-list-short-to-long
         (loop
@@ -136,19 +138,21 @@
                     (lambda (x) :resolvent)
                     (lambda (x) clause-type)))))))
 
+(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :horn-snl)))
+  (when (< 1 (count-if 
+               (lambda (c) 
+                 (eq (clause.clause-type c) :goal))
+               (clause-set.clauses clause-set)))
+    (error (make-condition 'multiple-clause-found
+                           :message ":goal"))))
+
 (defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :horn-snl)))
   (let* ((clauses 
            (clause-set.clauses clause-set))
          (goal-clause
            (find-if 
              (lambda (c) (eq (clause.clause-type c) :goal))
-             clauses)))
-    (when (< 1 (count-if 
-                   (lambda (c) 
-                     (eq (clause.clause-type c) :goal))
-                   clauses))
-      (error (make-condition 'multiple-clause-found
-                             :message ":goal")))
+             clauses))) 
     (when goal-clause
       (sort-clause-set-list-short-to-long
         (loop
@@ -166,6 +170,14 @@
                     (lambda (x) :resolvent)
                     (lambda (x) clause-type)))))))
 
+(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :precipitately)))
+  (when (< 1 (count-if 
+               (lambda (c) 
+                 (eq (clause.clause-type c) :center))
+               (clause-set.clauses clause-set)))
+    (error (make-condition 'multiple-clause-found
+                           :message ":center"))))
+
 (defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :precipitately)))
   (let* ((clauses 
            (clause-set.clauses clause-set))
@@ -173,12 +185,6 @@
            (find-if 
              (lambda (c) (eq (clause.clause-type c) :center))
              clauses)))
-    (when (< 1 (count-if 
-                   (lambda (c) 
-                     (eq (clause.clause-type c) :center))
-                   clauses))
-      (error (make-condition 'multiple-clause-found
-                             :message ":center")))
     (when center-clause
       (sort-clause-set-list-short-to-long
         (loop
