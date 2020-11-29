@@ -17,7 +17,7 @@
 (defparameter *vterm-gensym-prefix* "v"
   "prefix of generated symbol for rename process")
 
-(defparameter *resolution-search-depth* 35
+(defparameter *resolution-search-depth* 40
   "depth for search algorithms")
 
 (defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
