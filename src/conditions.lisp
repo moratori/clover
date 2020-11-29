@@ -10,6 +10,7 @@
     :unexpected-unifier-source
     :message-of
     :null-clause-not-found
+    :multiple-clause-found
     :expr-parse-error
     )
   )
@@ -68,6 +69,8 @@
 (define-condition expr-parse-error (clover-toplevel-condition)
   ())
 
+(define-condition multiple-clause-found (clover-toplevel-condition)
+  ())
 
 (defmethod print-object ((error clover-toplevel-condition) stream)
   (format stream "~%~A~%" (message-of error)))

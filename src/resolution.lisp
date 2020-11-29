@@ -119,7 +119,8 @@
                    (lambda (c) 
                      (eq (clause.clause-type c) :center))
                    clauses))
-      (error "multiple :center clause found."))
+      (error (make-condition 'multiple-clause-found
+                             :message ":center")))
     (when center-clause
       (sort-clause-set-list-short-to-long
         (loop
@@ -146,7 +147,8 @@
                    (lambda (c) 
                      (eq (clause.clause-type c) :goal))
                    clauses))
-      (error "multiple :goal clause found :: ~A~%~%" clauses))
+      (error (make-condition 'multiple-clause-found
+                             :message ":goal")))
     (when goal-clause
       (sort-clause-set-list-short-to-long
         (loop
@@ -175,7 +177,8 @@
                    (lambda (c) 
                      (eq (clause.clause-type c) :center))
                    clauses))
-      (error "multiple :center clause found."))
+      (error (make-condition 'multiple-clause-found
+                             :message ":center")))
     (when center-clause
       (sort-clause-set-list-short-to-long
         (loop
