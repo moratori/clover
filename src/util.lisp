@@ -20,7 +20,6 @@
     :literal=
     :clause=
     :clause-set=
-    :alphabet-clause=
     ))
 (in-package :clover.util)
 
