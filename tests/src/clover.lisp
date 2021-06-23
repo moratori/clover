@@ -178,7 +178,5 @@
                                              (literal t   'P (list (vterm 'u)
                                                                    (vterm 'z)
                                                                    (vterm 'w))))))))
-        (format *standard-output* "cnt = ~A, value = ~A~%" cnt value)
-        (force-output *standard-output*)
         (is cnt)))
 
