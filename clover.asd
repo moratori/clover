@@ -36,7 +36,9 @@
                 :components
                 ((:module "search"
                   :components 
-                  ((:file "iddfs")))
+                  ((:file "common")
+                   (:file "iddfs")
+                   (:file "linear")))
                  (:file "property")
                  (:file "conditions")
                  (:file "types")
