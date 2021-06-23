@@ -113,7 +113,8 @@
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set 
-                    (list  (clause 
+                    (list  (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil)
+                           (clause 
                              (list (literal nil 'parent (list (fterm 'NAMIHEI nil)
                                                               (fterm 'SAZAE nil)))))
                            (clause (list (literal nil 'parent (list (fterm 'NAMIHEI nil)
@@ -157,8 +158,7 @@
                            (clause (list (literal t 'sibling (list (vterm 'x) (vterm 'y)))
                                          (literal t 'parent (list (vterm 'x) (vterm 'z)))
                                          (literal t 'male (list (vterm 'z)))
-                                         (literal nil 'nephew (list (vterm 'z) (vterm 'y)))))
-                           (clause (list (literal t 'nephew (list (fterm 'TARA nil) (vterm 'x)))) nil nil nil))))
+                                         (literal nil 'nephew (list (vterm 'z) (vterm 'y))))))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test4.dot"  *graphviz-output-dir*))
