@@ -25,7 +25,7 @@
                   ((:module "search"
                     :components 
                     ((:file "iddfs")
-                     (:file "linear")))
+                     (:file "dfs")))
                    (:file "clover")
                    (:file "types")
                    (:file "unify")
