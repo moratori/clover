@@ -17,6 +17,7 @@
                :cl-lex
                :alexandria
                :cl-ppcre
+               :cl-custom-hash-table
                #+sbcl :sb-cover
                #+sbcl :sb-sprof
                )
@@ -38,7 +39,7 @@
                   :components 
                   ((:file "common")
                    (:file "iddfs")
-                   (:file "linear")))
+                   (:file "dfs")))
                  (:file "property")
                  (:file "conditions")
                  (:file "types")
