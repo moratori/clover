@@ -9,7 +9,7 @@
 
 
 
-(test clover.tests.resolution.resolution
+(test clover.tests.resolution.resolution.test1
 
       (is (let* ((clause1
                    (clause 
@@ -52,4 +52,129 @@
               res)))
   )
 
+
+(test clover.tests.resolution.resolution.test2
+      (let* ((clause1
+               (clause (list (literal nil 'P (list (fterm 'A nil)
+                                                   (fterm 'B nil)
+                                                   (fterm 'C nil)))))
+               )
+             (clause2
+               (clause (list (literal nil 'P (list (vterm 'u)
+                                                   (vterm 'z)
+                                                   (vterm 'w)))
+                             (literal t   'P (list (vterm 'y)
+                                                   (vterm 'z)
+                                                   (vterm 'v)))
+                             (literal t   'P (list (vterm 'x)
+                                                   (vterm 'y)
+                                                   (vterm 'u)))
+                             (literal t   'P (list (vterm 'x)
+                                                   (vterm 'v)
+                                                   (vterm 'w)))))
+               )
+             (cs
+               (clause-set (list clause1 clause2) :linear))
+             (ret
+               (comprehensive-resolvent
+                 cs
+                 clause1
+                 clause2
+                 :linear
+                 (lambda (x) :center)
+                 (lambda (x) :resolvent)
+                 (lambda (x) :resolvent))))
+
+        (is 
+          (member 
+            (clause-set
+              (list
+                (clause (list (literal nil 'P (list (fterm 'A nil)
+                                                    (fterm 'B nil)
+                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (vterm 'u)
+                                                    (vterm 'z)
+                                                    (vterm 'w)))
+                              (literal t   'P (list (vterm 'y)
+                                                    (vterm 'z)
+                                                    (vterm 'v)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'y)
+                                                    (vterm 'u)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'v)
+                                                    (vterm 'w)))))
+                (clause (list (literal nil 'P (list (vterm 'u)
+                                                    (fterm 'B nil)
+                                                    (vterm 'w)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (fterm 'A nil)
+                                                    (vterm 'u)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (fterm 'C nil)
+                                                    (vterm 'w)))))))
+            ret
+            :test #'clause-set=))
+
+        (is 
+          (member 
+            (clause-set
+              (list
+                (clause (list (literal nil 'P (list (fterm 'A nil)
+                                                    (fterm 'B nil)
+                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (vterm 'u)
+                                                    (vterm 'z)
+                                                    (vterm 'w)))
+                              (literal t   'P (list (vterm 'y)
+                                                    (vterm 'z)
+                                                    (vterm 'v)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'y)
+                                                    (vterm 'u)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'v)
+                                                    (vterm 'w)))))
+                (clause (list (literal nil 'P (list (fterm 'C nil)
+                                                    (vterm 'z)
+                                                    (vterm 'w)))
+                              (literal t   'P (list (fterm 'B nil)
+                                                    (vterm 'z)
+                                                    (vterm 'v)))
+                              (literal t   'P (list (fterm 'A nil)
+                                                    (vterm 'v)
+                                                    (vterm 'w)))))))
+            ret
+            :test #'clause-set=))
+
+        (is 
+          (member 
+            (clause-set
+              (list
+                (clause (list (literal nil 'P (list (fterm 'A nil)
+                                                    (fterm 'B nil)
+                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (vterm 'u)
+                                                    (vterm 'z)
+                                                    (vterm 'w)))
+                              (literal t   'P (list (vterm 'y)
+                                                    (vterm 'z)
+                                                    (vterm 'v)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'y)
+                                                    (vterm 'u)))
+                              (literal t   'P (list (vterm 'x)
+                                                    (vterm 'v)
+                                                    (vterm 'w)))))
+                (clause (list (literal nil 'P (list (vterm 'u)
+                                                    (vterm 'z)
+                                                    (fterm 'C nil)))
+                              (literal t   'P (list (vterm 'y)
+                                                    (vterm 'z)
+                                                    (fterm 'B nil)))
+                              (literal t   'P (list (fterm 'A nil)
+                                                    (vterm 'y)
+                                                    (vterm 'u)))))))
+            ret
+            :test #'clause-set=))))
 
