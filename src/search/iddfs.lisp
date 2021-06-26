@@ -1,32 +1,23 @@
 (defpackage clover.search.iddfs
-  (:use :cl)
+  (:use :cl
+        :clover.search.common)
   (:export 
-    :abstract-node
-    :open-nodes
-    :finish
     :iddfs
     )
   )
 (in-package :clover.search.iddfs)
 
 
-(defstruct abstract-node)
-
-(defmethod open-nodes ((node abstract-node))
-  ;; abstract-node のリストを返す関数
-  (error "implement for specific method"))
-
-(defmethod finish ((node abstract-node))
-  ;; abstract-node を引数にとって t or nil を返す関数
-  (error "implement for specific method"))
-
 (defmethod iddfs ((initial-node abstract-node) maximum-limit)
   (declare (fixnum maximum-limit))
   (let (cnt result)
     (loop
-      named exit
-      for i from 0 upto maximum-limit
+      :named exit
+      :for i :from 0 :upto maximum-limit
       do
+      (when *debug-print*
+        (format *standard-output* "~%##### Iterative Depth = ~A~%" i)
+        (force-output *standard-output*))
       (multiple-value-bind
         (flag value) (%iddfs-main initial-node i)
         (when flag
@@ -43,10 +34,22 @@
     ((< deepth 1)
      (values nil nil))
     (t
-      (let (flag result)
+      (let ((flag nil) 
+            (result nil)
+            (neighbor (open-nodes initial-node)))
+
+        (when *debug-print*
+          (format *standard-output* "parent: ~A~%" initial-node)
+          (loop 
+            :for node :in neighbor
+            :for num :from 1
+            :do (format *standard-output* "    child ~A: ~A~%" num node))
+          (force-output *standard-output*)
+          (sleep 10))
+
         (loop 
-          named exit
-          for each in (open-nodes initial-node)
+          :named exit
+          :for each :in neighbor
           do
           (multiple-value-bind 
             (finish-flag node) (%iddfs-main each (1- deepth))

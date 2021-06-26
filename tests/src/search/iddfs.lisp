@@ -1,5 +1,6 @@
 (defpackage clover.tests.search.iddfs
   (:use :cl
+        :clover.search.common
         :clover.search.iddfs
         :1am))
 (in-package :clover.tests.search.iddfs)
