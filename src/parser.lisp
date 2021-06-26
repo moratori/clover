@@ -8,6 +8,7 @@
         :clover.util
         )
   (:export 
+    :%intern-symbol-to-specified-package
     :parse-premise-logical-expression
     :parse-conseq-logical-expression))
 

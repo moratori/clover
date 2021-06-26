@@ -8,7 +8,7 @@
 (in-package :clover.tests.rename)
 
 
-(test clover.tests.rename.rename
+(test clover.tests.rename.rename.test1
 
       (is 
         (let ((clause 
@@ -43,3 +43,20 @@
           t))
 
       )
+
+(test clover.tests.rename.rename-for-human-readable.test1
+
+      (let ((clause
+              (clause 
+                  (list (literal t 'P   (list (vterm 'hoge) 
+                                              (fterm 'foo nil) 
+                                              (fterm 'bar (list (vterm 'x))))))))
+            (expected
+              (clause 
+                  (list (literal t 'P   (list (vterm 'clover.parser::x) 
+                                              (fterm 'foo nil) 
+                                              (fterm 'bar (list (vterm 'clover.parser::y)))))))))
+
+        (is (clause= (rename-for-human-readable-printing clause)
+                     expected))))
+

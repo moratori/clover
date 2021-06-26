@@ -6,6 +6,7 @@
     :*resolution-search-depth*
     :*opener-algorithm*
     :*parsed-symbol-intern-package*
+    :*vterm-for-human-readable*
     )
   )
 (in-package :clover.property)
@@ -23,3 +24,5 @@
 (defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
   "where to intern symbol ")
 
+(defparameter *vterm-for-human-readable*
+  (list "X" "Y" "Z" "W" "S" "T" "U" "V" "M" "N"))
