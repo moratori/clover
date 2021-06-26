@@ -113,7 +113,7 @@
 
 
 
-(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :linear)))
+(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :default)))
   (when (< 1 (count-if 
                (lambda (c) 
                  (eq (clause.clause-type c) :center))
@@ -122,7 +122,7 @@
                            :message ":center"))))
 
 
-(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :linear)))
+(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :default)))
   (let* ((clauses 
            (clause-set.clauses clause-set))
          (center-clause

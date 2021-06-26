@@ -37,9 +37,9 @@
     (error "clause type must not be null"))
   (cond
     (t 
-     (linear-resolution clause-set))))
+     (default-resolution clause-set))))
 
-(defmethod linear-resolution ((clause-set clause-set))
+(defmethod default-resolution ((clause-set clause-set))
   (let ((clauses (clause-set.clauses clause-set)))
     (loop
       :named exit
@@ -58,7 +58,7 @@
       :do 
       (multiple-value-bind 
           (cnt value) (iddfs (clause-set centerlized-clauses
-                                         :linear)
+                                         :default)
                              *resolution-search-depth*)
         (when cnt
           (return-from exit (values cnt value))))
