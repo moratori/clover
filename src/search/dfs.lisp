@@ -1,16 +1,14 @@
 (defpackage clover.search.dfs
   (:use :cl
-        :cl-custom-hash-table
         :clover.search.common)
+  (:import-from :cl-custom-hash-table
+                :with-custom-hash-table)
   (:export 
     :dfs
     )
   )
 (in-package :clover.search.dfs)
 
-
- (define-custom-hash-table-constructor make-node-hash-table
-    :test node-equality :hash-function node-hash)
 
 
 (defmethod dfs ((initial-node abstract-node))

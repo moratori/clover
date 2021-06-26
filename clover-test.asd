@@ -25,6 +25,7 @@
                   ((:module "search"
                     :components 
                     ((:file "iddfs")
+                     (:file "extractor")
                      (:file "dfs")))
                    (:file "clover")
                    (:file "types")

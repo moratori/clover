@@ -1,11 +1,14 @@
 (defpackage clover.search.common
-  (:use :cl)
+  (:use :cl
+        :cl-custom-hash-table
+        )
   (:export 
     :abstract-node
     :open-nodes
     :finish
     :node-hash
     :node-equality
+    :make-node-hash-table
     :*debug-print*
     )
   )
@@ -31,3 +34,6 @@
 
 (defmethod node-equality (node1 abstract-node) (node2 abstract-node)
   (error "implement for specific method"))
+
+(define-custom-hash-table-constructor make-node-hash-table
+    :test node-equality :hash-function node-hash)

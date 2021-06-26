@@ -39,6 +39,7 @@
                   :components 
                   ((:file "common")
                    (:file "iddfs")
+                   (:file "extractor")
                    (:file "dfs")))
                  (:file "property")
                  (:file "conditions")
