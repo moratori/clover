@@ -4,7 +4,8 @@
         :clover.clover
         :clover.types
         :clover.resolution
-        :1am))
+        :1am)
+  )
 (in-package :clover.tests.clover)
 
 
@@ -88,7 +89,10 @@
 (test clover.tests.clover.start_resolution.test3
       (setf *save-resolution-history* nil)
       (is (start_resolution
-            (clause-set (list (clause (list (literal nil 'P (list (vterm 'x)
+            (clause-set (list (clause (list (literal t   'P (list (fterm 'B nil)
+                                                                  (fterm 'A nil)
+                                                                  (fterm 'C nil)))))
+                              (clause (list (literal nil 'P (list (vterm 'x)
                                                                   (vterm 'x)
                                                                   (fterm 'E nil)))))
                               (clause (list (literal nil 'P (list (fterm 'C nil)
@@ -109,9 +113,7 @@
                                             (literal t   'P (list (vterm 'w)
                                                                   (vterm 'z)
                                                                   (vterm 'u)))))
-                              (clause (list (literal t   'P (list (fterm 'B nil)
-                                                                  (fterm 'A nil)
-                                                                  (fterm 'C nil)))))))))
+                              ))))
       )
 
 
@@ -135,21 +137,19 @@
                                                                            (fterm 'CONS (list (fterm 'B nil) (fterm 'NIL nil)))))
                                                         (vterm 'x)))) nil nil nil))))))
 
+
 (test clover.tests.clover.start_resolution.test5
       (setf *save-resolution-history* nil)
       (multiple-value-bind
           (cnt value) (start_resolution
-            (clause-set (list  (clause (list (literal nil 'P (list (fterm 'A nil)
+            (clause-set (list  (clause (list (literal t 'P (list (fterm 'C nil)
+                                                                 (fterm 'B nil)
+                                                                 (fterm 'A nil))))) 
+                               (clause (list (literal nil 'P (list (fterm 'A nil)
                                                                    (fterm 'B nil)
-                                                                   (fterm 'C nil)))))
-                               (clause (list (literal t   'P (list (fterm 'B nil)
-                                                                   (fterm 'A nil)
                                                                    (fterm 'C nil)))))
                                (clause (list (literal nil 'P (list (vterm 'x)
                                                                    (fterm 'E nil)
-                                                                   (vterm 'x)))))
-                               (clause (list (literal nil 'P (list (fterm 'E nil)
-                                                                   (vterm 'x)
                                                                    (vterm 'x)))))
                                (clause (list (literal nil 'P (list (vterm 'x)
                                                                    (vterm 'x)
@@ -165,7 +165,60 @@
                                                                    (vterm 'u)))
                                              (literal t   'P (list (vterm 'x)
                                                                    (vterm 'v)
-                                                                   (vterm 'w)))))
+                                                                   (vterm 'w))))))))
+        (is (> cnt 0))))
+
+(test clover.tests.clover.start_resolution.test6
+      (setf *save-resolution-history* nil)
+      (multiple-value-bind
+          (cnt value) (start_resolution
+            (clause-set (list  (clause (list (literal nil 'P (list (vterm 'x)
+                                                                   (fterm 'E nil)
+                                                                   (vterm 'x)))))
+                               (clause (list (literal t 'P (list (fterm 'B nil)
+                                                                 (fterm 'A nil)
+                                                                 (fterm 'C nil))))) 
+                               (clause (list (literal nil 'P (list (fterm 'C nil)
+                                                                   (fterm 'A nil)
+                                                                   (fterm 'B nil)))))
+                               (clause (list (literal nil 'P (list (vterm 'x)
+                                                                   (vterm 'x)
+                                                                   (fterm 'E nil)))))
+                               (clause (list (literal nil 'P (list (vterm 'u)
+                                                                   (vterm 'z)
+                                                                   (vterm 'w)))
+                                             (literal t   'P (list (vterm 'y)
+                                                                   (vterm 'z)
+                                                                   (vterm 'v)))
+                                             (literal t   'P (list (vterm 'x)
+                                                                   (vterm 'y)
+                                                                   (vterm 'u)))
+                                             (literal t   'P (list (vterm 'x)
+                                                                   (vterm 'v)
+                                                                   (vterm 'w))))))))
+        (is (> cnt 0))))
+
+
+(test clover.tests.clover.start_resolution.test7
+      (setf *save-resolution-history* nil)
+      (multiple-value-bind
+          (cnt value) (start_resolution
+            (clause-set (list  (clause (list (literal nil 'P (list (fterm 'E nil)
+                                                                   (vterm 'x)
+                                                                   (vterm 'x)))))
+
+                               (clause (list (literal nil 'P (list (vterm 'x )
+                                                                   (vterm 'x )
+                                                                   (fterm 'E nil))))) 
+
+                               (clause (list (literal nil 'P (list (fterm 'C nil)
+                                                                   (fterm 'B nil)
+                                                                   (fterm 'A nil)))))
+
+                               (clause (list (literal t 'P (list (fterm 'C nil)
+                                                                 (fterm 'A nil)
+                                                                 (fterm 'B nil)))))
+
                                (clause (list (literal nil 'P (list (vterm 'x)
                                                                    (vterm 'v)
                                                                    (vterm 'w)))
@@ -178,5 +231,51 @@
                                              (literal t   'P (list (vterm 'u)
                                                                    (vterm 'z)
                                                                    (vterm 'w))))))))
-        (is cnt)))
+        (is (> cnt 0))))
+
+
+;(test clover.tests.clover.start_resolution.test8
+;      (setf *save-resolution-history* nil)
+;      (multiple-value-bind
+;          (cnt value) (start_resolution
+;            (clause-set (list  (clause (list (literal nil 'P (list (fterm 'A nil)
+;                                                                   (fterm 'B nil)
+;                                                                   (fterm 'C nil)))))
+;                               (clause (list (literal t   'P (list (fterm 'B nil)
+;                                                                   (fterm 'A nil)
+;                                                                   (fterm 'C nil)))))
+;                               (clause (list (literal nil 'P (list (vterm 'x)
+;                                                                   (fterm 'E nil)
+;                                                                   (vterm 'x)))))
+;                               (clause (list (literal nil 'P (list (fterm 'E nil)
+;                                                                   (vterm 'x)
+;                                                                   (vterm 'x)))))
+;                               (clause (list (literal nil 'P (list (vterm 'x)
+;                                                                   (vterm 'x)
+;                                                                   (fterm 'E nil)))))
+;                               (clause (list (literal nil 'P (list (vterm 'u)
+;                                                                   (vterm 'z)
+;                                                                   (vterm 'w)))
+;                                             (literal t   'P (list (vterm 'y)
+;                                                                   (vterm 'z)
+;                                                                   (vterm 'v)))
+;                                             (literal t   'P (list (vterm 'x)
+;                                                                   (vterm 'y)
+;                                                                   (vterm 'u)))
+;                                             (literal t   'P (list (vterm 'x)
+;                                                                   (vterm 'v)
+;                                                                   (vterm 'w)))))
+;                               (clause (list (literal nil 'P (list (vterm 'x)
+;                                                                   (vterm 'v)
+;                                                                   (vterm 'w)))
+;                                             (literal t   'P (list (vterm 'y)
+;                                                                   (vterm 'z)
+;                                                                   (vterm 'v)))
+;                                             (literal t   'P (list (vterm 'x)
+;                                                                   (vterm 'y)
+;                                                                   (vterm 'u)))
+;                                             (literal t   'P (list (vterm 'u)
+;                                                                   (vterm 'z)
+;                                                                   (vterm 'w))))))))
+;        (is cnt)))
 
