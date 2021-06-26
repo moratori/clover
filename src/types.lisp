@@ -1,6 +1,6 @@
 (defpackage clover.types
   (:use :cl
-        :clover.search.iddfs
+        :clover.search.common
         :clover.conditions
         )
   (:export
@@ -83,7 +83,6 @@
     (or 
       (eq obj :conseq)
       (eq obj :premise)
-      (eq obj :goal)
       (eq obj :center)
       (eq obj :resolvent))))
 

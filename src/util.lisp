@@ -3,8 +3,6 @@
         :clover.conditions
         :clover.types)
   (:export
-    :sort-clause-set-list-short-to-long
-    :sort-clause-list-unusable-to-usable
     :clause-length
     :complement-literal-p
     :has-parent-p
@@ -20,6 +18,7 @@
     :literal=
     :clause=
     :clause-set=
+    :conseq-clause-p
     ))
 (in-package :clover.util)
 
@@ -155,17 +154,6 @@
 (defmethod horn-clause-set-p ((clause-set clause-set))
   (every #'horn-clause-p (clause-set.clauses clause-set)))
 
-(defun sort-clause-set-list-short-to-long (clause-set-list)
-  (sort 
-    clause-set-list
-    (lambda (clause-set1 clause-set2)
-      (<
-        (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set1)))
-        (apply #'min (mapcar #'clause-length (clause-set.clauses clause-set2)))))))
+(defmethod conseq-clause-p ((clause clause))
+  (eq (clause.clause-type clause) :conseq))
 
-(defun sort-clause-list-unusable-to-usable (clauses)
-  (sort
-    clauses
-    (lambda (clause1 clause2)
-      (< (clause.used-cnt clause1) 
-         (clause.used-cnt clause2)))))

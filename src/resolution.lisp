@@ -15,6 +15,7 @@
     :%collect-resolutable-literal
     :%resolution
     :opener_clause-set
+    :comprehensive-resolvent
     )
   )
 (in-package :clover.resolution)
@@ -77,13 +78,15 @@
                             (funcall get-resolvent-type resolvent)))))))
 
 
-(defmethod %resolution-wrapper ((clause-set clause-set) 
-                                (parent1 clause) 
-                                (parent2 clause)
-                                resolution-mode
-                                (resolvent-type function)
-                                (parent1-type function)
-                                (parent2-type function))
+(defmethod comprehensive-resolvent ((clause-set clause-set) 
+                                    (parent1 clause) 
+                                    (parent2 clause)
+                                    resolution-mode
+                                    (resolvent-type function)
+                                    (parent1-type function)
+                                    (parent2-type function))
+  "節parent1,parent2の導出結果(resolvent)を網羅的に計算し、
+   各resolventをclause-setに追加して返却する"
   (let ((base-clauses 
           (remove-if 
             (lambda (clause)
@@ -99,7 +102,7 @@
             (append base-clauses
                     (list clause new-parent1 new-parent2))
             resolution-mode))
-      resoluted-clauses))))
+        resoluted-clauses))))
 
 
 (defmethod opener_clause-set :around ((clause-set clause-set) resolution-mode)
@@ -108,7 +111,9 @@
       (rename clause-set))
     resolution-mode))
 
-(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :default)))
+
+
+(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :linear)))
   (when (< 1 (count-if 
                (lambda (c) 
                  (eq (clause.clause-type c) :center))
@@ -116,7 +121,8 @@
     (error (make-condition 'multiple-clause-found
                            :message ":center"))))
 
-(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :default)))
+
+(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :linear)))
   (let* ((clauses 
            (clause-set.clauses clause-set))
          (center-clause
@@ -124,84 +130,18 @@
              (lambda (c) (eq (clause.clause-type c) :center))
              clauses))) 
     (when center-clause
-      (sort-clause-set-list-short-to-long
-        (loop
-          :for clause :in (sort-clause-list-unusable-to-usable clauses)
-          :for clause-type := (clause.clause-type clause)
-          :if (not (clause= clause center-clause))
-          :append (%resolution-wrapper 
-                    clause-set
-                    center-clause
-                    clause
-                    resolution-mode
-                    (lambda (x) :center)
-                    (lambda (x) :resolvent)
-                    (lambda (x) clause-type)))))))
-
-(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :horn-snl)))
-  (when (< 1 (count-if 
-               (lambda (c) 
-                 (eq (clause.clause-type c) :goal))
-               (clause-set.clauses clause-set)))
-    (error (make-condition 'multiple-clause-found
-                           :message ":goal"))))
-
-(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :horn-snl)))
-  (let* ((clauses 
-           (clause-set.clauses clause-set))
-         (goal-clause
-           (find-if 
-             (lambda (c) (eq (clause.clause-type c) :goal))
-             clauses))) 
-    (when goal-clause
-      (sort-clause-set-list-short-to-long
-        (loop
-          :for clause :in (sort-clause-list-unusable-to-usable clauses)
-          :for clause-type := (clause.clause-type clause)
-          ;; SNL導出の側節は、入力節だけ
-          :if (or (eq clause-type :premise)
-                  (eq clause-type :conseq))
-          :append (%resolution-wrapper 
-                    clause-set
-                    goal-clause
-                    clause
-                    resolution-mode
-                    (lambda (x) :goal)
-                    (lambda (x) :resolvent)
-                    (lambda (x) clause-type)))))))
-
-(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :precipitately)))
-  (when (< 1 (count-if 
-               (lambda (c) 
-                 (eq (clause.clause-type c) :center))
-               (clause-set.clauses clause-set)))
-    (error (make-condition 'multiple-clause-found
-                           :message ":center"))))
-
-(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :precipitately)))
-  (let* ((clauses 
-           (clause-set.clauses clause-set))
-         (center-clause
-           (find-if 
-             (lambda (c) (eq (clause.clause-type c) :center))
-             clauses)))
-    (when center-clause
-      (sort-clause-set-list-short-to-long
-        (loop
-          :named exit
-          :for clause :in (sort-clause-list-unusable-to-usable clauses)
-          :for clause-type := (clause.clause-type clause)
-          :if (not (clause= clause center-clause))
-          :do 
-          (let ((res 
-                  (%resolution-wrapper 
-                    clause-set
-                    center-clause
-                    clause
-                    resolution-mode
-                    (lambda (x) :center)
-                    (lambda (x) :resolvent)
-                    (lambda (x) clause-type))))
-            (unless (null res)
-              (return-from exit res))))))))
+          (loop
+            :named exit
+            :for clause :in clauses
+            :for clause-type := (clause.clause-type clause)
+            :for ret := (comprehensive-resolvent
+                          clause-set
+                          center-clause
+                          clause
+                          resolution-mode
+                          (lambda (x) :center)
+                          (lambda (x) :resolvent)
+                          (lambda (x) clause-type))
+            :if (not (eq clause-type :center))
+            :append ret))))
 
