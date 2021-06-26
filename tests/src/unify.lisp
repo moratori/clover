@@ -313,3 +313,33 @@
             (clause (list (literal nil 'Q (list (vterm 'v)))
                           (literal nil 'P (list (vterm 'w) (vterm 'u))))))))
 )
+
+
+(test clover.tests.unify.alphabet-clause=.test2
+      (is (not (alphabet-clause= 
+                 (clause (list (literal nil 'P (list (vterm 'x)
+                                                     (vterm 'v)
+                                                     (vterm 'w)))
+                               (literal t   'P (list (vterm 'y)
+                                                     (vterm 'z)
+                                                     (vterm 'v)))
+                               (literal t   'P (list (vterm 'x)
+                                                     (vterm 'y)
+                                                     (vterm 'u)))
+                               (literal t   'P (list (vterm 'u)
+                                                     (vterm 'z)
+                                                     (vterm 'w)))))
+                 (clause (list (literal nil 'P (list (vterm 'u)
+                                                     (vterm 'z)
+                                                     (vterm 'w)))
+                               (literal t   'P (list (vterm 'y)
+                                                     (vterm 'z)
+                                                     (vterm 'v)))
+                               (literal t   'P (list (vterm 'x)
+                                                     (vterm 'y)
+                                                     (vterm 'u)))
+                               (literal t   'P (list (vterm 'x)
+                                                     (vterm 'v)
+                                                     (vterm 'w))))))))
+      )
+
