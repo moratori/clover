@@ -46,12 +46,12 @@
                  (:file "util")
                  (:file "substitute")
                  (:file "unify")
+                 (:file "parser")
                  (:file "rename")
                  (:file "simplify")
                  (:file "resolution")
                  (:file "clover")
                  (:file "rendertree")
-                 (:file "parser")
                  (:file "interface"))))
   :description "Simple Automated Theorem Prover"
   :long-description
