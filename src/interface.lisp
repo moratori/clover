@@ -79,7 +79,7 @@
     :unset-history           disable history
     :set-profiler            enable statistical profiler
     :unset-profiler          disable statistical profiler
-    :save-tree    <path>     save Graphviz code tree to <path>
+    :save-tree    <path>     save Graphviz code to <path>
     :unsave-tree~%"))
 
 

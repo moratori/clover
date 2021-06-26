@@ -6,6 +6,8 @@
         :clover.util
         :clover.unify
         )
+  (:import-from :clover.rename
+                :rename-for-human-readable-printing)
   (:export
     :render-refutation-tree
     )
@@ -70,16 +72,21 @@
                    (find-if 
                      (lambda (p) (not (clause= p right)))
                      (list parent1 parent2)))
-                  (t nil))))
+                  (t nil)))
+         (clause-for-printing
+           (rename-for-human-readable-printing clause))
+         (right-for-printing
+           (when right
+             (rename-for-human-readable-printing right))))
     (cond
       ((and (null right) (null down))
-       (format output " ~A~%" clause))
+       (format output " ~A~%" clause-for-printing))
       (t 
        (let* ((space-size 
-                (floor (/ (length (format nil "~A" clause)) 2)))
+                (floor (/ (length (format nil "~A" clause-for-printing)) 2)))
               (pad
                 (loop :for i :from 0 :to space-size :collect " ")))
-         (format output " ~A ←← ~A~%" clause right)
+         (format output " ~A ←← ~A~%" clause-for-printing right-for-printing)
          (format output "~{~A~}↑~%" pad)
          (format output "~{~A~}↑~%" pad))
        (%render-refutation-tree-terminal down output)))))

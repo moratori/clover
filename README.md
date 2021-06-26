@@ -17,9 +17,7 @@ Command help
     :quit                    quit from REPL
     :def-axiom    <name>     define an axiomatic system <name>
     :show-axiom              enumerate all axiomatic system that are currently defined
-    :show-strategy           show the current strategy for resolution
     :set-axiom    <name>     set current axiomatic system to <name>
-    :set-strategy <algorithm> <depth> set specific resolution algorithm
     :set-history             keep resolution history. this option automatically
                              enabled if save-tree option on.
     :unset-history           disable history
@@ -29,29 +27,34 @@ Command help
     :unsave-tree
 (NIL)>>> :def-axiom human
 input . to finish definition
-axiom[1]>>> !human(x) | mortal(x)
-axiom[2]>>> human(SOCRATES)
-axiom[3]>>> .
+axiom[1]>>> !love(x,y) | !love(y,x) | happy(y)
+axiom[2]>>> !love(x,y) | !love(y,x) | happy(x)
+axiom[3]>>> love(A,B)
+axiom[4]>>> love(B,A)
+axiom[5]>>> .
 (human)>>> :set-history
-(human)>>> mortal(SOCRATES)
+(human)>>> happy(A)
 
 Evaluation took:
-  0.060 seconds of real time
-  0.058466 seconds of total run time (0.058466 user, 0.000000 system)
-  96.67% CPU
-  270 lambdas converted
-  116,444,867 processor cycles
-  15,177,920 bytes consed
+  0.050 seconds of real time
+  0.049196 seconds of total run time (0.049196 user, 0.000000 system)
+  98.00% CPU
+  303 lambdas converted
+  98,007,272 processor cycles
+  16,910,960 bytes consed
 
 PROVABLE under the human
 
- □ ←← human(SOCRATES)
+ □ ←← love(A,B)
  ↑
  ↑
- !human(SOCRATES)  ←← !mortal(SOCRATES)
-         ↑
-         ↑
- !human(v722) | mortal(v722) 
+ !love(A,B)  ←← love(B,A)
+      ↑
+      ↑
+ !love(A,x) | !love(x,A)  ←← !happy(A)
+             ↑
+             ↑
+ !love(y,x) | !love(x,y) | happy(y)
 ```
 
 ## Installation
