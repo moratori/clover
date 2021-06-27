@@ -106,14 +106,14 @@
     (is (string= "E" (looped-graph-label value)))))
 
 (test clover.tests.search.iddfs.test7
-  (let ((num 40342432))
+  (let ((num 1342432))
 
     (defmethod finish ((node even-or-odds))
       (= num (even-or-odds-num node)))
 
     (multiple-value-bind 
         (deepth value)
-        (iddfs (make-even-or-odds :num 1) 150)
+        (iddfs (make-even-or-odds :num 1) 100)
       
       (is (= (even-or-odds-num value) num)))))
 
