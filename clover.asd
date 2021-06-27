@@ -53,7 +53,10 @@
                  (:file "resolution")
                  (:file "clover")
                  (:file "rendertree")
-                 (:file "interface"))))
+                 (:module "repl"
+                  :components 
+                  ((:file "util")
+                   (:file "repl"))))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string

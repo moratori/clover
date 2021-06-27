@@ -17,7 +17,7 @@ exec ros -Q -- $0 "$@"
 (defun main (&rest argv)
   (declare (ignorable argv))
 
-  (when (find-package "CLOVER.INTERFACE")
-    (clover.interface:main)))
+  (when (find-package "CLOVER.REPL")
+    (clover.repl:main)))
 
 ;;; vim: set ft=lisp lisp:
