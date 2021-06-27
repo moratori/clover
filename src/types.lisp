@@ -205,3 +205,10 @@
    (resolution-mode nil :type symbol :read-only t))
 
 
+(defstruct (equation-system
+             (:print-object 
+              (lambda (object stream)))
+             (:constructor equation-system (equations))
+             (:conc-name equation-system.))
+  "等式の集合を表現する構造体"
+  (equations nil :type %clause :read-only t))

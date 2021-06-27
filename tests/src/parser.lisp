@@ -250,5 +250,86 @@
       )
 
 
+(test clover.tests.parser.parse-equation-logical-expression.test1
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "A = A")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list (fterm 'CLOVER.PARSER::A nil)
+                         (fterm 'CLOVER.PARSER::A nil)))))
+      (is 
+        (literal=
+          (parse-equation-logical-expression "A = x")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list (fterm 'CLOVER.PARSER::A nil)
+                         (vterm 'CLOVER.PARSER::X)))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "x = A")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (vterm 'CLOVER.PARSER::X)
+                     (fterm 'CLOVER.PARSER::A nil)))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "x = y")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (vterm 'CLOVER.PARSER::X)
+                     (vterm 'CLOVER.PARSER::Y)))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "f(x) = g(y)")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
+                     (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::Y)))))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "f(x) = z")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
+                     (vterm 'CLOVER.PARSER::Z)))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "z = f(x)")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (vterm 'CLOVER.PARSER::Z)
+                     (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "s(ZERO) = ONE")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
+                     (fterm 'CLOVER.PARSER::ONE nil)))))
+
+      (is 
+        (literal=
+          (parse-equation-logical-expression "ONE = s(ZERO)")
+          (literal nil
+                   'CLOVER.PARSER::=
+                   (list 
+                     (fterm 'CLOVER.PARSER::ONE nil)
+                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))))))
+
+      )
 
 
