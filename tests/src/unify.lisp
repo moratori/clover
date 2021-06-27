@@ -343,3 +343,61 @@
                                                      (vterm 'w))))))))
       )
 
+
+(test clover.tests.unify.alphabet-clause-set=.test1
+      (let* ((clause1
+              (clause
+                (list 
+                  (literal nil 'P (list (vterm 'x)
+                                        (vterm 'y)))
+                  (literal nil 'Q (list (fterm 'F (list (vterm 'x))))))))
+            (clause2
+              (clause
+                (list 
+                  (literal t 'R (list (vterm 'z))))))
+            (clause3
+              (clause
+                (list 
+                  (literal nil 'P (list (vterm 'w)
+                                        (vterm 'u)))
+                  (literal nil 'Q (list (fterm 'F (list (vterm 'w))))))))
+            (clause4
+              (clause
+                (list 
+                  (literal t 'R (list (vterm 'v))))))
+            (clause-set1
+              (clause-set
+                (list clause1 clause2)))
+            (clause-set2
+              (clause-set 
+                (list clause4 clause3))))
+        (is (alphabet-clause-set= clause-set2 clause-set1))))
+
+(test clover.tests.unify.alphabet-clause-set=.test1
+      (let* ((clause1
+              (clause
+                (list 
+                  (literal nil 'P (list (vterm 'x)
+                                        (vterm 'y)))
+                  (literal nil 'Q (list (fterm 'F (list (vterm 'x))))))))
+            (clause2
+              (clause
+                (list 
+                  (literal t 'R (list (vterm 'z))))))
+            (clause3
+              (clause
+                (list 
+                  (literal nil 'P (list (vterm 'w)
+                                        (vterm 'u)))
+                  (literal nil 'Q (list (fterm 'F (list (vterm 'u))))))))
+            (clause4
+              (clause
+                (list 
+                  (literal t 'R (list (vterm 'v))))))
+            (clause-set1
+              (clause-set
+                (list clause1 clause2)))
+            (clause-set2
+              (clause-set 
+                (list clause4 clause3))))
+        (is (not (alphabet-clause-set= clause-set2 clause-set1)))))
