@@ -14,7 +14,7 @@
 (defmethod dfs ((initial-node abstract-node))
   (let ((foundp nil)
         (result nil)
-        (added (make-node-hash-table))
+        (added (make-equal-node-hash-table))
         (stack (list initial-node)))
     (loop
       :named exit

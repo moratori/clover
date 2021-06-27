@@ -8,7 +8,8 @@
     :finish
     :node-hash
     :node-equality
-    :make-node-hash-table
+    :node-same-class
+    :make-equal-node-hash-table
     :*debug-print*
     )
   )
@@ -32,8 +33,18 @@
   (error "implement for specific method")
   )
 
-(defmethod node-equality (node1 abstract-node) (node2 abstract-node)
+(defmethod node-equality ((node1 abstract-node) (node2 abstract-node)) 
   (error "implement for specific method"))
 
-(define-custom-hash-table-constructor make-node-hash-table
-    :test node-equality :hash-function node-hash)
+(defmethod node-same-class ((node1 abstract-node) (node2 abstract-node))
+  "字句単位では異なるnodeであるが、論理的には同じものであるnodeを識別する
+   例: {P(x)|Q(x), !Q(y)} same class {P(w)|Q(w), !Q(y)}"
+  ;; デフォルトでは node-equality としておく
+  (node-equality node1 node2))
+
+(define-custom-hash-table-constructor make-equal-node-hash-table
+  :test node-equality 
+  :hash-function node-hash)
+
+;; same-classに対するハッシュテーブルも定義したいが、
+;; hash関数を定義するのが難しい為、先送り

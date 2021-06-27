@@ -32,7 +32,7 @@
             (list 
               (even-or-odds 1)))
           (result
-            (extract (even-or-odds) 0)))
+            (extract (even-or-odds) 0 t)))
       (and 
         (null (set-difference expected result :test #'node-equality))
         (null (set-difference result expected :test #'node-equality)))))
@@ -44,7 +44,7 @@
               (even-or-odds 2)
               (even-or-odds 3)))
           (result
-            (extract (even-or-odds) 1)))
+            (extract (even-or-odds) 1 t)))
       (and 
         (null (set-difference expected result :test #'node-equality))
         (null (set-difference result expected :test #'node-equality)))))
@@ -60,7 +60,7 @@
               (even-or-odds 6)
               (even-or-odds 7)))
           (result
-            (extract (even-or-odds) 2)))
+            (extract (even-or-odds) 2 t)))
       (and 
         (null (set-difference expected result :test #'node-equality))
         (null (set-difference result expected :test #'node-equality)))))

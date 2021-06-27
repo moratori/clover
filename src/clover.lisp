@@ -3,13 +3,16 @@
         :clover.property
         :clover.search.common
         :clover.search.iddfs
-        :clover.search.dfs
+        :clover.search.extractor
         :clover.types
         :clover.resolution
         :clover.util
         )
+  (:import-from :clover.unify
+                :alphabet-clause-set=)
   (:export
     :start_resolution
+    :find-lemmas
     ))
 (in-package :clover.clover)
 
@@ -28,6 +31,8 @@
 (defmethod node-equality ((node1 clause-set) (node2 clause-set))
   (clause-set= node1 node2))
 
+(defmethod node-same-class ((node1 clause-set) (node2 clause-set))
+  (alphabet-clause-set= node1 node2))
 
 
 (defmethod start_resolution ((clause-set clause-set))
