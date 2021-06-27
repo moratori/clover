@@ -7,6 +7,7 @@
   (:export 
     :subsumption-clause-p
     :alphabet-clause=
+    :alphabet-clause-set=
     :find-most-general-unifier-set)
   )
 (in-package :clover.unify)
@@ -234,3 +235,14 @@
 (defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
   (and (subsumption-clause-p clause2 clause1)
        (subsumption-clause-p clause1 clause2)))
+
+(defmethod alphabet-clause-set= ((clause-set1 clause-set) (clause-set2 clause-set))
+  (and 
+    (null (set-difference 
+            (clause-set.clauses clause-set1)
+            (clause-set.clauses clause-set2)
+            :test #'alphabet-clause=))
+    (null (set-difference 
+            (clause-set.clauses clause-set2)
+            (clause-set.clauses clause-set1)
+            :test #'alphabet-clause=))))
