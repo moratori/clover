@@ -2,13 +2,15 @@
 
 [![Build Status](https://travis-ci.org/moratori/clover.svg?branch=master)](https://travis-ci.org/moratori/clover)
 
-一階述語論理式(閉論理式)の充足不可能性を判定するツールです。  
+## 概要
+
+一階述語論理式の充足不可能性を判定するツールです。  
 判定には導出原理(Resolution Principle)を使用しています。  
-充足不可能性を判定できた場合は、導出反駁木(Refutation Tree)を示すGraphvizのコードを出力することが可能です  
+判定できた場合は、導出反駁木(Refutation Tree)を示すGraphvizのコードを出力することが可能です  
 
 ![sample proof figure](sample-refutation-tree.png)
 
-## Usage
+## 使い方
 
 ```
 $ ./roswell/clover.ros
@@ -57,14 +59,51 @@ PROVABLE under the human
  !love(y,x) | !love(x,y) | happy(y)
 ```
 
-## Installation
+## インストール
 
-### Roswellを使用する場合
+### バイナリ
+
+[Releases](https://github.com/moratori/clover/releases)
+
+### ソースから
 
 ```
-$ cd ~/.roswell/local-projects/
+$ cd /path/to/quicklisp/local-projects/
 $ git clone https://github.com/moratori/clover.git
-$ ./clover/run-all-tests.sh
+
+> #+sbcl(ql:quickload :sb-cover)
+To load "sb-cover":
+  Load 1 ASDF system:
+    sb-cover
+; Loading "sb-cover"
+
+(:SB-COVER)
+
+> (ql:quickload :clover)
+To load "clover":
+  Load 1 ASDF system:
+    clover
+; Loading "clover"
+...
+(:CLOVER)
+
+> (clover.repl:main)
+Command help
+    :help                    show this help
+    :quit                    quit from REPL
+    :def-axiom    <name>     define an axiomatic system <name>
+    :show-axiom              enumerate all axiomatic system that are currently defined
+    :set-axiom    <name>     set current axiomatic system to <name>
+    :save-axiom   <path>     save curent axiomatic system to <path>
+    :load-axiom   <path>     restore axiomatic systems from <path>
+    :set-history             keep resolution history. this option automatically
+                             enabled if save-tree option on.
+    :unset-history           disable history
+    :set-profiler            enable statistical profiler
+    :unset-profiler          disable statistical profiler
+    :save-tree    <path>     save Graphviz code to <path>
+    :unsave-tree
+(NIL)>>> 
 ```
 
 ## Author
