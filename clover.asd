@@ -51,6 +51,7 @@
                  (:file "rename")
                  (:file "simplify")
                  (:file "resolution")
+                 (:file "completion")
                  (:file "clover")
                  (:file "rendertree")
                  (:module "repl"
