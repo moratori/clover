@@ -255,10 +255,10 @@
       (is 
         (literal=
           (parse-equation-logical-expression "A = A")
-          (literal nil
-                   'CLOVER.PARSER::=
-                   (list (fterm 'CLOVER.PARSER::A nil)
-                         (fterm 'CLOVER.PARSER::A nil)))))
+          (equation nil
+                   (fterm 'CLOVER.PARSER::A nil)
+                   (fterm 'CLOVER.PARSER::A nil))))
+
       (is 
         (literal=
           (parse-equation-logical-expression "A = x")
@@ -288,11 +288,9 @@
       (is 
         (literal=
           (parse-equation-logical-expression "f(x) = g(y)")
-          (literal nil
-                   'CLOVER.PARSER::=
-                   (list 
-                     (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
-                     (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::Y)))))))
+          (equation nil
+                    (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
+                    (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::Y))))))
 
       (is 
         (literal=

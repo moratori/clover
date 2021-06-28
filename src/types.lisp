@@ -3,6 +3,8 @@
         :clover.search.common
         :clover.conditions
         )
+  (:import-from :clover.property
+                :*parsed-symbol-intern-package*)
   (:export
         :logical-expression
         :clause-set
@@ -30,6 +32,9 @@
         :unifier.dst
         :unifier-set
         :unifier-set.unifiers
+        :equation
+        :equation-set
+        :equation-set.equations
   ))
 (in-package :clover.types)
 
@@ -54,6 +59,17 @@
 
 (deftype %clause ()
   '(satisfies %%clause))
+
+
+(defun %%equation-set (obj)
+  (and 
+    (listp obj)
+    (every (lambda (x)
+             (typep x 'equation))
+           obj)))
+
+(deftype %equation-set ()
+  '(satisfies %%equation-set))
 
 
 (defun %%unifier-set (obj)
@@ -204,11 +220,28 @@
    (clauses nil :type %clause-set :read-only t)
    (resolution-mode nil :type symbol :read-only t))
 
+(defstruct (equation
+             (:include literal)
+             (:conc-name equation.)
+             (:constructor equation 
+              (negation left right &aux 
+                        (predicate (intern "=" *parsed-symbol-intern-package*)) 
+                        (args (list left right))))
+             (:print-object
+              (lambda (object stream)
+                 (let ((negation (literal.negation object))
+                       (args (literal.args object)))
+                   (format stream "~A ~A ~A"
+                           (first args)
+                           (if negation "≠" "=")
+                           (second args))))))
+  "等式を表す構造体"
+  )
 
-(defstruct (equation-system
+(defstruct (equation-set
              (:print-object 
               (lambda (object stream)))
-             (:constructor equation-system (equations))
-             (:conc-name equation-system.))
+             (:constructor equation-set (equations))
+             (:conc-name equation-set.))
   "等式の集合を表現する構造体"
-  (equations nil :type %clause :read-only t))
+  (equations nil :type %equation-set :read-only t))
