@@ -4,7 +4,7 @@
     :clover-toplevel-condition
     :unexpected-error
     :occurrence-check-error
-    :ununifiable-literal-error
+    :ununifiable-error
     :unmatching-fterm-error
     :unmatching-literal-error
     :unexpected-unifier-source
@@ -51,11 +51,11 @@
    (literal2
      :initarg :literal2)))
 
-(define-condition ununifiable-literal-error (clover-toplevel-condition)
-  ((literal1
-     :initarg :literal1)
-   (literal2
-     :initarg :literal2)))
+(define-condition ununifiable-error (clover-toplevel-condition)
+  ((object1
+     :initarg :object1)
+   (object2
+     :initarg :object2)))
 
 (define-condition unexpected-unifier-source (clover-toplevel-condition)
   ((src

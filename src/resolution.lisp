@@ -49,7 +49,7 @@
                        :for us := (handler-case 
                                       (find-most-general-unifier-set
                                         literal1 literal2)
-                                    (ununifiable-literal-error (e) nil))
+                                    (ununifiable-error (e) nil))
                        :if (and us (not (eq (literal.negation literal1)
                                             (literal.negation literal2))))
                        :collect us)

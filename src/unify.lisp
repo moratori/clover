@@ -150,10 +150,10 @@
                    (literal.predicate literal2))
                (= (length (literal.args literal1))
                   (length (literal.args literal2))))
-    (error (make-condition 'ununifiable-literal-error
+    (error (make-condition 'ununifiable-error
                            :message "ununifiable literal"
-                           :literal1 literal1
-                           :literal2 literal2)))
+                           :object1 literal1
+                           :object2 literal2)))
   (handler-case
 
       (let* ((result (%collect-disagreement-set literal1 literal2)))
@@ -163,33 +163,33 @@
               :do    (setf result (%flatten-disagreement-set result unifier)))
 
         (unless (consistent-unifier-set-p result)
-          (error (make-condition 'ununifiable-literal-error
+          (error (make-condition 'ununifiable-error
                                  :message "ununifiable literal error because of unmathing fterm exists"
-                                 :literal1 literal1
-                                 :literal2 literal2)))
+                                 :object1 literal1
+                                 :object2 literal2)))
 
         result)
 
     (unmatching-fterm-error (e)
-      (error (make-condition 'ununifiable-literal-error
+      (error (make-condition 'ununifiable-error
                              :message "ununifiable literal error because of unmathing fterm exists"
-                             :literal1 literal1
-                             :literal2 literal2)))
+                             :object1 literal1
+                             :object2 literal2)))
     (unmatching-literal-error (e)
-      (error (make-condition 'ununifiable-literal-error
+      (error (make-condition 'ununifiable-error
                              :message "ununifiable literal error because of unmathing literals"
-                             :literal1 literal1
-                             :literal2 literal2)))
+                             :object1 literal1
+                             :object2 literal2)))
     (occurrence-check-error (e)
-      (error (make-condition 'ununifiable-literal-error
+      (error (make-condition 'ununifiable-error
                              :message "ununifiable literal error because of occurrence check error"
-                             :literal1 literal1
-                             :literal2 literal2)))
+                             :object1 literal1
+                             :object2 literal2)))
     (unexpected-unifier-source (e)
-      (error (make-condition 'ununifiable-literal-error
+      (error (make-condition 'ununifiable-error
                              :message "ununifiable literal error because of unexpected unifier source"
-                             :literal1 literal1
-                             :literal2 literal2)))))
+                             :object1 literal1
+                             :object2 literal2)))))
 
 
 (defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
@@ -209,7 +209,7 @@
           :for lit2 :in (clause.literals clause2)
           :for mgu := (handler-case
                          (find-most-general-unifier-set lit1 lit2)
-                        (ununifiable-literal-error (e) nil))
+                        (ununifiable-error (e) nil))
           :if mgu
           :do (return-from exit1 mgu))
         :if first-found-mgu

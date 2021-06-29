@@ -125,21 +125,21 @@
             (find-most-general-unifier-set 
               (literal nil 'Q (list (vterm 'x) (fterm 'f (list (vterm 'x)))))
               (literal t   'P (list (vterm 'w) (vterm 'w))))
-          (ununifiable-literal-error (e) t)))
+          (ununifiable-error (e) t)))
 
       (is 
         (handler-case 
             (find-most-general-unifier-set 
               (literal t 'P (list (vterm 'x) (fterm 'f (list (vterm 'x)))))
               (literal t   'P (list (vterm 'w) (vterm 'w))))
-          (ununifiable-literal-error (e) t)))
+          (ununifiable-error (e) t)))
       
       (is 
         (handler-case 
             (find-most-general-unifier-set 
               (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'x)))))
               (literal t   'P (list (vterm 'w) (vterm 'w))))
-          (ununifiable-literal-error (e) t)))
+          (ununifiable-error (e) t)))
       
       (is 
         (handler-case 
@@ -147,7 +147,7 @@
               (literal nil 'P (list (vterm 'x) (vterm 'x)))
               (literal t   'P (list (fterm 'f (list (vterm 'w))) 
                                     (fterm 'g (list (vterm 'v))))))
-          (ununifiable-literal-error (e) t)))
+          (ununifiable-error (e) t)))
 
       )
 
