@@ -11,24 +11,25 @@
                 :%intern-symbol-to-specified-package)
   (:export
     :rename
+    :collect-variables
     :rename-for-human-readable-printing))
 (in-package :clover.rename)
 
 
-(defmethod %make-rename-binds ((vterm vterm))
+(defmethod collect-variables ((vterm vterm))
   (list vterm))
 
-(defmethod %make-rename-binds ((fterm fterm))
+(defmethod collect-variables ((fterm fterm))
   (mapcan
-    #'%make-rename-binds
+    #'collect-variables
     (fterm.args fterm)))
 
-(defmethod %make-rename-binds ((literal literal))
+(defmethod collect-variables ((literal literal))
   (mapcan
-    #'%make-rename-binds
+    #'collect-variables
     (literal.args literal)))
 
-(defmethod %make-rename-binds ((clause clause))
+(defmethod make-rename-binds ((clause clause))
   (unifier-set
     (mapcar 
       (lambda (term)
@@ -36,15 +37,34 @@
           term (vterm (gensym *vterm-gensym-prefix*))))
       (remove-duplicates
         (mapcan
-          #'%make-rename-binds
+          #'collect-variables
           (clause.literals clause))
         :test #'term=))))
 
+(defmethod rename ((rewrite-rule rewrite-rule))
+  (let* ((src (rewrite-rule.src rewrite-rule))
+         (dst (rewrite-rule.dst rewrite-rule))
+         (src-terms 
+           (collect-variables src))
+         (dst-terms 
+           (collect-variables dst))
+         (unique-terms
+           (remove-duplicates 
+             (append src-terms dst-terms)
+             :test #'term=))
+         (bind
+           (unifier-set
+             (mapcar 
+               (lambda (x) (unifier x (vterm (gensym *vterm-gensym-prefix*))))
+               unique-terms))))
+    (rewrite-rule
+      (apply-unifier-set src bind)
+      (apply-unifier-set dst bind))))
 
 (defmethod rename ((clause clause))
   (apply-unifier-set
     clause
-    (%make-rename-binds clause)))
+    (make-rename-binds clause)))
 
 (defmethod rename ((clause-set clause-set))
   (clause-set
@@ -54,7 +74,7 @@
 
 
 (defmethod rename-for-human-readable-printing ((clause clause))
-  (let* ((unifier-set (%make-rename-binds clause))
+  (let* ((unifier-set (make-rename-binds clause))
          (unif (unifier-set.unifiers unifier-set)))
     (cond 
       ((> (length unif) (length *vterm-for-human-readable*))
