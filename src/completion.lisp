@@ -6,6 +6,7 @@
         :clover.util
         :clover.unify
         :clover.rename
+        :clover.rewrite
         )
   (:export
     )
