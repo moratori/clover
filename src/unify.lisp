@@ -144,52 +144,82 @@
       :test #'unifier=)))
 
 
+(defun %find-most-general-unifier-set (object1 object2)
+  (handler-case
+
+      (let* ((result 
+               (%collect-disagreement-set object1 object2)))
+
+        (loop :for   unifier := (%select-one-of-substitutable-unifier result)
+              :while unifier
+              :do    (setf result (%flatten-disagreement-set result unifier)))
+
+        (unless (consistent-unifier-set-p result)
+          (error 
+            (make-condition 
+              'ununifiable-error
+              :message "ununifiable error because of unmathing fterm exists"
+              :object1 object1
+              :object2 object2)))
+
+        result)
+
+    (unmatching-fterm-error (e)
+      (error 
+        (make-condition 
+          'ununifiable-error
+          :message "ununifiable error because of unmathing fterm exists"
+          :object1 object1
+          :object2 object2)))
+    (unmatching-literal-error (e)
+      (error 
+        (make-condition 
+          'ununifiable-error
+          :message "ununifiable error because of unmathing literals"
+          :object1 object1
+          :object2 object2)))
+    (occurrence-check-error (e)
+      (error 
+        (make-condition 
+          'ununifiable-error
+          :message "ununifiable error because of occurrence check error"
+          :object1 object1
+          :object2 object2)))
+    (unexpected-unifier-source (e)
+      (error 
+        (make-condition 
+          'ununifiable-error
+          :message "ununifiable error because of unexpected unifier source"
+          :object1 object1
+          :object2 object2)))))
+
 
 (defmethod find-most-general-unifier-set ((literal1 literal) (literal2 literal))
   (unless (and (eq (literal.predicate literal1)
                    (literal.predicate literal2))
                (= (length (literal.args literal1))
                   (length (literal.args literal2))))
-    (error (make-condition 'ununifiable-error
-                           :message "ununifiable literal"
-                           :object1 literal1
-                           :object2 literal2)))
-  (handler-case
+    (error 
+      (make-condition 
+        'ununifiable-error
+        :message "ununifiable literal"
+        :object1 literal1
+        :object2 literal2)))
+  (%find-most-general-unifier-set literal1 literal2))
 
-      (let* ((result (%collect-disagreement-set literal1 literal2)))
 
-        (loop :for   unifier = (%select-one-of-substitutable-unifier result)
-              :while unifier
-              :do    (setf result (%flatten-disagreement-set result unifier)))
-
-        (unless (consistent-unifier-set-p result)
-          (error (make-condition 'ununifiable-error
-                                 :message "ununifiable literal error because of unmathing fterm exists"
-                                 :object1 literal1
-                                 :object2 literal2)))
-
-        result)
-
-    (unmatching-fterm-error (e)
-      (error (make-condition 'ununifiable-error
-                             :message "ununifiable literal error because of unmathing fterm exists"
-                             :object1 literal1
-                             :object2 literal2)))
-    (unmatching-literal-error (e)
-      (error (make-condition 'ununifiable-error
-                             :message "ununifiable literal error because of unmathing literals"
-                             :object1 literal1
-                             :object2 literal2)))
-    (occurrence-check-error (e)
-      (error (make-condition 'ununifiable-error
-                             :message "ununifiable literal error because of occurrence check error"
-                             :object1 literal1
-                             :object2 literal2)))
-    (unexpected-unifier-source (e)
-      (error (make-condition 'ununifiable-error
-                             :message "ununifiable literal error because of unexpected unifier source"
-                             :object1 literal1
-                             :object2 literal2)))))
+(defmethod find-most-general-unifier-set ((fterm1 fterm) (fterm2 fterm))
+  (unless (and (eq (fterm.fsymbol fterm1)
+                   (fterm.fsymbol fterm2))
+               (= (length (fterm.args fterm1))
+                  (length (fterm.args fterm2))))
+    (error 
+      (make-condition 
+        'ununifiable-error
+        :message "ununifiable literal"
+        :object1 fterm1
+        :object2 fterm2)))
+  (%find-most-general-unifier-set fterm1 fterm2))
 
 
 (defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))

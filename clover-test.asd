@@ -35,6 +35,7 @@
                    (:file "simplify")
                    (:file "substitute")
                    (:file "resolution")
+                   (:file "rewrite")
                    (:file "rendertree")
                    (:file "parser"))))))
   :description "Test system for clover")

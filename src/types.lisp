@@ -35,6 +35,11 @@
         :equation
         :equation-set
         :equation-set.equations
+        :rewrite-rule
+        :rewrite-rule.src
+        :rewrite-rule.dst
+        :rewrite-rule-set
+        :rewrite-rule-set.rewrite-rules
   ))
 (in-package :clover.types)
 
@@ -81,6 +86,17 @@
 
 (deftype %unifier-set ()
   '(satisfies %%unifier-set))
+
+
+(defun %%rewrite-rule-set (obj)
+  (and 
+    (listp obj)
+    (every (lambda (x)
+             (typep x 'rewrite-rule))
+           obj)))
+
+(deftype %rewrite-rule-set ()
+  '(satisfies %%rewrite-rule-set))
 
 
 (defun %%args (obj)
@@ -245,3 +261,27 @@
              (:conc-name equation-set.))
   "等式の集合を表現する構造体"
   (equations nil :type %equation-set :read-only t))
+
+
+(defstruct (rewrite-rule
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "~A=>~A" 
+                         (rewrite-rule.src object)
+                         (rewrite-rule.dst object))))
+             (:constructor rewrite-rule (src dst))
+             (:conc-name rewrite-rule.))
+  "書き換え規則を保持する。unifier構造体との差異は、srcにftermが来ることを許すこと"
+   (src (error "default value required") :type term  :read-only t)
+   (dst (error "default value required") :type term  :read-only t))
+
+
+(defstruct (rewrite-rule-set
+             (:print-object 
+               (lambda (object stream)
+                 (format stream "{~{~A~^,~}}" 
+                         (rewrite-rule-set.rewrite-rules object))))
+             (:constructor rewrite-rule-set (rewrite-rules))
+             (:conc-name rewrite-rule-set.))
+  (rewrite-rules nil :type %rewrite-rule-set :read-only t))
+
