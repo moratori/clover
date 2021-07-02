@@ -105,3 +105,57 @@
 
         (is (term= result expected)))
       )
+
+(test clover.tests.rewrite.rewrite-final.test4
+
+      (let* ((target
+               (fterm 'Inv (list
+                             (fterm 'Inv (list 
+                                           (fterm 'Inv (list 
+                                                         (fterm 'Inv (list (fterm 'mult (list (vterm 'x)
+                                                                                              (fterm 'Inv (list (vterm 'x))))))))))))))
+
+             (rule-set
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule (fterm 'Inv (list (fterm 'E nil)))
+                                (fterm 'E nil))
+                  (rewrite-rule (fterm 'mult (list (fterm 'E nil) (vterm 'x)))
+                                (vterm 'x))
+                  (rewrite-rule (fterm 'mult (list (vterm 'x) (fterm 'E nil)))
+                                (vterm 'x))
+                  (rewrite-rule (fterm 'Inv (list (fterm 'Inv (list (vterm 'x)))))
+                                (vterm 'x))
+                  (rewrite-rule (fterm 'mult (list (fterm 'Inv (list (vterm 'x)))
+                                                   (vterm 'x)
+                                                   ))
+                                (fterm 'E nil))
+                  (rewrite-rule (fterm 'mult (list (vterm 'x) 
+                                                   (fterm 'Inv (list (vterm 'x)))))
+                                (fterm 'E nil))
+                  (rewrite-rule (fterm 'Inv (list (fterm 'mult (list (vterm 'x)
+                                                                     (vterm 'y)))))
+                                (fterm 'mult (list (fterm 'Inv (list (vterm 'y)))
+                                                   (fterm 'Inv (list (vterm 'x))))))
+                  (rewrite-rule (fterm 'mult (list (fterm 'mult (list (vterm 'x)
+                                                                      (vterm 'y)))
+                                                   (vterm 'z)))
+                                (fterm 'mult (list (vterm 'x)
+                                                   (fterm 'mult (list (vterm 'y)
+                                                                      (vterm 'z))))))
+                  (rewrite-rule (fterm 'mult (list (fterm 'Inv (list (vterm 'x)))
+                                                   (fterm 'mult (list (vterm 'x)
+                                                                      (vterm 'y)))))
+                                (vterm 'y))
+                  (rewrite-rule (fterm 'mult (list (vterm 'x)
+                                                   (fterm 'mult (list (fterm 'Inv (list (vterm 'x)))
+                                                                      (vterm 'y)))))
+                                (vterm 'y)))))
+            (result
+              (rewrite-final target rule-set))
+            (expected
+              (fterm 'E nil)))
+
+        (is (term= result expected)))
+      )
+
