@@ -72,219 +72,13 @@
                   :symbol))
   (premise
 
-    (:symbol :equality :symbol
-     (lambda (sym1 equality sym2)
-       (clause (list (equation
-         nil
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym1)))
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym2))))))))
+    (term :equality term
+     (lambda (term1 equality term2)
+       (clause (list (equation nil term1 term2)))))
 
-    (:symbol :equality :constant
-     (lambda (sym equality constant)
-       (clause (list (equation
-         nil
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :equality :symbol
-     (lambda (constant equality sym)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym))))))))
-
-    (:constant :equality :constant
-     (lambda (constant1 equality constant2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant1))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant2))
-           nil))))))
-
-    (:symbol argument :equality :symbol argument
-     (lambda (sym1 argument1 equality sym2 argument2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))
-           argument2))))))
-
-    (:symbol argument :equality :symbol
-     (lambda (sym1 argument1 equality sym2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))))))))
-
-    (:symbol :equality :symbol argument
-     (lambda (sym1 equality sym2 argument)
-       (clause (list (equation
-         nil
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2)) 
-           argument))))))
-
-    (:symbol argument :equality :constant
-     (lambda (sym1 argument1 equality constant)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :equality :symbol argument 
-     (lambda (constant equality sym argument)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym))
-           argument)))))) 
-
-    (:symbol :not :equality :symbol
-     (lambda (sym1 neg equality sym2)
-       (clause (list (equation
-         t
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym1)))
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym2))))))))
-
-    (:symbol :not :equality :constant
-     (lambda (sym neg equality constant)
-       (clause (list (equation
-         t
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :not :equality :symbol
-     (lambda (constant neg equality sym)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym))))))))
-
-    (:constant :not :equality :constant
-     (lambda (constant1 neg equality constant2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant1))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant2))
-           nil))))))
-
-    (:symbol argument :not :equality :symbol argument
-     (lambda (sym1 argument1 neg equality sym2 argument2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))
-           argument2))))))
-
-    (:symbol argument :not :equality :symbol
-     (lambda (sym1 argument1 neg equality sym2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))))))))
-
-    (:symbol :not :equality :symbol argument
-     (lambda (sym1 neg equality sym2 argument)
-       (clause (list (equation
-         t
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2)) 
-           argument))))))
-
-    (:symbol argument :not :equality :constant
-     (lambda (sym1 argument1 neg equality constant)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :not :equality :symbol argument 
-     (lambda (constant neg equality sym argument)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym))
-           argument)))))) 
+    (term :not :equality term
+     (lambda (term1 neg equality term2)
+       (clause (list (equation t term1 term2)))))
 
     (:symbol argument
      (lambda (symbol argument)
@@ -328,59 +122,40 @@
        (declare (ignore lparen rparen))
        termseq)))
 
-
-  (termseq
+  (term
 
     (:constant
      (lambda (constant)
-       (list 
          (fterm 
            (%intern-symbol-to-specified-package 
              (string-upcase constant))
-           nil))))
+           nil)))
 
     (:symbol
      (lambda (symbol)
-       (list 
          (vterm 
            (%intern-symbol-to-specified-package 
-             (string-upcase symbol))))))
+             (string-upcase symbol)))))
 
     (:symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
-       (list 
          (fterm
            (%intern-symbol-to-specified-package
              (string-upcase symbol))
            termseq))))
 
-    (termseq :comma :constant
-     (lambda (termseq comma constant)
-       (declare (ignore comma))
-       (append termseq 
-               (list
-                 (fterm 
-                   (%intern-symbol-to-specified-package
-                     (string-upcase constant))
-                   nil)))))
+  (termseq
 
-    (termseq :comma :symbol
-     (lambda (termseq comma symbol)
+    (term
+      (lambda (term)
+        (list term)))
+
+    (termseq :comma term
+     (lambda (termseq comma term)
        (declare (ignore comma))
        (append termseq
-               (list (vterm (%intern-symbol-to-specified-package
-                              (string-upcase symbol)))))))
-
-    (termseq :comma :symbol :lparen termseq :rparen
-     (lambda (termseq1 comma symbol lparen termseq2 rparen)
-       (declare (ignore comma lparen rparen))
-       (append termseq1
-               (list 
-                 (fterm
-                   (%intern-symbol-to-specified-package
-                     (string-upcase symbol))
-                   termseq2)))))))
+               (list term))))))
 
 
 (define-parser %conseq-expression-parser 
@@ -395,220 +170,13 @@
                   :symbol))
   (conseq
 
+    (term :equality term
+     (lambda (term1 equality term2)
+       (clause (list (equation t term1 term2)))))
 
-    (:symbol :equality :symbol
-     (lambda (sym1 equality sym2)
-       (clause (list (equation
-         t
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym1)))
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym2))))))))
-
-    (:symbol :equality :constant
-     (lambda (sym equality constant)
-       (clause (list (equation
-         t
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :equality :symbol
-     (lambda (constant equality sym)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym))))))))
-
-    (:constant :equality :constant
-     (lambda (constant1 equality constant2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant1))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant2))
-           nil))))))
-
-    (:symbol argument :equality :symbol argument
-     (lambda (sym1 argument1 equality sym2 argument2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))
-           argument2))))))
-
-    (:symbol argument :equality :symbol
-     (lambda (sym1 argument1 equality sym2)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))))))))
-
-    (:symbol :equality :symbol argument
-     (lambda (sym1 equality sym2 argument)
-       (clause (list (equation
-         t
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2)) 
-           argument))))))
-
-    (:symbol argument :equality :constant
-     (lambda (sym1 argument1 equality constant)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :equality :symbol argument 
-     (lambda (constant equality sym argument)
-       (clause (list (equation
-         t
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym))
-           argument)))))) 
-
-    (:symbol :not :equality :symbol
-     (lambda (sym1 neg equality sym2)
-       (clause (list (equation
-         nil
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym1)))
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym2))))))))
-
-    (:symbol :not :equality :constant
-     (lambda (sym neg equality constant)
-       (clause (list (equation
-         nil
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :not :equality :symbol
-     (lambda (constant neg equality sym)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (vterm (%intern-symbol-to-specified-package
-                  (string-upcase sym))))))))
-
-    (:constant :not :equality :constant
-     (lambda (constant1 neg equality constant2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant1))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant2))
-           nil))))))
-
-    (:symbol argument :not :equality :symbol argument
-     (lambda (sym1 argument1 neg equality sym2 argument2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))
-           argument2))))))
-
-    (:symbol argument :not :equality :symbol
-     (lambda (sym1 argument1 neg equality sym2)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2))))))))
-
-    (:symbol :not :equality :symbol argument
-     (lambda (sym1 neg equality sym2 argument)
-       (clause (list (equation
-         nil
-         (vterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1)))
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym2)) 
-           argument))))))
-
-    (:symbol argument :not :equality :constant
-     (lambda (sym1 argument1 neg equality constant)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym1))
-           argument1)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil))))))
-
-    (:constant :not :equality :symbol argument 
-     (lambda (constant neg equality sym argument)
-       (clause (list (equation
-         nil
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase constant))
-           nil)
-         (fterm 
-           (%intern-symbol-to-specified-package
-             (string-upcase sym))
-           argument)))))) 
+    (term :not :equality term
+     (lambda (term1 neg equality term2)
+       (clause (list (equation nil term1 term2)))))
 
     (:symbol argument
      (lambda (symbol argument)
@@ -619,8 +187,7 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil :conseq
-         )))
+         nil nil nil :conseq)))
 
     (:not :symbol argument
      (lambda (not symbol argument)
@@ -632,8 +199,7 @@
              (%intern-symbol-to-specified-package 
                (string-upcase symbol))
              argument))
-         nil nil nil :conseq
-         )))
+         nil nil nil :conseq)))
 
     (conseq :and conseq
      (lambda (conseq-left and conseq-right)
@@ -641,8 +207,7 @@
        (clause 
          (append 
            (clause.literals conseq-left)
-           (clause.literals conseq-right)
-           )
+           (clause.literals conseq-right))
          nil nil nil :conseq
          ))))
 
@@ -658,56 +223,37 @@
        (declare (ignore lparen rparen))
        termseq)))
 
-
-  (termseq
+  (term
 
     (:constant
      (lambda (constant)
-       (list 
          (fterm 
            (%intern-symbol-to-specified-package 
              (string-upcase constant))
-           nil))))
+           nil)))
 
     (:symbol
      (lambda (symbol)
-       (list 
          (vterm 
            (%intern-symbol-to-specified-package 
-             (string-upcase symbol))))))
+             (string-upcase symbol)))))
 
     (:symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
-       (list 
          (fterm
            (%intern-symbol-to-specified-package
              (string-upcase symbol))
            termseq))))
 
-    (termseq :comma :constant
-     (lambda (termseq comma constant)
-       (declare (ignore comma))
-       (append termseq 
-               (list
-                 (fterm 
-                   (%intern-symbol-to-specified-package
-                     (string-upcase constant))
-                   nil)))))
+  (termseq
 
-    (termseq :comma :symbol
-     (lambda (termseq comma symbol)
+    (term
+      (lambda (term)
+        (list term)))
+
+    (termseq :comma term
+     (lambda (termseq comma term)
        (declare (ignore comma))
        (append termseq
-               (list (vterm (%intern-symbol-to-specified-package
-                              (string-upcase symbol)))))))
-
-    (termseq :comma :symbol :lparen termseq :rparen
-     (lambda (termseq1 comma symbol lparen termseq2 rparen)
-       (declare (ignore comma lparen rparen))
-       (append termseq1
-               (list 
-                 (fterm
-                   (%intern-symbol-to-specified-package
-                     (string-upcase symbol))
-                   termseq2)))))))
+               (list term))))))
