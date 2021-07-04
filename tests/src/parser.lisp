@@ -623,6 +623,22 @@
                               (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::X))))
                         ))))
 
+      (is 
+        (clause=
+          (parse-conseq-logical-expression "[A, B] = cons(A,cons(B,NIL))")
+          (clause (list 
+                    (literal t
+                             'CLOVER.PARSER::=
+                             (list 
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+
       )
 
 (test clover.tests.parser.parse-premise-logical-expression.test4
@@ -665,4 +681,42 @@
                              (list 
                                (vterm 'CLOVER.PARSER::X)
                                (vterm 'CLOVER.PARSER::Y)))))))
+
+      (is 
+        (clause=
+          (parse-premise-logical-expression "[A, B] = cons(A,cons(B,NIL))")
+          (clause (list 
+                    (literal nil
+                             'CLOVER.PARSER::=
+                             (list 
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+
+      (is 
+        (clause=
+          (parse-premise-logical-expression "[A, B] = cons(A,cons(B,NIL)) | pred(x,y)")
+          (clause (list 
+                    (literal nil
+                             'CLOVER.PARSER::PRED
+                             (list 
+                               (vterm 'CLOVER.PARSER::X)
+                               (vterm 'CLOVER.PARSER::Y)))
+                    (literal nil
+                             'CLOVER.PARSER::=
+                             (list 
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                               (fterm 'CLOVER.PARSER::CONS 
+                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                            (fterm 'CLOVER.PARSER::CONS 
+                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+
       )

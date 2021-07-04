@@ -46,6 +46,8 @@
   (","         (return (values :comma  'comma)))
   ("\\("       (return (values :lparen 'lparen)))
   ("\\)"       (return (values :rparen 'rparen)))
+  ("\\["       (return (values :list-lparen 'list-lparen)))
+  ("\\]"       (return (values :list-rparen 'list-rparen)))
   ("[A-Z]+"    (return (values :constant $@)))
   ("[a-z0-9]+" (return (values :symbol $@))))
 
@@ -56,6 +58,8 @@
   (","         (return (values :comma  'comma)))
   ("\\("       (return (values :lparen 'lparen)))
   ("\\)"       (return (values :rparen 'rparen)))
+  ("\\["       (return (values :list-lparen 'list-lparen)))
+  ("\\]"       (return (values :list-rparen 'list-rparen)))
   ("[A-Z]+"    (return (values :constant $@)))
   ("[a-z0-9]+" (return (values :symbol $@))))
 
@@ -66,6 +70,8 @@
                   :not
                   :lparen
                   :rparen
+                  :list-lparen
+                  :list-rparen
                   :comma
                   :equality
                   :constant
@@ -124,6 +130,22 @@
 
   (term
 
+    (:list-lparen :list-rparen
+     (lambda (lparen rparen)
+       (fterm 
+         (%intern-symbol-to-specified-package "NIL") nil)))
+
+    (:list-lparen termseq :list-rparen
+     (lambda (lparen termseq rparen)
+       (let ((nl (fterm (%intern-symbol-to-specified-package "NIL") nil))
+             (fname (%intern-symbol-to-specified-package "CONS")))
+         (labels
+             ((inner (arg)
+                (if (null arg)
+                    nl
+                    (fterm fname (list (car arg) (inner (cdr arg)))))))
+           (inner termseq)))))
+
     (:constant
      (lambda (constant)
          (fterm 
@@ -164,6 +186,8 @@
                   :not
                   :lparen
                   :rparen
+                  :list-lparen
+                  :list-rparen
                   :comma
                   :equality
                   :constant
@@ -224,6 +248,22 @@
        termseq)))
 
   (term
+
+    (:list-lparen :list-rparen
+     (lambda (lparen rparen)
+       (fterm 
+         (%intern-symbol-to-specified-package "NIL") nil)))
+
+    (:list-lparen termseq :list-rparen
+     (lambda (lparen termseq rparen)
+       (let ((nl (fterm (%intern-symbol-to-specified-package "NIL") nil))
+             (fname (%intern-symbol-to-specified-package "CONS")))
+         (labels
+             ((inner (arg)
+                (if (null arg)
+                    nl
+                    (fterm fname (list (car arg) (inner (cdr arg)))))))
+           (inner termseq)))))
 
     (:constant
      (lambda (constant)
