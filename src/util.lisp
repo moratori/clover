@@ -19,6 +19,8 @@
     :clause=
     :clause-set=
     :conseq-clause-p
+    :constant-p
+    :ground-term-p
     ))
 (in-package :clover.util)
 
@@ -38,6 +40,21 @@
       (eq fsymbol1 fsymbol2)
       (= (length args1) (length args2))
       (every #'term= args1 args2))))
+
+
+(defmethod constant-p ((object term))
+  (and
+    (typep object 'fterm)
+    (zerop (length (fterm.args object)))))
+
+(defmethod ground-term-p ((term vterm))
+  nil)
+
+(defmethod ground-term-p ((term fterm))
+  (if (constant-p term)
+      t
+      (every #'ground-term-p (fterm.args term))))
+
 
 (defmethod literal= ((literal1 literal) (literal2 literal))
   (let ((pred1 (literal.predicate literal1))
