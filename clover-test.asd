@@ -31,6 +31,7 @@
                    (:file "types")
                    (:file "unify")
                    (:file "util")
+                   (:file "termorder")
                    (:file "rename")
                    (:file "simplify")
                    (:file "substitute")

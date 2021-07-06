@@ -45,6 +45,7 @@
                  (:file "conditions")
                  (:file "types")
                  (:file "util")
+                 (:file "termorder")
                  (:file "substitute")
                  (:file "unify")
                  (:file "parser")

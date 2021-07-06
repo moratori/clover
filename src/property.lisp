@@ -7,6 +7,8 @@
     :*opener-algorithm*
     :*parsed-symbol-intern-package*
     :*vterm-for-human-readable*
+    :*available-term-order-algorithms*
+    :*term-order-algorithm*
     )
   )
 (in-package :clover.property)
@@ -26,3 +28,9 @@
 
 (defparameter *vterm-for-human-readable*
   (list "X" "Y" "Z" "W" "S" "T" "U" "V" "M" "N"))
+
+(defparameter *term-order-algorithm* :original)
+
+;; for dictionary ordering, see https://ci.nii.ac.jp/naid/110003743432
+(defparameter *available-term-order-algorithms*
+  (list :dictionary :original))
