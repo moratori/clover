@@ -159,3 +159,51 @@
         (is (term= result expected)))
       )
 
+
+(test clover.tests.rewrite.apply-rewrite-rule.test1
+      (let* ((target 
+               (fterm 'f (list (vterm 'x))))
+             (rule
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (constant 'A)))
+             (result
+               (apply-rewrite-rule target rule))
+             (expected
+               (constant 'A)))
+        (is (term= result expected))
+        )
+      )
+
+(test clover.tests.rewrite.find-critical-pair.test1
+      (let* ((target 
+               (fterm 'f (list (vterm 'x))))
+             (rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (constant 'A)))
+             (rule2
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (fterm 'g (list (vterm 'z)))))
+             (result
+               (find-critical-pair target rule1 rule2)))
+        (is result)))
+
+
+(test clover.tests.rewrite.all-critical-pair.test1
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (constant 'A)))
+             (rule2
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (fterm 'g (list (vterm 'z)))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2)))
+             (result
+               (all-critical-pair rule-set)))
+        (is result))
+      )
