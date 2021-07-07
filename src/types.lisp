@@ -266,7 +266,7 @@
                            (first args)
                            (if negation "≠" "=")
                            (second args))))))
-  "等式を表す構造体"
+  "等式または危険対を表す構造体"
   )
 
 (defstruct (equation-set
