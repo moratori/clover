@@ -1,11 +1,11 @@
-(defpackage clover.tests.resolution
+(defpackage clover.tests.rewrite
   (:use :cl
         :clover.types
         :clover.util
         :clover.unify
         :clover.rewrite
         :1am))
-(in-package :clover.tests.resolution)
+(in-package :clover.tests.rewrite)
 
 
 (test clover.tests.rewrite.rewrite-final.test1
