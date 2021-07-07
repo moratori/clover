@@ -100,22 +100,24 @@
 (defmethod all-critical-pair ((rewrite-rule-set rewrite-rule-set))
   (let ((rules
           (rewrite-rule-set.rewrite-rules rewrite-rule-set)))
-    (loop 
-      :for rule1 :in rules
-      :for i :from 0
-      :append
-      (loop
-        :for rule2 :in rules
-        :for j :from 0
-        :if (/= i j)
+    (remove-duplicates
+      (loop 
+        :for rule1 :in rules
+        :for i :from 0
         :append
-        (let* ((rule1-src (rewrite-rule.src rule1))
-               (rule1-dst (rewrite-rule.dst rule1))
-               (rule2-src (rewrite-rule.src rule2))
-               (rule2-dst (rewrite-rule.dst rule2))
-               (pairs (list (find-critical-pair rule1-src rule1 rule2)
-                            (find-critical-pair rule2-src rule1 rule2))))
-          (remove-if #'null pairs))))))
+        (loop
+          :for rule2 :in rules
+          :for j :from 0
+          :if (/= i j)
+          :append
+          (let* ((rule1-src (rewrite-rule.src rule1))
+                 (rule1-dst (rewrite-rule.dst rule1))
+                 (rule2-src (rewrite-rule.src rule2))
+                 (rule2-dst (rewrite-rule.dst rule2))
+                 (pairs (list (find-critical-pair rule1-src rule1 rule2)
+                              (find-critical-pair rule2-src rule1 rule2))))
+            (remove-if #'null pairs))))
+      :test #'equation=)))
 
 
 (defmethod apply-rewrite-rule ((term term) (rewrite-rule rewrite-rule))
