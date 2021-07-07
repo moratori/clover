@@ -216,7 +216,7 @@
     (error 
       (make-condition 
         'ununifiable-error
-        :message "ununifiable literal"
+        :message "ununifiable fterm"
         :object1 fterm1
         :object2 fterm2)))
   (%find-most-general-unifier-set fterm1 fterm2))
