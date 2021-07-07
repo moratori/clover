@@ -94,7 +94,7 @@
         (rule2-rewroted
           (apply-rewrite-rule term rule2)))
     (unless (term= rule1-rewroted rule2-rewroted)
-      (cons rule1-rewroted rule2-rewroted))))
+      (equation nil rule1-rewroted rule2-rewroted))))
 
 
 (defmethod all-critical-pair ((rewrite-rule-set rewrite-rule-set))
