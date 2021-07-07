@@ -21,6 +21,7 @@
     :conseq-clause-p
     :constant-p
     :ground-term-p
+    :equation=
     ))
 (in-package :clover.util)
 
@@ -41,6 +42,15 @@
       (= (length args1) (length args2))
       (every #'term= args1 args2))))
 
+(defmethod equation= ((equation1 equation) (equation2 equation))
+  (destructuring-bind (left1 right1) (equation.args equation1)
+    (destructuring-bind (left2 right2) (equation.args equation2)
+      (and 
+        (eq (equation.negation equation1)
+            (equation.negation equation2))
+        (or
+          (and (term= left1 left2) (term= right1 right2))
+          (and (term= left1 right2) (term= right1 left2)))))))
 
 (defmethod constant-p ((object term))
   (and
