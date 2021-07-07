@@ -49,7 +49,12 @@
          (new (fterm fsymbol1 rewrited-args)))
     (handler-case
         (let* ((unifset
-                 (find-most-general-unifier-set new src))
+                ;; find-most-general-unifier-set は、元々導出の為の実装であり、変数同士から
+                ;; unifierを作るときの順序は適当である。(左に与えられた項の変数が unifierのsrcになる)
+                ;; 例: find-most-general-unifier-set(f(x), f(z)) -> {x -> z}
+                ;; rewriteでは、src(書き換え規則)に含まれる変数をsrcにしたいので
+                ;; src, new の順序にする
+                 (find-most-general-unifier-set src new))
                (new-variables
                  (collect-variables new))
                ;; 対象項(fterm)中のvtermを元とする、unifierを削除する
