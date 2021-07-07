@@ -27,6 +27,10 @@
         :fterm
         :fterm.fsymbol
         :fterm.args
+        :constant
+        :constant.fsymbol
+        :equation.negation
+        :equation.args
         :unifier
         :unifier.src
         :unifier.dst
@@ -153,6 +157,17 @@
    (fsymbol (error "default value required") :type symbol :read-only t)
    (args    (error "default value required") :type %args  :read-only t))
 
+(defstruct (constant
+             (:include fterm)
+             (:print-object
+              (lambda (object stream)
+                (format stream "~A" 
+                        (string-upcase (symbol-name (fterm.fsymbol object))))))
+             (:constructor constant
+              (fsymbol &aux (args nil)))
+             (:conc-name constant.))
+  "定数(引数なしのfterm)を表す構造体"
+  )
 
 (defstruct (unifier
              (:print-object 
