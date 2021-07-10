@@ -68,7 +68,7 @@
                  (list 
                    (literal t
                             'CLOVER.PARSER::PRED
-                            (list (fterm 'CLOVER.PARSER::A nil)
+                            (list (constant 'CLOVER.PARSER::A)
                                   (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))))
       
       (is (clause=
@@ -78,7 +78,7 @@
                    (literal t
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
-                                  (fterm 'CLOVER.PARSER::A nil)))))))
+                                  (constant 'CLOVER.PARSER::A )))))))
       
       (is (clause=
                (parse-premise-logical-expression "!pred(g(f(x)),A)")
@@ -87,7 +87,7 @@
                    (literal t
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))))))
+                                  (constant 'CLOVER.PARSER::A )))))))
 
       (is (clause=
                (parse-premise-logical-expression "!pred(g(f(x)),A) | q(A, B) | !r(x,y,fun(ABC))")
@@ -96,16 +96,16 @@
                    (literal t
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))
+                                  (constant 'CLOVER.PARSER::A )))
                    (literal nil
                             'CLOVER.PARSER::Q
-                            (list (fterm 'CLOVER.PARSER::A nil)
-                                  (fterm 'CLOVER.PARSER::B nil)))
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
                    (literal t
                             'CLOVER.PARSER::R
                             (list (vterm 'CLOVER.PARSER::X)
                                   (vterm 'CLOVER.PARSER::Y)
-                                  (fterm 'CLOVER.PARSER::FUN (list (fterm 'CLOVER.PARSER::ABC nil)))))))))
+                                  (fterm 'CLOVER.PARSER::FUN (list (constant 'CLOVER.PARSER::ABC )))))))))
       
       (is (clause=
                (parse-premise-logical-expression 
@@ -115,16 +115,16 @@
                    (literal t
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))
+                                  (constant 'CLOVER.PARSER::A )))
                    (literal nil
                             'CLOVER.PARSER::Q
-                            (list (fterm 'CLOVER.PARSER::A nil)
-                                  (fterm 'CLOVER.PARSER::B nil)))
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
                    (literal t
                             'CLOVER.PARSER::R
                             (list (vterm 'CLOVER.PARSER::X)
                                   (vterm 'CLOVER.PARSER::Y)
-                                  (fterm 'CLOVER.PARSER::FUN (list (fterm 'CLOVER.PARSER::ABC nil)))))))))
+                                  (fterm 'CLOVER.PARSER::FUN (list (constant 'CLOVER.PARSER::ABC )))))))))
       )
 
 
@@ -189,7 +189,7 @@
                  (list 
                    (literal nil
                             'CLOVER.PARSER::PRED
-                            (list (fterm 'CLOVER.PARSER::A nil)
+                            (list (constant 'CLOVER.PARSER::A )
                                   (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))))))
       
       (is (clause=
@@ -199,7 +199,7 @@
                    (literal nil
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
-                                  (fterm 'CLOVER.PARSER::A nil)))))))
+                                  (constant 'CLOVER.PARSER::A )))))))
       
       (is (clause=
                (parse-conseq-logical-expression "!pred(g(f(x)),A)")
@@ -208,7 +208,7 @@
                    (literal nil
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))))))
+                                  (constant 'CLOVER.PARSER::A )))))))
 
       (is (clause=
                (parse-conseq-logical-expression "!pred(g(f(x)),A) & q(A, B) & !r(x,y,fun(ABC))")
@@ -217,16 +217,16 @@
                    (literal nil
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))
+                                  (constant 'CLOVER.PARSER::A )))
                    (literal t
                             'CLOVER.PARSER::Q
-                            (list (fterm 'CLOVER.PARSER::A nil)
-                                  (fterm 'CLOVER.PARSER::B nil)))
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
                    (literal nil
                             'CLOVER.PARSER::R
                             (list (vterm 'CLOVER.PARSER::X)
                                   (vterm 'CLOVER.PARSER::Y)
-                                  (fterm 'CLOVER.PARSER::FUN (list (fterm 'CLOVER.PARSER::ABC nil)))))))))
+                                  (fterm 'CLOVER.PARSER::FUN (list (constant 'CLOVER.PARSER::ABC )))))))))
       
       (is (clause=
                (parse-premise-logical-expression
@@ -236,16 +236,16 @@
                    (literal nil
                             'CLOVER.PARSER::PRED
                             (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
-                                  (fterm 'CLOVER.PARSER::A nil)))
+                                  (constant 'CLOVER.PARSER::A )))
                    (literal t
                             'CLOVER.PARSER::Q
-                            (list (fterm 'CLOVER.PARSER::A nil)
-                                  (fterm 'CLOVER.PARSER::B nil)))
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
                    (literal nil
                             'CLOVER.PARSER::R
                             (list (vterm 'CLOVER.PARSER::X)
                                   (vterm 'CLOVER.PARSER::Y)
-                                  (fterm 'CLOVER.PARSER::FUN (list (fterm 'CLOVER.PARSER::ABC nil)))))))))
+                                  (fterm 'CLOVER.PARSER::FUN (list (constant 'CLOVER.PARSER::ABC )))))))))
 
       )
 
@@ -256,15 +256,15 @@
         (clause=
           (parse-premise-logical-expression "A = A")
           (clause (list (equation nil
-                   (fterm 'CLOVER.PARSER::A nil)
-                   (fterm 'CLOVER.PARSER::A nil))))))
+                   (constant 'CLOVER.PARSER::A )
+                   (constant 'CLOVER.PARSER::A ))))))
 
       (is 
         (clause=
           (parse-premise-logical-expression "A = x")
           (clause (list (literal nil
                    'CLOVER.PARSER::=
-                   (list (fterm 'CLOVER.PARSER::A nil)
+                   (list (constant 'CLOVER.PARSER::A )
                          (vterm 'CLOVER.PARSER::X)))))))
 
       (is 
@@ -274,7 +274,7 @@
                    'CLOVER.PARSER::=
                    (list 
                      (vterm 'CLOVER.PARSER::X)
-                     (fterm 'CLOVER.PARSER::A nil)))))))
+                     (constant 'CLOVER.PARSER::A )))))))
 
       (is 
         (clause=
@@ -316,8 +316,8 @@
           (clause (list (literal nil
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
-                     (fterm 'CLOVER.PARSER::ONE nil)))))))
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))
+                     (constant 'CLOVER.PARSER::ONE)))))))
 
       (is 
         (clause=
@@ -325,8 +325,8 @@
           (clause (list (literal nil
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::ONE nil)
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))))))))
+                     (constant 'CLOVER.PARSER::ONE )
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))))))))
 
       )
 
@@ -338,15 +338,15 @@
         (clause=
           (parse-premise-logical-expression "A != A")
           (clause (list (equation t
-                   (fterm 'CLOVER.PARSER::A nil)
-                   (fterm 'CLOVER.PARSER::A nil))))))
+                   (constant 'CLOVER.PARSER::A )
+                   (constant 'CLOVER.PARSER::A ))))))
 
       (is 
         (clause=
           (parse-premise-logical-expression "A != x")
           (clause (list (literal t
                    'CLOVER.PARSER::=
-                   (list (fterm 'CLOVER.PARSER::A nil)
+                   (list (constant 'CLOVER.PARSER::A )
                          (vterm 'CLOVER.PARSER::X)))))))
 
       (is 
@@ -356,7 +356,7 @@
                    'CLOVER.PARSER::=
                    (list 
                      (vterm 'CLOVER.PARSER::X)
-                     (fterm 'CLOVER.PARSER::A nil)))))))
+                     (constant 'CLOVER.PARSER::A )))))))
 
       (is 
         (clause=
@@ -398,8 +398,8 @@
           (clause (list (literal t
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
-                     (fterm 'CLOVER.PARSER::ONE nil)))))))
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))
+                     (constant 'CLOVER.PARSER::ONE )))))))
 
       (is 
         (clause=
@@ -407,8 +407,8 @@
           (clause (list (literal t
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::ONE nil)
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))))))))
+                     (constant 'CLOVER.PARSER::ONE )
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))))))))
 
       )
 
@@ -419,15 +419,15 @@
         (clause=
           (parse-conseq-logical-expression "A != A")
           (clause (list (equation nil
-                   (fterm 'CLOVER.PARSER::A nil)
-                   (fterm 'CLOVER.PARSER::A nil))))))
+                   (constant 'CLOVER.PARSER::A )
+                   (constant 'CLOVER.PARSER::A ))))))
 
       (is 
         (clause=
           (parse-conseq-logical-expression "A != x")
           (clause (list (literal nil
                    'CLOVER.PARSER::=
-                   (list (fterm 'CLOVER.PARSER::A nil)
+                   (list (constant 'CLOVER.PARSER::A )
                          (vterm 'CLOVER.PARSER::X)))))))
 
       (is 
@@ -437,7 +437,7 @@
                    'CLOVER.PARSER::=
                    (list 
                      (vterm 'CLOVER.PARSER::X)
-                     (fterm 'CLOVER.PARSER::A nil)))))))
+                     (constant 'CLOVER.PARSER::A )))))))
 
       (is 
         (clause=
@@ -479,8 +479,8 @@
           (clause (list (literal nil
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
-                     (fterm 'CLOVER.PARSER::ONE nil)))))))
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))
+                     (constant 'CLOVER.PARSER::ONE )))))))
 
       (is 
         (clause=
@@ -488,8 +488,8 @@
           (clause (list (literal nil
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::ONE nil)
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))))))))
+                     (constant 'CLOVER.PARSER::ONE )
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))))))))
 
       )
 
@@ -500,15 +500,15 @@
         (clause=
           (parse-conseq-logical-expression "A = A")
           (clause (list (equation t
-                   (fterm 'CLOVER.PARSER::A nil)
-                   (fterm 'CLOVER.PARSER::A nil))))))
+                   (constant 'CLOVER.PARSER::A )
+                   (constant 'CLOVER.PARSER::A ))))))
 
       (is 
         (clause=
           (parse-conseq-logical-expression "A = x")
           (clause (list (literal t
                    'CLOVER.PARSER::=
-                   (list (fterm 'CLOVER.PARSER::A nil)
+                   (list (constant 'CLOVER.PARSER::A )
                          (vterm 'CLOVER.PARSER::X)))))))
 
       (is 
@@ -518,7 +518,7 @@
                    'CLOVER.PARSER::=
                    (list 
                      (vterm 'CLOVER.PARSER::X)
-                     (fterm 'CLOVER.PARSER::A nil)))))))
+                     (constant 'CLOVER.PARSER::A )))))))
 
       (is 
         (clause=
@@ -560,8 +560,8 @@
           (clause (list (literal t
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
-                     (fterm 'CLOVER.PARSER::ONE nil)))))))
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))
+                     (constant 'CLOVER.PARSER::ONE )))))))
 
       (is 
         (clause=
@@ -569,8 +569,8 @@
           (clause (list (literal t
                    'CLOVER.PARSER::=
                    (list 
-                     (fterm 'CLOVER.PARSER::ONE nil)
-                     (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))))))))
+                     (constant 'CLOVER.PARSER::ONE )
+                     (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))))))))
 
       )
 
@@ -582,8 +582,8 @@
           (parse-conseq-logical-expression "A = A & f(x)=g(x)")
           (clause (list 
                     (equation t
-                              (fterm 'CLOVER.PARSER::A nil)
-                              (fterm 'CLOVER.PARSER::A nil))
+                              (constant 'CLOVER.PARSER::A )
+                              (constant 'CLOVER.PARSER::A ))
                     (equation t
                               (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
                               (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::X))))
@@ -594,12 +594,12 @@
           (parse-conseq-logical-expression "A != x & B = B & !pred(x,y)")
           (clause (list (literal nil
                                  'CLOVER.PARSER::=
-                                 (list (fterm 'CLOVER.PARSER::A nil)
+                                 (list (constant 'CLOVER.PARSER::A )
                                        (vterm 'CLOVER.PARSER::X)))
                         (literal t
                                  'CLOVER.PARSER::=
-                                 (list (fterm 'CLOVER.PARSER::B nil)
-                                       (fterm 'CLOVER.PARSER::B nil)))
+                                 (list (constant 'CLOVER.PARSER::B )
+                                       (constant 'CLOVER.PARSER::B )))
                         (literal nil
                              'CLOVER.PARSER::PRED
                              (list 
@@ -612,12 +612,12 @@
           (parse-conseq-logical-expression "A != x & B = B & f(x) != g(x)")
           (clause (list (literal nil
                                  'CLOVER.PARSER::=
-                                 (list (fterm 'CLOVER.PARSER::A nil)
+                                 (list (constant 'CLOVER.PARSER::A )
                                        (vterm 'CLOVER.PARSER::X)))
                         (literal t
                                  'CLOVER.PARSER::=
-                                 (list (fterm 'CLOVER.PARSER::B nil)
-                                       (fterm 'CLOVER.PARSER::B nil)))
+                                 (list (constant 'CLOVER.PARSER::B )
+                                       (constant 'CLOVER.PARSER::B )))
                         (equation nil
                               (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
                               (fterm 'CLOVER.PARSER::G (list (vterm 'CLOVER.PARSER::X))))
@@ -631,13 +631,13 @@
                              'CLOVER.PARSER::=
                              (list 
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))))))))
 
       )
 
@@ -655,8 +655,8 @@
                     (literal nil
                              'CLOVER.PARSER::=
                              (list 
-                               (fterm 'CLOVER.PARSER::A nil)
-                               (fterm 'CLOVER.PARSER::B nil)))
+                               (constant 'CLOVER.PARSER::A )
+                               (constant 'CLOVER.PARSER::B )))
                     (literal nil
                              'CLOVER.PARSER::=
                              (list 
@@ -671,11 +671,11 @@
                     (literal t
                              'CLOVER.PARSER::=
                              (list 
-                               (fterm 'CLOVER.PARSER::S (list (fterm 'CLOVER.PARSER::ZERO nil)))
-                               (fterm 'CLOVER.PARSER::ONE nil)))
+                               (fterm 'CLOVER.PARSER::S (list (constant 'CLOVER.PARSER::ZERO )))
+                               (constant 'CLOVER.PARSER::ONE )))
                     (equation nil
                               (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))
-                              (fterm 'CLOVER.PARSER::A nil))
+                              (constant 'CLOVER.PARSER::A ))
                     (literal nil
                              'CLOVER.PARSER::PRED
                              (list 
@@ -690,13 +690,13 @@
                              'CLOVER.PARSER::=
                              (list 
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))))))))
 
       (is 
         (clause=
@@ -711,12 +711,12 @@
                              'CLOVER.PARSER::=
                              (list 
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))
                                (fterm 'CLOVER.PARSER::CONS 
-                                      (list (fterm 'CLOVER.PARSER::A nil)
+                                      (list (constant 'CLOVER.PARSER::A )
                                             (fterm 'CLOVER.PARSER::CONS 
-                                                   (list (fterm 'CLOVER.PARSER::B nil)  (fterm 'CLOVER.PARSER::NIL nil)))))))))))
+                                                   (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))))))))
 
       )

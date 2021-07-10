@@ -28,15 +28,16 @@
         :fterm.fsymbol
         :fterm.args
         :constant
-        :constant.fsymbol
+        :constant.value
+        :equation
         :equation.negation
-        :equation.args
+        :equation.left
+        :equation.right
         :unifier
         :unifier.src
         :unifier.dst
         :unifier-set
         :unifier-set.unifiers
-        :equation
         :equation-set
         :equation-set.equations
         :rewrite-rule
@@ -162,11 +163,12 @@
              (:print-object
               (lambda (object stream)
                 (format stream "~A" 
-                        (string-upcase (symbol-name (fterm.fsymbol object))))))
+                        (string-upcase (symbol-name (constant.value object))))))
              (:constructor constant
               (fsymbol &aux (args nil)))
              (:conc-name constant.))
   "定数(引数なしのfterm)を表す構造体"
+  (value fsymbol :type symbol)
   )
 
 (defstruct (unifier
@@ -267,6 +269,7 @@
                            (if negation "≠" "=")
                            (second args))))))
   "等式または危険対を表す構造体"
+  left right
   )
 
 (defstruct (equation-set

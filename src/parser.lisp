@@ -132,12 +132,12 @@
 
     (:list-lparen :list-rparen
      (lambda (lparen rparen)
-       (fterm 
-         (%intern-symbol-to-specified-package "NIL") nil)))
+       (constant
+         (%intern-symbol-to-specified-package "NIL"))))
 
     (:list-lparen termseq :list-rparen
      (lambda (lparen termseq rparen)
-       (let ((nl (fterm (%intern-symbol-to-specified-package "NIL") nil))
+       (let ((nl (constant (%intern-symbol-to-specified-package "NIL")))
              (fname (%intern-symbol-to-specified-package "CONS")))
          (labels
              ((inner (arg)
@@ -148,10 +148,9 @@
 
     (:constant
      (lambda (constant)
-         (fterm 
+         (constant
            (%intern-symbol-to-specified-package 
-             (string-upcase constant))
-           nil)))
+             (string-upcase constant)))))
 
     (:symbol
      (lambda (symbol)
@@ -251,12 +250,12 @@
 
     (:list-lparen :list-rparen
      (lambda (lparen rparen)
-       (fterm 
-         (%intern-symbol-to-specified-package "NIL") nil)))
+       (constant
+         (%intern-symbol-to-specified-package "NIL"))))
 
     (:list-lparen termseq :list-rparen
      (lambda (lparen termseq rparen)
-       (let ((nl (fterm (%intern-symbol-to-specified-package "NIL") nil))
+       (let ((nl (constant (%intern-symbol-to-specified-package "NIL")))
              (fname (%intern-symbol-to-specified-package "CONS")))
          (labels
              ((inner (arg)
@@ -267,10 +266,9 @@
 
     (:constant
      (lambda (constant)
-         (fterm 
+         (constant
            (%intern-symbol-to-specified-package 
-             (string-upcase constant))
-           nil)))
+             (string-upcase constant)))))
 
     (:symbol
      (lambda (symbol)

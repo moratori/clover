@@ -11,8 +11,8 @@
 (test clover.tests.rewrite.rewrite-final.test1
 
       (let* ((target
-              (fterm 'f (list (fterm 'f (list (fterm 'A nil) (vterm 'y)))
-                              (fterm 'B nil))))
+              (fterm 'f (list (fterm 'f (list (constant 'A ) (vterm 'y)))
+                              (constant 'B ))))
              (rule-set
               (rewrite-rule-set
                 (list
@@ -21,19 +21,19 @@
             (result
               (rewrite-final target rule-set))
             (expected
-              (fterm 'A nil)))
+              (constant 'A )))
 
         (is (term= result expected)))
 
       (let* ((target
-               (fterm 'reverse (list (fterm 'cons (list (fterm 'A nil)
-                                                        (fterm 'cons (list (fterm 'B nil)
-                                                                           (fterm 'NIL nil)))))))
+               (fterm 'reverse (list (fterm 'cons (list (constant 'A )
+                                                        (fterm 'cons (list (constant 'B )
+                                                                           (constant 'NIL )))))))
               )
              (rule-set
               (rewrite-rule-set
                 (list
-                  (rewrite-rule (fterm 'append (list (fterm 'NIL nil) (vterm 'x)))
+                  (rewrite-rule (fterm 'append (list (constant 'NIL ) (vterm 'x)))
                                 (vterm 'x))
                   (rewrite-rule (fterm 'append (list (fterm 'cons
                                                             (list (vterm 'x)
@@ -42,8 +42,8 @@
                                 (fterm 'cons (list (vterm 'x)
                                                    (fterm 'append (list (vterm 'y)
                                                                         (vterm 'z))))))
-                  (rewrite-rule (fterm 'reverse (list (fterm 'NIL nil) ))
-                                (fterm 'NIL nil))
+                  (rewrite-rule (fterm 'reverse (list (constant 'NIL ) ))
+                                (constant 'NIL ))
 
                   (rewrite-rule (fterm 'reverse (list (fterm 'reverse (list
                                                                         (vterm 'x))) ))
@@ -52,19 +52,19 @@
                                                                          (vterm 'y))) ))
                                 (fterm 'append (list (fterm 'reverse (list (vterm 'y)))
                                                      (fterm 'cons (list (vterm 'x)
-                                                                        (fterm 'NIL nil))))))
+                                                                        (constant 'NIL ))))))
                   (rewrite-rule (fterm 'reverse (list (fterm 'append (list (vterm 'x)
                                                                            (fterm 'cons (list (vterm 'y)
-                                                                                              (fterm 'NIL nil)))))))
+                                                                                              (constant 'NIL )))))))
                                 (fterm 'cons (list (vterm 'y)
                                                    (fterm 'reverse (list (vterm 'x))))))
                   )))
             (result
               (rewrite-final target rule-set))
             (expected
-              (fterm 'cons (list (fterm 'B nil)
-                                 (fterm 'cons (list (fterm 'A nil)
-                                                    (fterm 'NIL nil)))))))
+              (fterm 'cons (list (constant 'B )
+                                 (fterm 'cons (list (constant 'A )
+                                                    (constant 'NIL )))))))
 
         (is (term= result expected)))
       )
@@ -77,8 +77,8 @@
              (rule-set
               (rewrite-rule-set
                 (list
-                  (rewrite-rule (fterm 'reverse (list (fterm 'NIL nil) ))
-                                (fterm 'NIL nil))
+                  (rewrite-rule (fterm 'reverse (list (constant 'NIL ) ))
+                                (constant 'NIL ))
                   )))
             (result
               (rewrite-final target rule-set))
@@ -91,17 +91,17 @@
 (test clover.tests.rewrite.rewrite-final.test3
 
       (let* ((target
-               (fterm 'reverse (list (fterm 'NIL nil))))
+               (fterm 'reverse (list (constant 'NIL ))))
              (rule-set
               (rewrite-rule-set
                 (list
-                  (rewrite-rule (fterm 'reverse (list (fterm 'NIL nil) ))
-                                (fterm 'NIL nil))
+                  (rewrite-rule (fterm 'reverse (list (constant 'NIL ) ))
+                                (constant 'NIL ))
                   )))
             (result
               (rewrite-final target rule-set))
             (expected
-              (fterm 'NIL nil)))
+              (constant 'NIL )))
 
         (is (term= result expected)))
       )
@@ -118,21 +118,21 @@
              (rule-set
               (rewrite-rule-set
                 (list
-                  (rewrite-rule (fterm 'Inv (list (fterm 'E nil)))
-                                (fterm 'E nil))
-                  (rewrite-rule (fterm 'mult (list (fterm 'E nil) (vterm 'x)))
+                  (rewrite-rule (fterm 'Inv (list (constant 'E )))
+                                (constant 'E ))
+                  (rewrite-rule (fterm 'mult (list (constant 'E ) (vterm 'x)))
                                 (vterm 'x))
-                  (rewrite-rule (fterm 'mult (list (vterm 'x) (fterm 'E nil)))
+                  (rewrite-rule (fterm 'mult (list (vterm 'x) (constant 'E )))
                                 (vterm 'x))
                   (rewrite-rule (fterm 'Inv (list (fterm 'Inv (list (vterm 'x)))))
                                 (vterm 'x))
                   (rewrite-rule (fterm 'mult (list (fterm 'Inv (list (vterm 'x)))
                                                    (vterm 'x)
                                                    ))
-                                (fterm 'E nil))
+                                (constant 'E ))
                   (rewrite-rule (fterm 'mult (list (vterm 'x) 
                                                    (fterm 'Inv (list (vterm 'x)))))
-                                (fterm 'E nil))
+                                (constant 'E ))
                   (rewrite-rule (fterm 'Inv (list (fterm 'mult (list (vterm 'x)
                                                                      (vterm 'y)))))
                                 (fterm 'mult (list (fterm 'Inv (list (vterm 'y)))
@@ -154,7 +154,7 @@
             (result
               (rewrite-final target rule-set))
             (expected
-              (fterm 'E nil)))
+              (constant 'E )))
 
         (is (term= result expected)))
       )

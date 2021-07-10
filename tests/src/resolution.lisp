@@ -55,9 +55,9 @@
 
 (test clover.tests.resolution.resolution.test2
       (let* ((clause1
-               (clause (list (literal nil 'P (list (fterm 'A nil)
-                                                   (fterm 'B nil)
-                                                   (fterm 'C nil)))))
+               (clause (list (literal nil 'P (list (constant 'A )
+                                                   (constant 'B )
+                                                   (constant 'C )))))
                )
              (clause2
                (clause (list (literal nil 'P (list (vterm 'u)
@@ -89,9 +89,9 @@
           (member 
             (clause-set
               (list
-                (clause (list (literal nil 'P (list (fterm 'A nil)
-                                                    (fterm 'B nil)
-                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (constant 'A )
+                                                    (constant 'B )
+                                                    (constant 'C )))))
                 (clause (list (literal nil 'P (list (vterm 'u)
                                                     (vterm 'z)
                                                     (vterm 'w)))
@@ -105,13 +105,13 @@
                                                     (vterm 'v)
                                                     (vterm 'w)))))
                 (clause (list (literal nil 'P (list (vterm 'u)
-                                                    (fterm 'B nil)
+                                                    (constant 'B )
                                                     (vterm 'w)))
                               (literal t   'P (list (vterm 'x)
-                                                    (fterm 'A nil)
+                                                    (constant 'A )
                                                     (vterm 'u)))
                               (literal t   'P (list (vterm 'x)
-                                                    (fterm 'C nil)
+                                                    (constant 'C )
                                                     (vterm 'w)))))))
             ret
             :test #'clause-set=))
@@ -120,9 +120,9 @@
           (member 
             (clause-set
               (list
-                (clause (list (literal nil 'P (list (fterm 'A nil)
-                                                    (fterm 'B nil)
-                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (constant 'A )
+                                                    (constant 'B )
+                                                    (constant 'C )))))
                 (clause (list (literal nil 'P (list (vterm 'u)
                                                     (vterm 'z)
                                                     (vterm 'w)))
@@ -135,13 +135,13 @@
                               (literal t   'P (list (vterm 'x)
                                                     (vterm 'v)
                                                     (vterm 'w)))))
-                (clause (list (literal nil 'P (list (fterm 'C nil)
+                (clause (list (literal nil 'P (list (constant 'C )
                                                     (vterm 'z)
                                                     (vterm 'w)))
-                              (literal t   'P (list (fterm 'B nil)
+                              (literal t   'P (list (constant 'B )
                                                     (vterm 'z)
                                                     (vterm 'v)))
-                              (literal t   'P (list (fterm 'A nil)
+                              (literal t   'P (list (constant 'A )
                                                     (vterm 'v)
                                                     (vterm 'w)))))))
             ret
@@ -151,9 +151,9 @@
           (member 
             (clause-set
               (list
-                (clause (list (literal nil 'P (list (fterm 'A nil)
-                                                    (fterm 'B nil)
-                                                    (fterm 'C nil)))))
+                (clause (list (literal nil 'P (list (constant 'A )
+                                                    (constant 'B )
+                                                    (constant 'C )))))
                 (clause (list (literal nil 'P (list (vterm 'u)
                                                     (vterm 'z)
                                                     (vterm 'w)))
@@ -168,11 +168,11 @@
                                                     (vterm 'w)))))
                 (clause (list (literal nil 'P (list (vterm 'u)
                                                     (vterm 'z)
-                                                    (fterm 'C nil)))
+                                                    (constant 'C )))
                               (literal t   'P (list (vterm 'y)
                                                     (vterm 'z)
-                                                    (fterm 'B nil)))
-                              (literal t   'P (list (fterm 'A nil)
+                                                    (constant 'B )))
+                              (literal t   'P (list (constant 'A )
                                                     (vterm 'y)
                                                     (vterm 'u)))))))
             ret

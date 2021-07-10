@@ -49,12 +49,12 @@
       (let ((clause
               (clause 
                   (list (literal t 'P   (list (vterm 'hoge) 
-                                              (fterm 'foo nil) 
+                                              (constant 'foo ) 
                                               (fterm 'bar (list (vterm 'x))))))))
             (expected
               (clause 
                   (list (literal t 'P   (list (vterm 'clover.parser::x) 
-                                              (fterm 'foo nil) 
+                                              (constant 'foo ) 
                                               (fterm 'bar (list (vterm 'clover.parser::y)))))))))
 
         (is (clause= (rename-for-human-readable-printing clause)

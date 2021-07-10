@@ -13,7 +13,7 @@
 (test clover.tests.types.fterm
       (is (fterm 'f (list (vterm 'x) (vterm 'y))))
       (is (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'z))))))
-      (is (fterm 'h nil))
+      (is (constant 'h ))
       )
 
 

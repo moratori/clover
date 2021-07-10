@@ -85,55 +85,59 @@
 (defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :original)))
   (%symbol-order (vterm.var term1) (vterm.var term2)))
 
+(defmethod term< ((term1 vterm) (term2 constant) (algorithm (eql :original)))
+  nil)
+
 (defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :original)))
-  (not (constant-p term2)))
+  ;; term2 が groundであった場合は、term1の方が大きい？
+  t)
+
+(defmethod term< ((term1 constant) (term2 vterm) (algorithm (eql :original)))
+  t)
 
 (defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :original)))
-  (constant-p term1))
+  ;; term1 が groundであった場合は、term1の方が小さい？
+  nil)
+
+(defmethod term< ((term1 constant) (term2 constant) (algorithm (eql :original)))
+  (%symbol-order
+    (constant.value term1)
+    (constant.value term2)))
+
+(defmethod term< ((term1 constant) (term2 fterm) (algorithm (eql :original)))
+  t)
+
+(defmethod term< ((term1 fterm) (term2 constant) (algorithm (eql :original)))
+  nil)
 
 (defmethod term< ((term1 fterm) (term2 fterm) (algorithm (eql :original)))
-  (let* ((fsym1 (fterm.fsymbol term1))
-         (fsym2 (fterm.fsymbol term2))
-         (args1 (fterm.args term1))
-         (args2 (fterm.args term2))
-         (arity1 (length args1))
-         (arity2 (length args2)))
-    (cond
-      ((and (constant-p term1)
-            (constant-p term2))
-       (%symbol-order fsym1 fsym2))
-      ((and (constant-p term1)
-            (not (constant-p term2)))
-       t)
-      ((and (not (constant-p term1))
-            (constant-p term2))
-       nil)
-      ((and (not (ground-term-p term1))
+  (cond
+    ((and (not (ground-term-p term1))
             (ground-term-p term2))
-       nil)
-      ((and (ground-term-p term1)
-            (not (ground-term-p term2)))
-       t)
-      ;; term1 = g(t1, t2, ,,, tn)
-      ;; term2 = f(s1, s2, ,,, sm)
-      ;; exist i: si > term1 or s1 = term1
-      ((some
-         (lambda (x)
-           (or 
-             (term< term1 x algorithm)
-             (term= term1 x)))
-         args2)
-       t)
-      (t
-       ;; term1 = term2 = ground
-       ;;       or
-       ;; term1 = term2 = func
-       (let ((left-complexity  (%count-fterm-application term1))
-             (right-complexity (%count-fterm-application term2)))
-         (cond
-           ((= left-complexity right-complexity)
-            (and (string< (format nil "~A" term1)
-                          (format nil "~A" term2))
-                 t))
-           (t (< left-complexity right-complexity))))))))
+     nil)
+    ((and (ground-term-p term1)
+          (not (ground-term-p term2)))
+     t)
+    ;; term1 = g(t1, t2, ,,, tn)
+    ;; term2 = f(s1, s2, ,,, sm)
+    ;; exist i: si > term1 or s1 = term1
+    ((some
+       (lambda (x)
+         (or 
+           (term< term1 x algorithm)
+           (term= term1 x)))
+       (fterm.args term2))
+     t)
+    (t
+     ;; term1 = term2 = ground
+     ;;       or
+     ;; term1 = term2 = func
+     (let ((left-complexity  (%count-fterm-application term1))
+           (right-complexity (%count-fterm-application term2)))
+       (cond
+         ((= left-complexity right-complexity)
+          (and (string< (format nil "~A" term1)
+                        (format nil "~A" term2))
+               t))
+         (t (< left-complexity right-complexity)))))))
 

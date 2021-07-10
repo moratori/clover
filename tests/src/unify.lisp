@@ -171,14 +171,14 @@
               (clause (list (literal nil 'P 
                                      (list (vterm 'x) (vterm 'y)))))
               (clause (list (literal nil 'P 
-                                     (list (fterm 'A nil) (fterm 'B nil)))
+                                     (list (constant 'A ) (constant 'B )))
                             (literal nil 'Q
-                                     (list (fterm 'A nil) (fterm 'B nil)))))))
+                                     (list (constant 'A ) (constant 'B )))))))
       (is (subsumption-clause-p
               (clause (list (literal nil 'P 
                                      (list (vterm 'x) (vterm 'y)))))
               (clause (list (literal nil 'P 
-                                     (list (fterm 'A nil) 
+                                     (list (constant 'A ) 
                                            (fterm 'f (list (vterm 'z)))))))))
       (is (subsumption-clause-p
               (clause (list (literal nil 'P 
@@ -187,15 +187,15 @@
                                      (list (vterm 'y) (vterm 'x)))))
 
               (clause (list (literal nil 'P 
-                                     (list (fterm 'B nil) 
+                                     (list (constant 'B ) 
                                            (fterm 'f (list (vterm 'z)
                                                            (fterm 'g (list (vterm 'w)))))))
                             (literal nil 'Q
                                      (list (fterm 'f (list (vterm 'z)
                                                            (fterm 'g (list (vterm 'w)))))
-                                           (fterm 'B nil)))
+                                           (constant 'B )))
                             (literal t 'R 
-                                     (list (fterm 'A nil)
+                                     (list (constant 'A )
                                            (fterm 'f (list (vterm 'z))))))))))
 
 (test clover.tests.unify.subsumption-clause-p.test2
@@ -205,21 +205,21 @@
                                (literal nil 'Q
                                         (list (vterm 'x) (vterm 'y)))))
                  (clause (list (literal nil 'P
-                                        (list (fterm 'A nil)))
+                                        (list (constant 'A )))
                                (literal nil 'Q
-                                        (list (vterm 'w) (fterm 'B nil)))
+                                        (list (vterm 'w) (constant 'B )))
                                (literal nil 'R
                                         (list (vterm 'w) (vterm 'z))))))))
       (is (not (subsumption-clause-p
                  (clause (list (literal nil 'P
                                         (list (vterm 'x) (vterm 'y)))))
                  (clause (list (literal t 'P
-                                        (list (fterm 'A nil) (fterm 'B nil)))
+                                        (list (constant 'A ) (constant 'B )))
                                (literal nil 'Q
-                                        (list (fterm 'A nil) (fterm 'B nil))))))))
+                                        (list (constant 'A ) (constant 'B ))))))))
       (is (not (subsumption-clause-p
                  (clause (list (literal nil 'P
-                                        (list (fterm 'A nil)))))
+                                        (list (constant 'A )))))
                  (clause (list (literal nil 'P
                                         (list (vterm 'x)))
                                (literal t 'Q
@@ -231,7 +231,7 @@
       (is (not (subsumption-clause-p
               (clause (list (literal nil 'P (list (vterm 'x)))
                             (literal nil 'Q (list (vterm 'x) (vterm 'z)))))
-              (clause (list (literal nil 'P (list (fterm 'A nil)))
+              (clause (list (literal nil 'P (list (constant 'A )))
                             (literal nil 'Q (list (vterm 'w) (vterm 'u)))
                             (literal nil 'R (list (vterm 'w))))))))
       )
@@ -240,7 +240,7 @@
       (is (subsumption-clause-p
               (clause (list (literal nil 'P (list (vterm 'x)))
                             (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
-              (clause (list (literal nil 'P (list (fterm 'A nil)))
+              (clause (list (literal nil 'P (list (constant 'A )))
                             (literal nil 'Q (list (vterm 'w) (vterm 'u)))
                             (literal nil 'R (list (vterm 'w)))))))
       )
@@ -260,11 +260,11 @@
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'y)))
-                                              (fterm 'g (list (fterm 'A nil)))))))
+                                              (fterm 'g (list (constant 'A )))))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'w)))
                                                 (vterm 'u)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'u)))
-                                              (fterm 'g (list (fterm 'A nil)))))))))
+                                              (fterm 'g (list (constant 'A )))))))))
       (is (alphabet-clause= 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
@@ -291,21 +291,21 @@
       (is (not (alphabet-clause= 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
-            (clause (list (literal nil 'P (list (fterm 'f (list (fterm 'A nil)))))
+            (clause (list (literal nil 'P (list (fterm 'f (list (constant'A )))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
       (is (not (alphabet-clause= 
-            (clause (list (literal nil 'P (list (fterm 'A nil)))
+            (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (vterm 'v)))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
       (is (not (alphabet-clause= 
             (clause (list (literal nil 'P (list (vterm 'x)))))
-            (clause (list (literal nil 'P (list (fterm 'A nil)))
+            (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
       (is (not (alphabet-clause= 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
-            (clause (list (literal nil 'P (list (fterm 'A nil)))
+            (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
       (is (not (alphabet-clause= 
             (clause (list (literal nil 'P (list (vterm 'x)))
