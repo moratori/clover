@@ -26,11 +26,15 @@
 (defmethod %count-fterm-application ((term vterm))
   0)
 
+(defmethod %count-fterm-application ((term constant))
+  0)
+
 (defmethod %count-fterm-application ((term fterm))
-  (if (constant-p term)
-      0
-      (1+ (loop :for arg :in (fterm.args term)
-                :sum (%count-fterm-application arg)))))
+  (1+ 
+   (reduce (lambda (r x)
+             (+ r (%count-fterm-application x)))
+           (fterm.args term)
+           :initial-value 0)))
 
 
 
