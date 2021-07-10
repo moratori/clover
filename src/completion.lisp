@@ -7,10 +7,15 @@
         :clover.unify
         :clover.rename
         :clover.rewrite
+        :clover.termorder
         )
   (:export
+    :kb-completion
     )
   )
 (in-package :clover.completion)
 
 
+
+(defmethod kb-completion ((equation-set equation-set))
+  )
