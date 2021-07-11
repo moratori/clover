@@ -36,6 +36,9 @@ coverage_path="${project_root}/coverage/"
 
 
 #### テスト実行結果等を出力するためのディレクトリを作成
+if [ "${project_root}" != "" ];then
+      /usr/bin/rm -r "${coverage_path}"
+fi
 /bin/mkdir -p "${dot_src_path}"
 /bin/mkdir -p "${coverage_path}"
 
