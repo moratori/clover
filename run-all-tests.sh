@@ -48,7 +48,7 @@ case "${lisp_implementation}" in
                    $roswell -s sb-cover \
                             -s clover-test  \
                             -e '(1am:run)' \
-                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)))'
+                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))'
                  test_result=$?;;
         *      ) $timeout -k 10 $test_duration_time \
                    $roswell -s clover-test \
