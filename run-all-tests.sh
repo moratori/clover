@@ -67,6 +67,11 @@ if [ $test_result -ne 0 ]; then
 fi
 
 
+#### パス名などの情報をcoverageファイルから削除
+if [ -d "${coverage_path}" ]; then
+      find "${coverage_path}" -type f -name '*.html' | xargs -I{} sh -c "sed -i -e \"s!${project_root}!!g\" {}"
+fi
+
 
 #### Graphvizが存在する場合は、描画まで実行する
 if [ ! -z "${dot}" ]; then
