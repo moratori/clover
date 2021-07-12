@@ -18,6 +18,7 @@
     :literal=
     :clause=
     :clause-set=
+    :tautology-equation-p
     :conseq-clause-p
     :ground-term-p
     :equation=
@@ -52,6 +53,10 @@
       (or
         (and (term= left1 left2) (term= right1 right2))
         (and (term= left1 right2) (term= right1 left2))))))
+
+(defmethod tautology-equation-p ((equation equation))
+  (term= (equation.left equation)
+         (equation.right equation)))
 
 (defmethod ground-term-p ((term vterm))
   nil)
