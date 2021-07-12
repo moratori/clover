@@ -274,7 +274,9 @@
 
 (defstruct (equation-set
              (:print-object 
-              (lambda (object stream)))
+              (lambda (object stream)
+                (format stream "{~{~A~^,~}}"
+                        (equation-set.equations object))))
              (:constructor equation-set (equations))
              (:conc-name equation-set.))
   "等式の集合を表現する構造体"
