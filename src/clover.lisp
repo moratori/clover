@@ -9,7 +9,7 @@
         :clover.util
         )
   (:import-from :clover.unify
-                :alphabet-clause-set=)
+                :alphabet=)
   (:export
     :start_resolution
     :find-lemmas
@@ -32,7 +32,7 @@
   (clause-set= node1 node2))
 
 (defmethod node-same-class ((node1 clause-set) (node2 clause-set))
-  (alphabet-clause-set= node1 node2))
+  (alphabet= node1 node2))
 
 
 (defmethod start_resolution ((clause-set clause-set))

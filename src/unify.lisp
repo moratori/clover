@@ -6,8 +6,7 @@
         :clover.types)
   (:export 
     :subsumption-clause-p
-    :alphabet-clause=
-    :alphabet-clause-set=
+    :alphabet=
     :find-most-general-unifier-set)
   )
 (in-package :clover.unify)
@@ -261,12 +260,24 @@
               (apply-unifier-set clause1 theta)
               clause2)))))))
 
+(defmethod alphabet= ((term1 term) (term2 term))
+  (let* ((dummy-pred
+           (%intern-symbol-to-specified-package
+             "DUMMYPRED"))
+         (dummy-clause1 
+          (clause
+            (list (literal nil dummy-pred (list term1)))))
+         (dummy-clause2
+          (clause
+            (list (literal nil dummy-pred (list term2))))))
+    (and (subsumption-clause-p dummy-clause2 dummy-clause1)
+         (subsumption-clause-p dummy-clause1 dummy-clause2))))
 
-(defmethod alphabet-clause= ((clause1 clause) (clause2 clause))
+(defmethod alphabet= ((clause1 clause) (clause2 clause))
   (and (subsumption-clause-p clause2 clause1)
        (subsumption-clause-p clause1 clause2)))
 
-(defmethod alphabet-clause-set= ((clause-set1 clause-set) (clause-set2 clause-set))
+(defmethod alphabet= ((clause-set1 clause-set) (clause-set2 clause-set))
   (and 
     (null (set-difference 
             (clause-set.clauses clause-set1)

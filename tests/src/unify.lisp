@@ -247,7 +247,7 @@
 
 
 (test clover.tests.unify.alphabet-clause=.test1
-      (is (alphabet-clause=
+      (is (alphabet=
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'y)))
@@ -256,7 +256,7 @@
                                                 (vterm 'u)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'u)))
                                               (fterm 'g (list (vterm 'v)))))))))
-      (is (alphabet-clause=
+      (is (alphabet=
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'y)))
@@ -265,49 +265,49 @@
                                                 (vterm 'u)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'u)))
                                               (fterm 'g (list (constant 'A )))))))))
-      (is (alphabet-clause= 
+      (is (alphabet= 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (vterm 'v)))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (alphabet-clause= 
+      (is (alphabet= 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (alphabet-clause= 
+      (is (alphabet= 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (vterm 'x)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v))))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'g (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (constant'A )))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (vterm 'v)))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (vterm 'x)))))
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'Q (list (vterm 'v)))
@@ -316,7 +316,7 @@
 
 
 (test clover.tests.unify.alphabet-clause=.test2
-      (is (not (alphabet-clause= 
+      (is (not (alphabet= 
                  (clause (list (literal nil 'P (list (vterm 'x)
                                                      (vterm 'v)
                                                      (vterm 'w)))
@@ -371,7 +371,7 @@
             (clause-set2
               (clause-set 
                 (list clause4 clause3))))
-        (is (alphabet-clause-set= clause-set2 clause-set1))))
+        (is (alphabet= clause-set2 clause-set1))))
 
 (test clover.tests.unify.alphabet-clause-set=.test1
       (let* ((clause1
@@ -400,4 +400,4 @@
             (clause-set2
               (clause-set 
                 (list clause4 clause3))))
-        (is (not (alphabet-clause-set= clause-set2 clause-set1)))))
+        (is (not (alphabet= clause-set2 clause-set1)))))

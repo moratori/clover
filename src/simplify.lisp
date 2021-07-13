@@ -103,7 +103,7 @@
       :for clause :in clauses
       :for j :from 0
       :if (and (> j i)
-               (alphabet-clause= clause target-clause))
+               (alphabet= clause target-clause))
       :do (return-from exit t))
     :if (not alphabet-clause)
     :collect target-clause))
