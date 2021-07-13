@@ -8,6 +8,8 @@
         :clover.substitute
         :clover.rename
         )
+  (:import-from :clover.termorder
+                :term<)
   (:export
     :find-critical-pair
     :all-critical-pair
