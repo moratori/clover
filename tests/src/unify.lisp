@@ -246,7 +246,7 @@
       )
 
 
-(test clover.tests.unify.alphabet-clause=.test1
+(test clover.tests.unify.alphabet=.test1
       (is (alphabet=
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
@@ -315,7 +315,7 @@
 )
 
 
-(test clover.tests.unify.alphabet-clause=.test2
+(test clover.tests.unify.alphabet=.test2
       (is (not (alphabet= 
                  (clause (list (literal nil 'P (list (vterm 'x)
                                                      (vterm 'v)
@@ -344,7 +344,7 @@
       )
 
 
-(test clover.tests.unify.alphabet-clause-set=.test1
+(test clover.tests.unify.alphabet=.test3
       (let* ((clause1
               (clause
                 (list 
@@ -373,7 +373,7 @@
                 (list clause4 clause3))))
         (is (alphabet= clause-set2 clause-set1))))
 
-(test clover.tests.unify.alphabet-clause-set=.test1
+(test clover.tests.unify.alphabet=.test4
       (let* ((clause1
               (clause
                 (list 
