@@ -152,4 +152,4 @@
       (term< rule1-src rule2-src *term-order-algorithm*)
       (and 
         (alphabet= rule1-src rule2-src)
-        (term< rule1-dst rule2-dst)))))
+        (term< rule1-dst rule2-dst *term-order-algorithm*)))))
