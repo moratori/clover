@@ -14,6 +14,7 @@
     :apply-rewrite-rule
     :apply-rewrite-rule-set
     :rewrite-final
+    :rewrite-rule<
     )
   )
 (in-package :clover.rewrite)
@@ -139,3 +140,14 @@
         applied
         (rewrite-final applied rewrite-rule-set))))
 
+
+(defmethod rewrite-rule< ((rule1 rewrite-rule) (rule2 rewrite-rule))
+  (let ((rule1-src (rewrite-rule.src rule1))
+        (rule1-dst (rewrite-rule.dst rule1))
+        (rule2-src (rewrite-rule.src rule2))
+        (rule2-dst (rewrite-rule.dst rule2)))
+    (or
+      (term< rule1-src rule2-src *term-order-algorithm*)
+      (and 
+        (alphabet= rule1-src rule2-src)
+        (term< rule1-dst rule2-dst)))))
