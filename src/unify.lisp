@@ -4,6 +4,8 @@
         :clover.util
         :clover.substitute
         :clover.types)
+  (:import-from :clover.parser
+                :%intern-symbol-to-specified-package)
   (:export 
     :subsumption-clause-p
     :alphabet=
