@@ -282,8 +282,8 @@
     (null (set-difference 
             (clause-set.clauses clause-set1)
             (clause-set.clauses clause-set2)
-            :test #'alphabet-clause=))
+            :test #'alphabet=))
     (null (set-difference 
             (clause-set.clauses clause-set2)
             (clause-set.clauses clause-set1)
-            :test #'alphabet-clause=))))
+            :test #'alphabet=))))
