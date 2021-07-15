@@ -22,6 +22,7 @@
     :conseq-clause-p
     :ground-term-p
     :equation=
+    :rewrite-rule=
     ))
 (in-package :clover.util)
 
@@ -53,6 +54,15 @@
       (or
         (and (term= left1 left2) (term= right1 right2))
         (and (term= left1 right2) (term= right1 left2))))))
+
+(defmethod rewrite-rule= ((rule1 rewrite-rule) (rule2 rewrite-rule))
+  (let ((rule1-src (rewrite-rule.src rule1))
+        (rule1-dst (rewrite-rule.dst rule1))
+        (rule2-src (rewrite-rule.src rule2))
+        (rule2-dst (rewrite-rule.dst rule2)))
+    (and 
+      (term= rule1-src rule2-src)
+      (term= rule1-dst rule2-dst))))
 
 (defmethod tautology-equation-p ((equation equation))
   (term= (equation.left equation)
