@@ -60,34 +60,43 @@
                  (find-most-general-unifier-set src new))
                (new-variables
                  (collect-variables new))
-               ;; 対象項(fterm)中のvtermを元とする、unifierを削除する
-               ;; find-most-general-unifier-set は、元々導出の為の実装であるため
-               ;; 項A と 項B中のどちらのvtermを元とするunifierがあり得る
-               ;; 以下のようなケースで、xをNILに書き換えてしまうことを防ぐ必要がある
-               ;; fterm : reverse(x)
-               ;; rule  : reverse(NIL) -> NIL  
-               (corrected-unifset
-                 (unifier-set
-                   (remove-if
-                     (lambda (u)
-                       (find-if 
-                         (lambda (n)
-                           (term= (unifier.src u) n)) 
-                         new-variables))
-                     (unifier-set.unifiers unifset))))
-               (null-by-erased 
-                 (and (unifier-set.unifiers unifset)
-                      (null (unifier-set.unifiers corrected-unifset)))))
-          (cond 
-            ((and (eq fsymbol1 fsymbol2)
-                   (= arity1 arity2)
-                   null-by-erased)
-             new)
-            ((and (eq fsymbol1 fsymbol2)
-                   (= arity1 arity2))
-             (apply-unifier-set dst corrected-unifset))
-            (t 
-             new)))
+               (valid-unifset
+                 (remove-if
+                   (lambda (u)
+                     (some
+                       (lambda (v)
+                         (term= v (unifier.src u)))
+                       new-variables))
+                   (unifier-set.unifiers unifset)))
+               (invalid-unifset-cand
+                 (remove-if-not
+                   (lambda (u)
+                     (some
+                       (lambda (v)
+                         (term= v (unifier.src u)))
+                       new-variables))
+                   (unifier-set.unifiers unifset)))
+               (is-error
+                 (some 
+                   (lambda (u)
+                     (typep (unifier.dst u) 'fterm))
+                   invalid-unifset-cand))
+               (corrected
+                 (unless is-error
+                   (unifier-set
+                     (append 
+                       valid-unifset
+                       (mapcar
+                         (lambda (u)
+                           (let ((src (unifier.src x))
+                                 (dst (unifier.dst x)))
+                             (if (member src new-variables :test #'term=)
+                                 (unifier dst src)
+                                 u)))
+                         invalid-unifset-cand))))))
+          (if is-error
+              new
+              (apply-unifier-set dst corrected)))
         (ununifiable-error (c) new))))
 
 
@@ -149,6 +158,7 @@
         (rule2-src (rewrite-rule.src rule2))
         (rule2-dst (rewrite-rule.dst rule2)))
     (or
+      (not (rewrite-rule= rule1 rule2))
       (term< rule1-src rule2-src *term-order-algorithm*)
       (and 
         (alphabet= rule1-src rule2-src)

@@ -175,6 +175,21 @@
         )
       )
 
+(test clover.tests.rewrite.apply-rewrite-rule.test2
+      (let* ((target 
+               (fterm 'mult (list (vterm 'x) (fterm 'mult (list (vterm 'y) (vterm 'z))))))
+             (rule
+               (rewrite-rule
+                 (fterm 'mult (list (fterm 'inv (list (vterm 'w))) (vterm 'w)))
+                 (constant 'ONE)))
+             (result
+               (apply-rewrite-rule target rule))
+             (expected
+               target))
+        (is (term= result expected))
+        )
+      )
+
 (test clover.tests.rewrite.find-critical-pair.test1
       (let* ((target 
                (fterm 'f (list (vterm 'x))))
