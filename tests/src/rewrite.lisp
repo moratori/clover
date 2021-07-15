@@ -201,9 +201,11 @@
                (rewrite-rule
                  (fterm 'f (list (vterm 'z)))
                  (fterm 'g (list (vterm 'z)))))
+             (expected
+               (equation nil (constant 'A) (fterm 'g (list (vterm 'x)))))
              (result
                (find-critical-pair target rule1 rule2)))
-        (is result)))
+        (is (equation= result expected))))
 
 
 (test clover.tests.rewrite.all-critical-pair.test1
