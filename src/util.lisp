@@ -21,6 +21,7 @@
     :tautology-equation-p
     :conseq-clause-p
     :ground-term-p
+    :equation-set=
     :equation=
     :rewrite-rule=
     ))
@@ -54,6 +55,17 @@
       (or
         (and (term= left1 left2) (term= right1 right2))
         (and (term= left1 right2) (term= right1 left2))))))
+
+(defmethod equation-set= ((equation-set1 equation-set) (equation-set2 equation-set))
+  (and 
+    (null (set-difference 
+            (equation-set.equations equation-set1)
+            (equation-set.equations equation-set2)
+            :test #'equation=))
+    (null (set-difference 
+            (equation-set.equations equation-set2)
+            (equation-set.equations equation-set1)
+            :test #'equation=))))
 
 (defmethod rewrite-rule= ((rule1 rewrite-rule) (rule2 rewrite-rule))
   (let ((rule1-src (rewrite-rule.src rule1))
