@@ -8,6 +8,12 @@
 (in-package :clover.tests.rewrite)
 
 
+(defun term-set= (list1 list2)
+  (and 
+    (null (set-difference list1 list2 :test #'term=))
+    (null (set-difference list2 list1 :test #'term=))))
+
+
 (test clover.tests.rewrite.rewrite-final.test1
 
       (let* ((target
@@ -160,7 +166,7 @@
       )
 
 
-(test clover.tests.rewrite.apply-rewrite-rule.test1
+(test clover.tests.rewrite.rewrite-final.test5
       (let* ((target 
                (fterm 'f (list (vterm 'x))))
              (rule
@@ -168,14 +174,14 @@
                  (fterm 'f (list (vterm 'z)))
                  (constant 'A)))
              (result
-               (apply-rewrite-rule target rule))
+               (rewrite-final target rule))
              (expected
                (constant 'A)))
         (is (term= result expected))
         )
       )
 
-(test clover.tests.rewrite.apply-rewrite-rule.test2
+(test clover.tests.rewrite.rewrite-final.test6
       (let* ((target 
                (fterm 'mult (list (vterm 'x) (fterm 'mult (list (vterm 'y) (vterm 'z))))))
              (rule
@@ -183,7 +189,7 @@
                  (fterm 'mult (list (fterm 'inv (list (vterm 'w))) (vterm 'w)))
                  (constant 'ONE)))
              (result
-               (apply-rewrite-rule target rule))
+               (rewrite-final target rule))
              (expected
                target))
         (is (term= result expected))
@@ -201,11 +207,16 @@
                (rewrite-rule
                  (fterm 'f (list (vterm 'z)))
                  (fterm 'g (list (vterm 'z)))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2)))
              (expected
-               (equation nil (constant 'A) (fterm 'g (list (vterm 'x)))))
+               (list (constant 'A)
+                     (fterm 'g (list (vterm 'x)))))
              (result
-               (find-critical-pair target rule1 rule2)))
-        (is (equation= result expected))))
+               (find-critical-pair target rule-set)))
+        (is (term-set= result expected))))
+
 
 (test clover.tests.rewrite.find-critical-pair.test2
       (let* ((target 
@@ -213,24 +224,26 @@
              (rule1
                (rewrite-rule
                  (fterm 'f (list (vterm 'z)))
-                 (fterm 'h (list (vterm 'z)))
-                 ))
+                 (fterm 'h (list (vterm 'z)))))
              (rule2
                (rewrite-rule
                  (fterm 'f (list (vterm 'w)))
                  (fterm 'g (list (vterm 'w)))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2)))
              (expected
-               (equation nil (fterm 'h (list (vterm 'x)))  (fterm 'g (list (vterm 'x)))))
+               (list
+                 (fterm 'h (list (vterm 'x)))
+                 (fterm 'g (list (vterm 'x)))))
              (result
-               (find-critical-pair target rule1 rule2)))
-        (is (equation= result expected))))
+               (find-critical-pair target rule-set)))
+        (is (term-set= result expected))))
+
 
 (test clover.tests.rewrite.find-critical-pair.test3
       (let* ((target 
-               (fterm 'plus (list 
-                              (fterm 'plus 
-                                     (list (constant 'ZERO) (vterm 'x))) 
-                              (vterm 'y))))
+               (fterm 'plus (list (fterm 'plus (list (constant 'ZERO) (vterm 'x))) (vterm 'y))))
              (rule1
                (rewrite-rule
                  (fterm 'plus (list (constant 'ZERO) (vterm 'w)))
@@ -239,13 +252,17 @@
                (rewrite-rule
                  (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) (vterm 'z)))
                  (fterm 'plus (list (vterm 'x) (fterm 'plus (list (vterm 'y) (vterm 'z)))))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2)))
              (expected
-               (equation nil 
-                         (fterm 'plus (list (vterm 'x) (vterm 'y)))
-                         (fterm 'plus (list (constant 'ZERO) (fterm 'plus (list (vterm 'x) (vterm 'y)))))))
+               (list
+                 (fterm 'plus (list (vterm 'x) (vterm 'y)))
+                 (fterm 'plus (list (constant 'ZERO) (fterm 'plus (list (vterm 'x) (vterm 'y)))))))
              (result
-               (find-critical-pair target rule1 rule2)))
-        (is (equation= result expected))))
+               (find-critical-pair target rule-set)))
+        (is (term-set= result expected))))
+
 
 (test clover.tests.rewrite.find-critical-pair.test4
       (let* ((target 
@@ -261,14 +278,17 @@
                (rewrite-rule
                  (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) (vterm 'z)))
                  (fterm 'plus (list (vterm 'x) (fterm 'plus (list (vterm 'y) (vterm 'z)))))))
+             (rule-set
+               (rewrite-rule-set 
+                 (list rule1 rule2)))
              (expected
-               (equation nil 
-                         (fterm 'plus (list (constant 'ZERO) (vterm 'y)))
-                         (fterm 'plus (list (fterm 'inv (list (vterm 'x))) 
-                                            (fterm 'plus (list (vterm 'x) (vterm 'y)))))))
+               (list 
+                 (fterm 'plus (list (constant 'ZERO) (vterm 'y)))
+                 (fterm 'plus (list (fterm 'inv (list (vterm 'x))) 
+                                    (fterm 'plus (list (vterm 'x) (vterm 'y)))))))
              (result
-               (find-critical-pair target rule1 rule2)))
-        (is (equation= result expected))))
+               (find-critical-pair target rule-set)))
+        (is (term-set= result expected))))
 
 (test clover.tests.rewrite.find-critical-pair.test5
       (let* ((target 
@@ -285,18 +305,17 @@
                (rewrite-rule
                  (fterm 'plus (list (fterm 'plus (list (vterm 'v) (vterm 'w))) (vterm 'u)))
                  (fterm 'plus (list (vterm 'v) (fterm 'plus (list (vterm 'w) (vterm 'u)))))))
+             (rules-set
+               (rewrite-rule-set (list rule1 rule2)))
              (expected
-               (equation nil 
-                         (fterm 'plus (list (fterm 'plus 
-                                                   (list (vterm 'x)
-                                                         (fterm 'plus (list (vterm 'y) (vterm 'z))))) 
-                                            (vterm 'w)))
-                         (fterm 'plus (list 
-                                        (fterm 'plus (list (vterm 'x) (vterm 'y)))
-                                        (fterm 'plus (list (vterm 'z) (vterm 'w)))))))
+               (list 
+                 (fterm 'plus (list (fterm 'plus (list (vterm 'x) (fterm 'plus (list (vterm 'y) (vterm 'z))))) 
+                                    (vterm 'w)))
+                 (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y)))
+                                    (fterm 'plus (list (vterm 'z) (vterm 'w)))))))
              (result
-               (find-critical-pair target rule1 rule2)))
-        (is (equation= result expected))))
+               (find-critical-pair target rules-set)))
+        (is (term-set= result expected))))
 
 (test clover.tests.rewrite.all-critical-pair.test1
       (let* ((rule1
@@ -310,7 +329,15 @@
              (rule-set
                (rewrite-rule-set
                  (list rule1 rule2)))
+             (expected
+               (equation-set
+                 (list 
+                   (equation nil 
+                             (constant 'A)
+                             (fterm 'g (list (vterm 'z)))))))
              (result
                (all-critical-pair rule-set)))
-        (is result))
-      )
+        (is 
+          (equation-set=
+            expected
+            result))))
