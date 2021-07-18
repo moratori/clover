@@ -65,7 +65,7 @@ PROVABLE under the human
 
 [Releases](https://github.com/moratori/clover/releases)
 
-### ソースから
+### Quicklispから
 
 ```
 $ cd /path/to/quicklisp/local-projects/
