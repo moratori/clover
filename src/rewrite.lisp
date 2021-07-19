@@ -70,12 +70,6 @@
          (dst (rewrite-rule.dst rule)))
     (%rewrite term src dst)))
 
-(defmethod %apply-rewrite-rule ((term term) (rewrite-rule-set rewrite-rule-set))
-  (reduce 
-    #'%apply-rewrite-rule
-    (rewrite-rule-set.rewrite-rules rewrite-rule-set)
-    :initial-value term))
-
 
 (defmethod rewrite-final ((term vterm) (rewrite-rule rewrite-rule))
   (%apply-rewrite-rule term rewrite-rule))
