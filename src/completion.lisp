@@ -85,15 +85,15 @@
           (rewrite-rule-set.rewrite-rules rewrite-rule-set)
           (mapcar
             (lambda (x)
-              (rewrite-rule 
-                (equation.right x)
-                (equation.left x)))
+              (rename (rewrite-rule 
+                        (equation.right x)
+                        (equation.left x))))
             right<)
           (mapcar
             (lambda (x)
-              (rewrite-rule 
-                (equation.left x)
-                (equation.right x)))
+              (rename (rewrite-rule 
+                        (equation.left x)
+                        (equation.right x))))
             left<))))))
 
 (defmethod collapse-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
