@@ -24,9 +24,31 @@
     :equation-set=
     :equation=
     :rewrite-rule=
+    :prohibited-unifier-set-p
+    :occurrence-check
     ))
 (in-package :clover.util)
 
+
+(defmethod occurrence-check ((term1 term) (term2 term))
+  nil)
+
+(defmethod occurrence-check ((term1 vterm) (term2 vterm))
+  (term= term1 term2))
+
+(defmethod occurrence-check ((term1 vterm) (term2 fterm))
+  (some
+    (lambda (arg)
+      (occurrence-check term1 arg))
+    (fterm.args term2))) 
+
+(defmethod prohibited-unifier-set-p ((unifier-set unifier-set) prohibited-variable-list)
+  (some
+    (lambda (unif)
+      (member 
+        (unifier.src unif) 
+        prohibited-variable-list :test #'term=))
+    (unifier-set.unifiers unifier-set)))
 
 (defmethod term= ((obj1 t) (obj2 t))
   nil)

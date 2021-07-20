@@ -14,19 +14,6 @@
 (in-package :clover.unify)
 
 
-(defmethod %occurrence-check ((term1 term) (term2 term))
-  nil)
-
-(defmethod %occurrence-check ((term1 vterm) (term2 vterm))
-  (term= term1 term2))
-
-(defmethod %occurrence-check ((term1 vterm) (term2 fterm))
-  (some
-    (lambda (arg)
-      (%occurrence-check term1 arg))
-    (fterm.args term2)))
-
-
 
 (defun %collect-disagreement-set (obj1 obj2)
   (let ((result
@@ -44,7 +31,7 @@
 
 
 (defmethod %%collect-disagreement-set ((term1 vterm) (term2 fterm))
-  (when (%occurrence-check term1 term2)
+  (when (occurrence-check term1 term2)
     (error 
       (make-condition 'occurrence-check-error
                       :message "occurrence check error while %%collect-disagreement-set"
@@ -105,8 +92,8 @@
             (and 
               (not (unifier= target x))
               (or
-                (%occurrence-check (unifier.src target) (unifier.src x))
-                (%occurrence-check (unifier.src target) (unifier.dst x)))))
+                (occurrence-check (unifier.src target) (unifier.src x))
+                (occurrence-check (unifier.src target) (unifier.dst x)))))
           unifiers))
       unifiers)))
 
@@ -135,7 +122,7 @@
               ((not result)
                (error
                  (make-condition 'unexpected-unifier-source)))
-              ((%occurrence-check (unifier.src result) (unifier.dst result))
+              ((occurrence-check (unifier.src result) (unifier.dst result))
                (error (make-condition 'occurrence-check-error
                                       :message "occurrence check error while %flatten-disagreement-set"
                                       :vterm (unifier.src result)
