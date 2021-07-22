@@ -171,3 +171,7 @@
            (apply-unifier-set
              (rewrite-rule.dst rewrite-rule) readable-bind)))))))
 
+(defmethod rename-for-human-readable-printing ((rewrite-rule-set rewrite-rule-set))
+  (rewrite-rule-set
+    (mapcar #'rename-for-human-readable-printing 
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set))))
