@@ -252,6 +252,7 @@
         (remove-if
           #'tautology-equation-p
           tmp)
-        :test #'equation=))))
-
+        :test (lambda (x y)
+                (or (equation= x y)
+                    (alphabet= x y)))))))
 
