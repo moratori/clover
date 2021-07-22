@@ -38,7 +38,7 @@
             (equation
               (equation.negation x)
               (rewrite-final left rewrite-rule-set)
-              right)))
+              (rewrite-final right rewrite-rule-set))))
         (equation-set.equations equation-set)))
     rewrite-rule-set))
 
