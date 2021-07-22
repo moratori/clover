@@ -15,6 +15,8 @@
   )
 (in-package :clover.completion)
 
+(defparameter *debug-print* 0)
+
 
 (defmethod delete-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (values 
@@ -177,6 +179,15 @@
              :while (and (not (null (equation-set.equations result-equation-set)))
                          (> giveup-threshold cnt))
              :do
+             (when (and (typep *debug-print* 'number)
+                        (< 0 *debug-print*))
+               (format t "~%#################### Completion ROUND ~A~%" cnt)
+               (format t "equation-set = ~%    ~A~%"
+                       (rename-for-human-readable-printing result-equation-set))
+               (format t "rewrite-rule-set = ~%    ~A~%"
+                       (rename-for-human-readable-printing result-rewrite-rule-set))
+               (force-output *standard-output*)
+               (sleep *debug-print*))
              (incf cnt)
              (multiple-value-bind (eqs rrls)
                  (apply-inference-rules
