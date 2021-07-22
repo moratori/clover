@@ -83,7 +83,7 @@
       )
 
 
-(test clover.tests.unify.find-most-general-unifier-set
+(test clover.tests.unify.find-most-general-unifier-set.test1
 
       (is 
         (let ((us 
@@ -618,3 +618,17 @@
             (equation nil
               (vterm 'w)
               (vterm 't))))))
+
+(test clover.tests.unify.find-most-general-unifier-set.test2
+
+      (is 
+        (let ((us 
+                (find-most-general-unifier-set 
+                  (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
+                  (fterm 'plus (list (vterm 'u) (fterm 'inv (list (vterm 'u))))))))
+          (unifier-set=
+            us
+            (unifier-set
+              (list (unifier (vterm 'x) (fterm 'inv (list (constant 'ZERO))))
+                    (unifier (vterm 'u) (constant 'ZERO)))))))
+      )
