@@ -401,3 +401,220 @@
               (clause-set 
                 (list clause4 clause3))))
         (is (not (alphabet= clause-set2 clause-set1)))))
+
+(test clover.tests.unify.alphabet=.test5
+      (is (not (alphabet= 
+                 (fterm 'f (list (vterm 'x) (vterm 'y)))
+                 (fterm 'f (list (vterm 'w) (vterm 'w))))))
+      (is (alphabet= 
+            (fterm 'f (list (vterm 'x) (vterm 'y)))
+            (fterm 'f (list (vterm 'u) (vterm 'v)))))
+      (is (alphabet= 
+            (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
+            (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'w)))))))
+      (is (alphabet= 
+            (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y) (fterm 'h (list (vterm 'z) (fterm 'i (list (vterm 'p)))))))))
+            (fterm 'f (list (vterm 'u) (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'w) (fterm 'i (list (vterm 'k)))))))))))
+      (is (not (alphabet= 
+            (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y) (fterm 'h (list (vterm 'z) (fterm 'i (list (vterm 'p)))))))))
+            (fterm 'f (list (vterm 'u) (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'w) (vterm 'u))))))))))
+      (is (not (alphabet= 
+            (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
+            (fterm 'f (list (vterm 'z) (vterm 'u))))))
+      (is (not (alphabet= 
+            (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
+            (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'z))))))))
+      (is (not (alphabet= 
+            (fterm 'f (list (fterm 'g (list (vterm 'y))) (vterm 'x) ))
+            (fterm 'f (list (fterm 'g (list (vterm 'z))) (vterm 'z) )))))
+      (is (not (alphabet= 
+            (fterm 'f (list (fterm 'g (list (vterm 'y))) (vterm 'x) ))
+            (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'z))) )))))
+      (is (alphabet= (constant 'A) (constant 'A)))
+      (is (alphabet= (vterm 'x) (vterm 'y)))
+
+      (is (not (alphabet= (constant 'B) (constant 'A))))
+      (is (alphabet= (vterm 'x) (vterm 'x)))
+
+      (is (not (alphabet= (constant 'B) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet= (vterm 'x) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet= (vterm 'y) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet= (constant 'B) (vterm 'b))))
+      (is (alphabet= (constant 'B) (constant 'B)))
+      (is (alphabet= (constant 'B) (fterm 'B nil))))
+
+(test clover.tests.unify.alphabet=.test6
+      (let ((criteria1
+              (rewrite-rule
+                (fterm 'f (list (vterm 'x) (vterm 'y)))
+                (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
+        (is 
+          (alphabet= criteria1
+                     (rewrite-rule
+                       (fterm 'f (list (vterm 'u) (vterm 'v)))
+                       (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (rewrite-rule
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'z)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (rewrite-rule
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (rewrite-rule
+                         (fterm 'f (list (vterm 'w) (vterm 'w)))
+                         (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'y)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (rewrite-rule
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
+        (is 
+          (alphabet=
+            (rewrite-rule
+              (fterm 'f (list (vterm 'x)))
+              (vterm 'x))
+            (rewrite-rule
+              (fterm 'f (list (vterm 'z)))
+              (vterm 'z))))
+        (is 
+          (not (alphabet=
+            (rewrite-rule
+              (fterm 'f (list (vterm 'x)))
+              (vterm 'x))
+            (rewrite-rule
+              (fterm 'f (list (vterm 'y)))
+              (vterm 'z)))))
+        (is 
+          (alphabet=
+            (rewrite-rule
+              (vterm 'x)
+              (fterm 'f (list (vterm 'x)))
+              )
+            (rewrite-rule
+              (vterm 'z)
+              (fterm 'f (list (vterm 'z))))))
+        (is 
+          (not (alphabet=
+            (rewrite-rule
+              (vterm 'x)
+              (fterm 'f (list (vterm 'x)))
+              )
+            (rewrite-rule
+              (vterm 'z)
+              (fterm 'f (list (vterm 'w)))))))
+        (is 
+          (alphabet=
+            (rewrite-rule
+              (vterm 'x)
+              (vterm 'x))
+            (rewrite-rule
+              (vterm 'z)
+              (vterm 'z))))
+        (is 
+          (alphabet=
+            (rewrite-rule
+              (vterm 'y)
+              (vterm 'z))
+            (rewrite-rule
+              (vterm 'w)
+              (vterm 't))))
+        (is 
+          (not (alphabet=
+            (rewrite-rule
+              (vterm 'x)
+              (vterm 'x))
+            (rewrite-rule
+              (vterm 'y)
+              (vterm 'z)))))))
+
+(test clover.tests.unify.alphabet=.test7
+      (let ((criteria1
+              (equation nil
+                (fterm 'f (list (vterm 'x) (vterm 'y)))
+                (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
+        (is 
+          (alphabet= criteria1
+                     (equation nil
+                       (fterm 'f (list (vterm 'u) (vterm 'v)))
+                       (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v))))))))
+        (is 
+          (alphabet= criteria1
+                     (equation nil
+                       (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v)))))
+                       (fterm 'f (list (vterm 'u) (vterm 'v))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (equation nil
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'z)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (equation nil
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (equation nil
+                         (fterm 'f (list (vterm 'w) (vterm 'w)))
+                         (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'y)))))))))
+        (is 
+          (not 
+            (alphabet= criteria1
+                       (equation nil
+                         (fterm 'f (list (vterm 'u) (vterm 'v)))
+                         (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
+        (is 
+          (not (alphabet=
+            (equation nil
+              (vterm 'x)
+              (fterm 'f (list (vterm 'x)))
+              )
+            (equation t
+              (vterm 'z)
+              (fterm 'f (list (vterm 'z)))))))
+        (is 
+          (alphabet=
+            (equation nil
+              (vterm 'x)
+              (fterm 'f (list (vterm 'x)))
+              )
+            (equation nil
+              (vterm 'z)
+              (fterm 'f (list (vterm 'z))))))
+        (is 
+          (not (alphabet=
+            (equation nil
+              (vterm 'x)
+              (fterm 'f (list (vterm 'x)))
+              )
+            (equation nil
+              (vterm 'z)
+              (fterm 'f (list (vterm 'w)))))))
+        (is 
+          (alphabet=
+            (equation nil
+              (vterm 'x)
+              (vterm 'x))
+            (equation nil
+              (vterm 'z)
+              (vterm 'z))))
+        (is 
+          (alphabet=
+            (equation nil
+              (vterm 'y)
+              (vterm 'z))
+            (equation nil
+              (vterm 'w)
+              (vterm 't))))))

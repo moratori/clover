@@ -276,3 +276,90 @@
             (clause-set.clauses clause-set2)
             (clause-set.clauses clause-set1)
             :test #'alphabet=))))
+
+(defun %alphabet=-for-rule-or-eq (rule1-src rule1-dst rule2-src rule2-dst)
+  (and 
+    (alphabet= rule1-src rule2-src)
+    (alphabet= rule2-dst rule2-dst)
+    (typecase rule1-src
+      (vterm
+        (typecase rule1-dst
+          (vterm 
+            ;; vterm -> vterm
+            (if (term= rule1-src rule1-dst)
+                (term= rule2-src rule2-dst)
+                t))
+          (fterm
+            ;; vterm -> fterm
+            (let* ((unifset
+                     (handler-case
+                         (find-most-general-unifier-set rule1-dst rule2-dst)
+                       (ununifiable-error (c) nil)))
+                   (unifiers (unifier-set.unifiers unifset)))
+              (when unifset
+                (or
+                  (member (unifier rule1-src rule2-src)
+                          unifiers
+                          :test #'unifier=)
+                  (member (unifier rule2-src rule1-src)
+                          unifiers
+                          :test #'unifier=)))))
+          (constant t)))
+      (fterm
+        (typecase rule1-dst
+          (vterm
+            ;; fterm -> vterm
+            (let ((unifset
+                    (handler-case
+                        (find-most-general-unifier-set rule1-src rule2-src)
+                      (ununifiable-error (c) nil))))
+              (when unifset
+                (some
+                  (lambda (u)
+                    (let ((src (unifier.src u))
+                          (dst (unifier.dst u)))
+                      (or
+                        (and (term= rule1-dst src) 
+                             (term= rule2-dst dst))
+                        (and (term= rule2-dst src) 
+                             (term= rule1-dst dst)))))
+                  (unifier-set.unifiers unifset)))))
+          (fterm
+            ;; fterm -> fterm
+            (let* ((unifset1
+                     (handler-case
+                         (find-most-general-unifier-set rule1-src rule2-src)
+                       (ununifiable-error (c) nil)))
+                   (unifset2
+                     (handler-case
+                         (find-most-general-unifier-set rule1-dst rule2-dst)
+                       (ununifiable-error (c) nil))))
+              (consistent-unifier-set-p
+                (unifier-set
+                  (append (unifier-set.unifiers unifset1)
+                          (unifier-set.unifiers unifset2))))))
+          (constant t)))
+      (constant t))))
+
+
+(defmethod alphabet= ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
+  (let* ((rule1-src (rewrite-rule.src rewrite-rule1))
+         (rule1-dst (rewrite-rule.dst rewrite-rule1))
+         (rule2-src (rewrite-rule.src rewrite-rule2))
+         (rule2-dst (rewrite-rule.dst rewrite-rule2)))
+    (%alphabet=-for-rule-or-eq rule1-src rule1-dst rule2-src rule2-dst)))
+
+(defmethod alphabet= ((equation1 equation) (equation2 equation))
+  (let* ((eq1-left (equation.left equation1))
+         (eq1-right (equation.right equation1))
+         (eq2-left (equation.left equation2))
+         (eq2-right (equation.right equation2)))
+    (and
+      (eq (equation.negation equation1)
+          (equation.negation equation2))
+      (or
+        (%alphabet=-for-rule-or-eq
+          eq1-left eq1-right eq2-left eq2-right)
+        (%alphabet=-for-rule-or-eq
+          eq1-left eq1-right eq2-right eq2-left)))))
+
