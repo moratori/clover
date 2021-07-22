@@ -4,6 +4,7 @@
         :clover.util
         :clover.unify
         :clover.rewrite
+        :clover.rename
         :1am))
 (in-package :clover.tests.rewrite)
 
@@ -391,44 +392,91 @@
                (rewrite-rule-set
                  (list rule1 rule2))) 
              (result
-               (all-critical-pair rule-set)))
+               (rename-for-human-readable-printing (all-critical-pair rule-set)))
+             (expected
+               (equation-set
+                 (list (equation nil 
+                                 (constant 'A)
+                                 (fterm 'g (list (vterm 'CLOVER.PARSER::X))))))))
         (is 
-          (not (null (equation-set.equations result)))
-          )))
+          (equation-set= expected result))))
 
 
 (test clover.tests.rewrite-rule.all-critical-pair.test2
-      (let ((target
-              (rewrite-rule-set
-                (list 
-                  (rewrite-rule
-                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
-                                       (vterm 'x)))
-                    (constant 'ZERO)
-                    )
-                  (rewrite-rule
-                    (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
-                                       (vterm 'z)))
-                    (fterm 'plus (list (vterm 'x)
-                                       (fterm 'plus (list (vterm 'y) (vterm 'z))))))))))
-        (is 
-          (not (null (equation-set.equations (all-critical-pair target)))))))
+      (let* ((target
+               (rewrite-rule-set
+                 (list 
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                                        (vterm 'x)))
+                     (constant 'ZERO)
+                     )
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
+                                        (vterm 'z)))
+                     (fterm 'plus (list (vterm 'x)
+                                        (fterm 'plus (list (vterm 'y) (vterm 'z)))))))))
+             (result
+               (rename-for-human-readable-printing (all-critical-pair target)))
+             (expected
+               (equation-set
+                 (list 
+                   (equation 
+                     nil
+                     (fterm 'plus (list (constant 'ZERO) (vterm 'CLOVER.PARSER::Y)))
+                     (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::X)))
+                                        (fterm 'plus (list (vterm 'CLOVER.PARSER::X)
+                                                           (vterm 'CLOVER.PARSER::Y)))))
+                     )
+                   (equation
+                     nil
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'CLOVER.PARSER::X)
+                                                           (fterm 'plus (list (vterm 'CLOVER.PARSER::Y)
+                                                                              (vterm 'CLOVER.PARSER::Z)))))
+                                        (vterm 'CLOVER.PARSER::W)))
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::Y)))
+                                        (fterm 'plus (list (vterm 'CLOVER.PARSER::Z) (vterm 'CLOVER.PARSER::W)))))
+                     )))))
+
+        (is (equation-set= result expected))))
 
 (test clover.tests.rewrite-rule.all-critical-pair.test3
-      (let ((target
-              (rewrite-rule-set
-                (list 
-                  (rewrite-rule
-                    (fterm 'plus (list (constant 'ZERO)
-                                       (vterm 'x)))
-                    (vterm 'x))
-                  (rewrite-rule
-                    (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
-                                       (vterm 'z)))
-                    (fterm 'plus (list (vterm 'x)
-                                       (fterm 'plus (list (vterm 'y) (vterm 'z))))))))))
-        (is 
-          (not (null (equation-set.equations (all-critical-pair target)))))))
+      (let* ((target
+               (rewrite-rule-set
+                 (list 
+                   (rewrite-rule
+                     (fterm 'plus (list (constant 'ZERO)
+                                        (vterm 'x)))
+                     (vterm 'x))
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
+                                        (vterm 'z)))
+                     (fterm 'plus (list (vterm 'x)
+                                        (fterm 'plus (list (vterm 'y) (vterm 'z)))))))))
+             (expected
+               (equation-set
+                 (list 
+                   (equation 
+                     nil
+                     (fterm 'plus (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::Y)))
+                     (fterm 'plus (list (constant 'ZERO)
+                                        (fterm 'plus (list (vterm 'CLOVER.PARSER::X)
+                                                           (vterm 'CLOVER.PARSER::Y)))))
+                     )
+                   (equation
+                     nil
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'CLOVER.PARSER::X)
+                                                           (fterm 'plus (list (vterm 'CLOVER.PARSER::Y)
+                                                                              (vterm 'CLOVER.PARSER::Z)))))
+                                        (vterm 'CLOVER.PARSER::W)))
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::Y)))
+                                        (fterm 'plus (list (vterm 'CLOVER.PARSER::Z) (vterm 'CLOVER.PARSER::W)))))
+                     )))
+               )
+             (result
+               (rename-for-human-readable-printing (all-critical-pair target))))
+
+        (is (equation-set= result expected) )))
 
 
 (test clover.tests.rewrite-rule.all-critical-pair.test4
@@ -445,3 +493,27 @@
                     (constant 'ZERO))))))
         (is 
           (null (equation-set.equations (all-critical-pair target))))))
+
+(test clover.tests.rewrite-rule.all-critical-pair.test5
+      (let* ((target
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                                       (fterm 'plus (list (vterm 'x) (vterm 'y)))))
+                    (vterm 'y))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                                       (fterm 'plus (list (vterm 'x) (vterm 'y)))))
+                    (vterm 'y)))))
+            (expected
+              (equation-set
+                (list 
+                  (equation
+                    nil
+                    (fterm 'plus (list (fterm 'inv (list (fterm 'inv (list (vterm 'CLOVER.PARSER::X))))) (vterm 'CLOVER.PARSER::Y)))
+                    (fterm 'plus (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::Y)))))))
+            (result
+              (rename-for-human-readable-printing (all-critical-pair target)))
+            )
+        (is (equation-set= expected result))))
