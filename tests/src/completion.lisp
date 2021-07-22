@@ -3,6 +3,7 @@
         :clover.types
         :clover.util
         :clover.completion
+        :clover.rename
         :1am)
   (:import-from :clover.property
                 :*term-order-algorithm*)
@@ -13,7 +14,6 @@
 
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :original)
-      (setf CLOVER.COMPLETION::*debug-print* 0.1)
 
       (let* ((target 
               (equation-set
@@ -35,4 +35,5 @@
                                        (vterm 'z)))))))
             (result
               (kb-completion target 100)))
+        (print (rename-for-human-readable-printing result))
         (is (and result (not (null (rewrite-rule-set.rewrite-rules result)))))))
