@@ -3,29 +3,36 @@
         :clover.types
         :clover.util
         :clover.completion
-        :1am))
+        :1am)
+  (:import-from :clover.property
+                :*term-order-algorithm*)
+  )
 (in-package :clover.tests.completion)
 
 
 
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :original)
-      (let ((target 
+      (setf CLOVER.COMPLETION::*debug-print* 0.1)
+
+      (let* ((target 
               (equation-set
                 (list
                   (equation 
                     nil
                     (vterm 'x)
-                    (fterm 'mult (list (constant 'ONE) (vterm 'x))))
+                    (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
                   (equation
                     nil
-                    (constant 'ONE)
-                    (fterm 'mult (list (fterm 'inv (list (vterm 'x)))
+                    (constant 'ZERO)
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
                                        (vterm 'x))))
                   (equation 
                     nil
-                    (fterm 'mult (list (vterm 'x)
-                                       (fterm 'mult (list (vterm 'y) (vterm 'z)))))
-                    (fterm 'mult (list (fterm 'mult (list (vterm 'x) (vterm 'y))) 
-                                       (vterm 'z))))))))
-        (is (kb-completion target 20))))
+                    (fterm 'plus (list (vterm 'x)
+                                       (fterm 'plus (list (vterm 'y) (vterm 'z)))))
+                    (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
+                                       (vterm 'z)))))))
+            (result
+              (kb-completion target 100)))
+        (is (and result (not (null (rewrite-rule-set.rewrite-rules result)))))))
