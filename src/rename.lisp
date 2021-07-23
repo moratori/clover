@@ -69,25 +69,28 @@
             (equation.right equation)))
         :test #'term=))))
 
+(defmethod rename ((equation equation))
+  (let ((rename-binds
+          (make-rename-binds equation)))
+    (equation
+      (equation.negation equation)
+      (apply-unifier-set 
+        (equation.left equation) 
+        rename-binds)
+      (apply-unifier-set 
+        (equation.right equation) 
+        rename-binds))))
+
 (defmethod rename ((rewrite-rule rewrite-rule))
-  (let* ((src (rewrite-rule.src rewrite-rule))
-         (dst (rewrite-rule.dst rewrite-rule))
-         (src-terms 
-           (collect-variables src))
-         (dst-terms 
-           (collect-variables dst))
-         (unique-terms
-           (remove-duplicates 
-             (append src-terms dst-terms)
-             :test #'term=))
-         (bind
-           (unifier-set
-             (mapcar 
-               (lambda (x) (unifier x (vterm (gensym *vterm-gensym-prefix*))))
-               unique-terms))))
+  (let* ((rename-binds
+           (make-rename-binds rewrite-rule)))
     (rewrite-rule
-      (apply-unifier-set src bind)
-      (apply-unifier-set dst bind))))
+      (apply-unifier-set
+        (rewrite-rule.src rewrite-rule)
+        rename-binds)
+      (apply-unifier-set
+        (rewrite-rule.dst rewrite-rule)
+        rename-binds))))
 
 (defmethod rename ((clause clause))
   (apply-unifier-set
