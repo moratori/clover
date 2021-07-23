@@ -39,13 +39,7 @@
   (values
     (equation-set
       (mapcar
-        (lambda (x)
-          (let ((left (equation.left x))
-                (right (equation.right x)))
-            (equation
-              (equation.negation x)
-              (rewrite-final left rewrite-rule-set)
-              (rewrite-final right rewrite-rule-set))))
+        #'rewrite-final
         (equation-set.equations equation-set)))
     rewrite-rule-set))
 

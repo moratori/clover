@@ -116,6 +116,11 @@
         applied
         (rewrite-final applied rewrite-rule-set))))
 
+(defmethod rewrite-final ((equation equation) (rewrite-rule-set rewrite-rule-set))
+  (equation
+    (equation.negation equation)
+    (rewrite-final (equation.left equation) rewrite-rule-set)
+    (rewrite-final (equation.right equation) rewrite-rule-set)))
 
 
 (defmethod rewrite-all-ways ((term term) (rewrite-rule rewrite-rule))
