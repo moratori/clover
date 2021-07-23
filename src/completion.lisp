@@ -25,8 +25,15 @@
         (remove-if
           #'tautology-equation-p
           (equation-set.equations equation-set))
-        :test #'equation=))
-    rewrite-rule-set))
+        :test (lambda (x y)
+                (or (equation= x y)
+                    (alphabet= x y)))))
+    (rewrite-rule-set
+      (remove-duplicates
+        (rewrite-rule-set.rewrite-rules rewrite-rule-set)
+        :test (lambda (x y)
+                (or (rewrite-rule= x y)
+                    (alphabet= x y)))))))
 
 (defmethod simplify-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (values
