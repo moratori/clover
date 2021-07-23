@@ -378,6 +378,37 @@
                a))
         (is (member expected result :test #'term=))))
 
+(test clover.tests.rewrite.find-subterms.test5
+      (let* ((a 
+               (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
+             (b 
+               (fterm 'plus (list (vterm 'u) (fterm 'inv (list (vterm 'u))))))
+             (result
+               (find-subterms a b))
+             (expected
+               (fterm 'plus (list (constant 'ZERO)
+                                  (fterm 'inv (list (constant 'ZERO)))))))
+        (is (member expected result :test #'term=))))
+
+(test clover.tests.rewrite.find-subterms.test6
+      (let* ((a 
+               (fterm 'f (list (fterm 'inv (list (vterm 'u))) 
+                               (fterm 'g (list (vterm 'w))) 
+                               (vterm 'z)))
+               )
+             (b 
+               (fterm 'f (list (vterm 'x)
+                               (fterm 'g (list (vterm 'x))) 
+                               (fterm 'h (list (vterm 'x) (vterm 'y))))))
+             (result
+               (find-subterms a b))
+             (expected
+               (list (fterm 'f (list (fterm 'inv (list (vterm 'u)))
+                               (fterm 'g (list (fterm 'inv (list (vterm 'u)))))
+                               (fterm 'h (list (fterm 'inv (list (vterm 'u)))
+                                               (vterm 'y))))))))
+        (is (term-set= result expected))))
+
 
 (test clover.tests.rewrite.all-critical-pair.test1
       (let* ((rule1
@@ -517,3 +548,26 @@
               (rename-for-human-readable-printing (all-critical-pair target)))
             )
         (is (equation-set= expected result))))
+
+(test clover.tests.rewrite-rule.all-critical-pair.test9
+      (let* ((target
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'plus (list (constant 'ZERO) 
+                                       (vterm 'x)))
+                    (vterm 'x))
+                  (rewrite-rule
+                    (fterm 'plus (list (vterm 'x)
+                                       (fterm 'inv (list (vterm 'x)))))
+                    (constant 'ZERO)))))
+             (expected
+               (equation-set
+                 (list 
+                   (equation
+                     nil
+                     (constant 'ZERO)
+                     (fterm 'inv (list (constant 'ZERO)))))))
+            (result
+              (rename-for-human-readable-printing (all-critical-pair target))))
+        (is (equation-set= result expected))))

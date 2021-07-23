@@ -188,19 +188,12 @@
                               (find-most-general-unifier-set target term)
                             (ununifiable-error (c) nil)))
                         (t nil)))
-                    (prohibited-variables
-                      (collect-variables term))
-                    (is-error
-                      (when unifset-from-toplevel
-                        (prohibited-unifier-set-p
-                          unifset-from-toplevel
-                          prohibited-variables)))
                     (unifset-from-args
                       (mapcan
                         (lambda (arg)
                           (recursive-mgu term arg))
                         (fterm.args target))))
-               (if (and unifset-from-toplevel (not is-error))
+               (if unifset-from-toplevel 
                    (cons unifset-from-toplevel unifset-from-args)
                    unifset-from-args)))
            (vterm 
