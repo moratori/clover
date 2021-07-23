@@ -24,6 +24,7 @@
     :equation-set=
     :equation=
     :rewrite-rule=
+    :rewrite-rule-set=
     :prohibited-unifier-set-p
     :occurrence-check
     ))
@@ -97,6 +98,18 @@
     (and 
       (term= rule1-src rule2-src)
       (term= rule1-dst rule2-dst))))
+
+(defmethod rewrite-rule-set= ((rewrite-rule-set1 rewrite-rule-set) 
+                              (rewrite-rule-set2 rewrite-rule-set))
+  (and 
+    (null (set-difference 
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
+            :test #'rewrite-rule=))
+    (null (set-difference 
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
+            :test #'equation=))))
 
 (defmethod tautology-equation-p ((equation equation))
   (term= (equation.left equation)
