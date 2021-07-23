@@ -295,7 +295,9 @@
                      (handler-case
                          (find-most-general-unifier-set rule1-dst rule2-dst)
                        (ununifiable-error (c) nil)))
-                   (unifiers (unifier-set.unifiers unifset)))
+                   (unifiers 
+                     (when unifset
+                       (unifier-set.unifiers unifset))))
               (when unifset
                 (or
                   (member (unifier rule1-src rule2-src)
