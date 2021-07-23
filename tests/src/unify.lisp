@@ -631,4 +631,14 @@
             (unifier-set
               (list (unifier (vterm 'x) (fterm 'inv (list (constant 'ZERO))))
                     (unifier (vterm 'u) (constant 'ZERO)))))))
+      (is 
+        (let ((us 
+                (find-most-general-unifier-set 
+                  (fterm 'plus (list (vterm 'u) (fterm 'inv (list (vterm 'u)))))
+                  (fterm 'plus (list (constant 'ZERO) (vterm 'x))))))
+          (unifier-set=
+            us
+            (unifier-set
+              (list (unifier (vterm 'x) (fterm 'inv (list (constant 'ZERO))))
+                    (unifier (vterm 'u) (constant 'ZERO)))))))
       )
