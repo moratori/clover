@@ -238,7 +238,7 @@
                          :append
                          (loop
                            :for p2 :in rewroted-by-rule2
-                           :collect (equation nil p1 p2)))))
+                           :collect (rename (equation nil p1 p2))))))
                    subterms))))))
     (equation-set
       (remove-duplicates
