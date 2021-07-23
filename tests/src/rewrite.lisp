@@ -430,7 +430,32 @@
                                  (constant 'A)
                                  (fterm 'g (list (vterm 'CLOVER.PARSER::X))))))))
         (is 
-          (equation-set= expected result))))
+          (equation-set= expected result)))
+
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'x) (vterm 'x)))
+                 (vterm 'x)
+                 ))
+             (rule2
+               (rewrite-rule
+                 (fterm 'g (list (fterm 'f (list (vterm 'u) (vterm 'v))) (vterm 'u)))
+                 (fterm 'h (list (vterm 'u)))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2))) 
+             (result
+               (rename-for-human-readable-printing (all-critical-pair rule-set)))
+             (expected
+               (equation-set
+                 (list 
+                   (equation
+                     nil
+                     (fterm 'g (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::X)))
+                     (fterm 'h (list (vterm 'CLOVER.PARSER::X))))))))
+        (is 
+          (equation-set= expected result)))
+      )
 
 
 (test clover.tests.rewrite-rule.all-critical-pair.test2
