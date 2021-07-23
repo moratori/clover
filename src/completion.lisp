@@ -39,7 +39,8 @@
   (values
     (equation-set
       (mapcar
-        #'rewrite-final
+        (lambda (x) 
+          (rewrite-final x rewrite-rule-set))
         (equation-set.equations equation-set)))
     rewrite-rule-set))
 
