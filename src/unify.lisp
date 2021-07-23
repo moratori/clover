@@ -280,7 +280,7 @@
 (defun %alphabet=-for-rule-or-eq (rule1-src rule1-dst rule2-src rule2-dst)
   (and 
     (alphabet= rule1-src rule2-src)
-    (alphabet= rule2-dst rule2-dst)
+    (alphabet= rule1-dst rule2-dst)
     (typecase rule1-src
       (vterm
         (typecase rule1-dst

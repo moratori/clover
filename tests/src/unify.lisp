@@ -635,6 +635,19 @@
               ))))
       )
 
+(test clover.tests.unify.alphabet=.test9
+      (is 
+          (not (alphabet=
+            (equation nil
+              (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
+              (fterm 'plus (list (fterm 'inv (list (fterm 'inv (list (vterm 'x)))))
+                                 (constant 'ZERO))))
+            (equation nil
+              (fterm 'plus (list (constant 'ZERO) (vterm 'u)))
+              (vterm 'u)
+              )))))
+
+
 (test clover.tests.unify.find-most-general-unifier-set.test2
 
       (is 
