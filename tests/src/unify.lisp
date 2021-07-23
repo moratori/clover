@@ -619,6 +619,22 @@
               (vterm 'w)
               (vterm 't))))))
 
+(test clover.tests.unify.alphabet=.test8
+      (is 
+          (not (alphabet=
+            (equation nil
+              (fterm 'plus (list (vterm 'x) (vterm 'y)))
+              (fterm 'plus (list (fterm 'plus (list (vterm 'x) 
+                                                    (constant 'ZERO)))
+                                 (vterm 'y))))
+            (equation nil
+              (fterm 'plus (list (fterm 'plus (list (fterm 'inv (list (vterm 'u)))
+                                                    (constant 'ZERO)))
+                                 (vterm 'u)))
+              (constant 'ZERO)
+              ))))
+      )
+
 (test clover.tests.unify.find-most-general-unifier-set.test2
 
       (is 
@@ -642,3 +658,4 @@
               (list (unifier (vterm 'x) (fterm 'inv (list (constant 'ZERO))))
                     (unifier (vterm 'u) (constant 'ZERO)))))))
       )
+
