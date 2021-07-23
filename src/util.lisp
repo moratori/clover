@@ -109,7 +109,7 @@
     (null (set-difference 
             (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
             (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
-            :test #'equation=))))
+            :test #'rewrite-rule=))))
 
 (defmethod tautology-equation-p ((equation equation))
   (term= (equation.left equation)
