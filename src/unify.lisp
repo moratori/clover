@@ -334,10 +334,11 @@
                      (handler-case
                          (find-most-general-unifier-set rule1-dst rule2-dst)
                        (ununifiable-error (c) nil))))
-              (consistent-unifier-set-p
-                (unifier-set
-                  (append (unifier-set.unifiers unifset1)
-                          (unifier-set.unifiers unifset2))))))
+              (when (and unifset1 unifset2)
+                (consistent-unifier-set-p
+                  (unifier-set
+                    (append (unifier-set.unifiers unifset1)
+                            (unifier-set.unifiers unifset2)))))))
           (constant t)))
       (constant t))))
 
