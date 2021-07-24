@@ -11,6 +11,7 @@
   (:import-from :clover.termorder
                 :term<)
   (:export
+    :rewrite
     :rewrite-final
     :rewrite-all-ways
     :all-critical-pair
