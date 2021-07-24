@@ -66,6 +66,18 @@
           (equation-set.equations eqs)))
       rewrite-rule-set)))
 
+(defmethod %orient ((equation equation))
+  (let ((left (equation.left equation))
+        (right (equation.right equation)))
+    (cond
+      ((term< left right *term-order-algorithm*)
+       (rename (rewrite-rule right left)))
+      ((term< right left *term-order-algorithm*)
+       (rename (rewrite-rule left right)))
+      (t (error "unable to orient equation ~A by ~A"
+                equation
+                *term-order-algorithm*)))))
+
 (defmethod orient-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (let (right< left<)
     (loop
@@ -76,29 +88,21 @@
       :if (term< right left *term-order-algorithm*) :do (push equation left<))
     (when (and (null right<) (null left<))
       (throw 'kb-completion_failed nil))
-    (values
-      (equation-set
-        (remove-if
-          (lambda (x)
-            (or
-              (member x right< :test #'equation=)
-              (member x left< :test #'equation=)))
-          (equation-set.equations equation-set)))
-      (rewrite-rule-set
-        (append
-          (rewrite-rule-set.rewrite-rules rewrite-rule-set)
-          (mapcar
-            (lambda (x)
-              (rename (rewrite-rule 
-                        (equation.right x)
-                        (equation.left x))))
-            right<)
-          (mapcar
-            (lambda (x)
-              (rename (rewrite-rule 
-                        (equation.left x)
-                        (equation.right x))))
-            left<))))))
+    (let* ((candidate
+             (append right< left<))
+           (selected
+            (alexandria:random-elt candidate))
+           (new-rule
+             (%orient selected)))
+      (values
+        (equation-set
+          (remove selected 
+                  (equation-set.equations equation-set)
+                  :test #'equation=))
+        (rewrite-rule-set
+          (cons 
+            new-rule
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set)))))))
 
 (defmethod collect-small-rules ((rule rewrite-rule) (rules rewrite-rule-set))
   "x <- R のうち、ruleによってx.leftを書き換えることのできないrを集める"
