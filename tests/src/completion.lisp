@@ -105,8 +105,46 @@
         (is (rewrite-rule-set= result expected))))
 
 
-
 ;(test clover.tests.completion.kb-completion.test2
+;      (setf *term-order-algorithm* :original)
+;      (setf CLOVER.COMPLETION::*debug-print* 0.3)
+;
+;      (let* ((target 
+;              (equation-set
+;                (list
+;                  (equation 
+;                    nil
+;                    (fterm 'append (list (constant 'NIL) (vterm 'x)))
+;                    (vterm 'x))
+;                  (equation
+;                    nil
+;                    (fterm 'append (list (fterm 'cons (list (vterm 'x) 
+;                                                            (vterm 'y)))
+;                                         (vterm 'z)))
+;                    (fterm 'cons (list (vterm 'x) (fterm 'append (list (vterm 'y) (vterm 'z))))))
+;                  (equation
+;                    nil
+;                    (fterm 'reverse (list (constant 'NIL)))
+;                    (constant 'NIL))
+;                  (equation
+;                    nil
+;                    (fterm 'reverse (list (fterm 'cons (list (vterm 'x) (vterm 'y)))))
+;                    (fterm 'append (list (fterm 'reverse (list (vterm 'y)))
+;                                         (fterm 'cons (list (vterm 'x) (constant 'NIL)))))
+;                    )
+;                  (equation
+;                    nil
+;                    (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
+;                    (vterm 'x)
+;                    ))))
+;            (result
+;              (rename-for-human-readable-printing
+;                (kb-completion target 10))))
+;
+;        (is (and result
+;                 (not (null (rewrite-rule-set.rewrite-rules result)))))))
+
+;(test clover.tests.completion.kb-completion.test3
 ;      (setf *term-order-algorithm* :original)
 ;      (setf CLOVER.COMPLETION::*debug-print* 0.1)
 ;
