@@ -93,6 +93,20 @@
               (fterm 'reverse (list (vterm 'x)))))
 
         (is (term= result expected)))
+
+      (let* ((target
+               (fterm 'f (list (vterm 'x) (vterm 'y))))
+             (rule-set
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule (fterm 'f (list (vterm 'u) (vterm 'u)))
+                                (vterm 'u)))))
+            (result
+              (rewrite-final target rule-set))
+            (expected
+              target))
+
+        (is (term= result expected)))
       )
 
 (test clover.tests.rewrite.rewrite-final.test3
