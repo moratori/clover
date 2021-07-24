@@ -100,54 +100,56 @@
                         (equation.right x))))
             left<))))))
 
+(defmethod collect-small-rules ((rule rewrite-rule) (rules rewrite-rule-set))
+  "x <- R のうち、ruleによってx.leftを書き換えることのできないrを集める"
+  (rewrite-rule-set
+    (remove-if
+      (lambda (x)
+        (let* ((src (rewrite-rule.src x))
+               (dst (rewrite-rule.dst x))
+               (rewrote (rewrite src rule)))
+          (not (term= rewrote src))))
+      (rewrite-rule-set.rewrite-rules rules))))
+
 (defmethod collapse-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (let* ((rules
            (rewrite-rule-set.rewrite-rules rewrite-rule-set))
-         (rewroted-by-smaller-rules
+         (smaller-rules
            (mapcar
-             (lambda (r1)
-               (let ((smaller
-                       (rewrite-rule-set
-                         (remove-if-not
-                           (lambda (r2)
-                             (rewrite-rule< r2 r1))
-                           rules)))
-                     (src (rewrite-rule.src r1))
-                     (dst (rewrite-rule.dst r1)))
-                 (list r1 (rewrite-final src smaller) dst)))
-            rules)))
-    (values
-      (equation-set
-        (append
-          (equation-set.equations equation-set)
-          (mapcar
-            (lambda (x)
-              (destructuring-bind (rule rewroted-src original-dst) x
-                (equation
+             (lambda (rule)
+               (collect-small-rules rule rewrite-rule-set))
+             rules))
+         (applied-small-rules
+           (mapcar
+             (lambda (target-rule small)
+               (rewrite-final
+                 (rewrite-rule.src target-rule)
+                 small))
+             rules
+             smaller-rules))
+         (changed
+           (loop
+             :for rule :in rules
+             :for applied-src :in applied-small-rules
+             :for original-src := (rewrite-rule.src rule)
+             :if (not (term= original-src applied-src))
+             :collect (cons rule applied-src)))
+         (selected
+           (when changed
+             (alexandria:random-elt changed))))
+    (if (null changed)
+        (values equation-set rewrite-rule-set)
+        (destructuring-bind (rule . applied-src) selected
+          (values
+            (equation-set
+              (cons
+                (equation 
                   nil
-                  original-dst
-                  rewroted-src)))
-            (remove-if
-              (lambda (x)
-                (destructuring-bind (rule rewroted-src original-dst) x
-                  (let ((src (rewrite-rule.src rule))
-                        (dst (rewrite-rule.dst rule)))
-                    (and 
-                      (term= src rewroted-src)))))
-              rewroted-by-smaller-rules))))
-      (rewrite-rule-set
-        (remove-if
-          (lambda (x)
-            (find-if
-              (lambda (y)
-                (destructuring-bind (rule rewroted-src original-dst) y
-                  (let ((src (rewrite-rule.src x))
-                        (dst (rewrite-rule.dst x)))
-                    (and
-                      (rewrite-rule= rule x)
-                      (not (term= src rewroted-src))))))
-              rewroted-by-smaller-rules))
-          rules)))))
+                  (rewrite-rule.dst rule)
+                  applied-src)
+                (equation-set.equations equation-set)))
+            (rewrite-rule-set
+              (remove rule rules :test #'rewrite-rule=)))))))
 
 
 

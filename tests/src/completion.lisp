@@ -10,6 +10,29 @@
   )
 (in-package :clover.tests.completion)
 
+
+
+(test clover.tests.completion.collect-small-rules.test1
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'x) (vterm 'y)))
+                 (vterm 'x)))
+             (rule2
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'x) (vterm 'y)))
+                 (vterm 'y)))
+             (whole
+               (rewrite-rule-set
+                 (list rule1 rule2)))
+             (target
+               rule1))
+        (is (null 
+              (rewrite-rule-set.rewrite-rules 
+                (clover.completion::collect-small-rules rule1 whole))))
+        (is (null 
+              (rewrite-rule-set.rewrite-rules 
+                (clover.completion::collect-small-rules rule2 whole))))))
+
 (test clover.tests.completion.collapse-rule.test1
       (let ((initial-e
               (equation-set nil))
@@ -20,17 +43,39 @@
                     (fterm 'f (list (vterm 'x) (vterm 'y)))
                     (vterm 'x))
                   (rewrite-rule
-                    (fterm 'f (list (vterm 'x) (vterm 'y)))
-                    (vterm 'y))))))
+                    (fterm 'f (list (vterm 'u) (vterm 'v)))
+                    (vterm 'v))))))
         (multiple-value-bind (result-e result-r)
             (clover.completion::collapse-rule initial-e initial-r)
-          (format t "~%initial equation-set = ~A~%" initial-e)
-          (format t "initial rewrite-rule-set = ~A~%" initial-r)
-          (format t "result equation-set = ~A~%" result-e)
-          (format t "result rewrite-rule-set = ~A~%" result-r)
           (is (and (equation-set= initial-e result-e)
                    (rewrite-rule-set= initial-r result-r))))))
 
+(test clover.tests.completion.collapse-rule.test2
+      (let ((initial-e
+              (equation-set nil))
+            (initial-r
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule
+                    (fterm 'f (list (vterm 'x) (vterm 'x)))
+                    (vterm 'x))
+                  (rewrite-rule
+                    (fterm 'f (list (vterm 'u) (vterm 'v)))
+                    (vterm 'u))))))
+        (multiple-value-bind (result-e result-r)
+            (clover.completion::collapse-rule initial-e initial-r)
+          (is (and (equation-set= 
+                     result-e
+                     (equation-set
+                       (list 
+                         (equation nil (vterm 'x) (vterm 'x)))))
+                   (rewrite-rule-set= 
+                     result-r
+                     (rewrite-rule-set
+                       (list
+                         (rewrite-rule
+                           (fterm 'f (list (vterm 'u) (vterm 'v)))
+                           (vterm 'u))))))))))
 
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :original)
@@ -58,6 +103,7 @@
                   ))))
 
         (is (rewrite-rule-set= result expected))))
+
 
 
 ;(test clover.tests.completion.kb-completion.test2
