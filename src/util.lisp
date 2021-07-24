@@ -18,7 +18,7 @@
     :literal=
     :clause=
     :clause-set=
-    :tautology-equation-p
+    :tautology-p
     :conseq-clause-p
     :ground-term-p
     :equation-set=
@@ -111,9 +111,13 @@
             (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
             :test #'rewrite-rule=))))
 
-(defmethod tautology-equation-p ((equation equation))
+(defmethod tautology-p ((equation equation))
   (term= (equation.left equation)
          (equation.right equation)))
+
+(defmethod tautology-p ((rewrite-rule rewrite-rule))
+  (term= (rewrite-rule.src rewrite-rule)
+         (rewrite-rule.dst rewrite-rule)))
 
 (defmethod ground-term-p ((term vterm))
   nil)

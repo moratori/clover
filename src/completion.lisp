@@ -23,14 +23,16 @@
     (equation-set
       (remove-duplicates
         (remove-if
-          #'tautology-equation-p
+          #'tautology-p
           (equation-set.equations equation-set))
         :test (lambda (x y)
                 (or (equation= x y)
                     (alphabet= x y)))))
     (rewrite-rule-set
       (remove-duplicates
-        (rewrite-rule-set.rewrite-rules rewrite-rule-set)
+        (remove-if
+          #'tautology-p
+          (rewrite-rule-set.rewrite-rules rewrite-rule-set))
         :test (lambda (x y)
                 (or (rewrite-rule= x y)
                     (alphabet= x y)))))))

@@ -236,7 +236,7 @@
     (equation-set
       (remove-duplicates
         (remove-if
-          #'tautology-equation-p
+          #'tautology-p
           tmp)
         :test (lambda (x y)
                 (or (equation= x y)
