@@ -637,6 +637,29 @@
             )
         (is (equation-set= expected result))))
 
+(test clover.tests.rewrite-rule.all-critical-pair.test8
+      (let* ((target
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'inv (list (fterm 'inv (list (vterm 'x)))))
+                    (vterm 'x))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                                       (vterm 'x)))
+                    (constant 'ZERO)))))
+             (expected
+               (equation-set
+                 (list 
+                   (equation
+                     nil
+                     (constant 'ZERO)
+                     (fterm 'plus (list (vterm 'CLOVER.PARSER::X) 
+                                        (fterm 'inv (list (vterm 'CLOVER.PARSER::X)))))))))
+            (result
+              (rename-for-human-readable-printing (all-critical-pair target))))
+        (is (equation-set= result expected))))
+
 (test clover.tests.rewrite-rule.all-critical-pair.test9
       (let* ((target
               (rewrite-rule-set
