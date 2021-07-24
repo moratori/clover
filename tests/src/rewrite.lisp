@@ -469,6 +469,55 @@
                      (fterm 'h (list (vterm 'CLOVER.PARSER::X))))))))
         (is 
           (equation-set= expected result)))
+
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'op (list (fterm 'op (list (vterm 'x) (vterm 'y)))
+                                  (vterm 'z)))
+                 (fterm 'op (list (vterm 'x)
+                                  (fterm 'op (list (vterm 'y) (vterm 'z)))))))
+             (rule2
+               (rewrite-rule
+                 (fterm 'op (list (constant 'ONE) (vterm 'x)))
+                 (vterm 'x)))
+             (rule3
+               (rewrite-rule
+                 (fterm 'op (list (fterm 'inv (list (vterm 'x)))
+                                  (vterm 'x)))
+                 (constant 'ONE)))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2 rule3))) 
+             (result
+               (rename-for-human-readable-printing
+                 (all-critical-pair rule-set)))
+             (expected
+               (equation-set
+                 (list 
+                   (equation 
+                     nil
+                     (fterm 'op (list (vterm 'CLOVER.PARSER::X)
+                                      (vterm 'CLOVER.PARSER::Y)))
+                     (fterm 'op (list (constant 'ONE)
+                                      (fterm 'op (list (vterm 'CLOVER.PARSER::X)
+                                                       (vterm 'CLOVER.PARSER::Y))))))
+                   (equation 
+                     nil
+                     (fterm 'op (list (fterm 'inv (list (vterm 'CLOVER.PARSER::X)))
+                                      (fterm 'op (list (vterm 'CLOVER.PARSER::X)
+                                                       (vterm 'CLOVER.PARSER::Y)))))
+                     (fterm 'op (list (constant 'ONE) (vterm 'CLOVER.PARSER::Y))))
+                   (equation 
+                     nil
+                     (fterm 'op (list (fterm 'op (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::Y)))
+                                      (fterm 'op (list (vterm 'CLOVER.PARSER::Z) (vterm 'CLOVER.PARSER::W)))))
+                     (fterm 'op (list 
+                                  (fterm 'op (list (vterm 'CLOVER.PARSER::X)
+                                                   (fterm 'op (list (vterm 'CLOVER.PARSER::Y)
+                                                                    (vterm 'CLOVER.PARSER::Z)))))
+                                  (vterm 'CLOVER.PARSER::W))))))))
+        (is 
+          (equation-set= result expected)))
       )
 
 
