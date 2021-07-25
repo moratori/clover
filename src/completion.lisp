@@ -190,7 +190,7 @@
 
                 (when (and (typep *debug-print* 'number)
                            (< 0 *debug-print*))
-                  (format t "@@@@@ infered by ~A and simplify/delete @@@@@~%" f)
+                  (format t "@@@@@ infered by ~A and simplify/delete @@@@@~%" rule)
                   (format t "      equation-set     = ~A~%"
                           (rename-for-human-readable-printing eqs))
                   (format t "      rewrite-rule-set = ~A~%"
