@@ -121,6 +121,42 @@
                    (rewrite-rule-set=  result-r initial-r)))))
       )
 
+(test clover.tests.completion.deduce-rule.test2
+      (let ((initial-e
+              (equation-set nil))
+            (initial-r
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule
+                    (fterm 'append (list (constant 'NIL) (vterm 'x)))
+                    (vterm 'x))
+                  (rewrite-rule
+                    (fterm 'append (list (fterm 'cons (list (vterm 'x) 
+                                                            (vterm 'y)))
+                                         (vterm 'z)))
+                    (fterm 'cons (list (vterm 'x) (fterm 'append (list (vterm 'y) (vterm 'z))))))
+                  (rewrite-rule
+                    (fterm 'reverse (list (constant 'NIL)))
+                    (constant 'NIL))
+                  (rewrite-rule
+                    (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
+                    (vterm 'x)
+                    )
+                  (rewrite-rule
+                    (fterm 'reverse (list (fterm 'cons (list (vterm 'x) (vterm 'y)))))
+                    (fterm 'append (list (fterm 'reverse (list (vterm 'y)))
+                                         (fterm 'cons (list (vterm 'x) (constant 'NIL))))))
+                  (rewrite-rule
+                    (fterm 'reverse (list (fterm 'append (list (vterm 'x) (fterm 'cons (list (vterm 'y) (constant 'NIL)))))))
+                    (fterm 'cons (list (vterm 'y) (fterm 'reverse (list (vterm 'x))))))))))
+        (multiple-value-bind (result-e result-r)
+            (clover.completion::infer :deduce initial-e initial-r)
+          
+          (is (and (equation-set= 
+                     result-e
+                     (equation-set nil))
+                   (rewrite-rule-set=  result-r initial-r))))))
+
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :original)
 
