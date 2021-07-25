@@ -28,10 +28,10 @@
                rule1))
         (is (null 
               (rewrite-rule-set.rewrite-rules 
-                (clover.completion::collect-small-rules rule1 whole))))
+                (clover.completion::%collect-small-rules rule1 whole))))
         (is (null 
               (rewrite-rule-set.rewrite-rules 
-                (clover.completion::collect-small-rules rule2 whole))))))
+                (clover.completion::%collect-small-rules rule2 whole))))))
 
 (test clover.tests.completion.collapse-rule.test1
       (let ((initial-e
@@ -46,7 +46,7 @@
                     (fterm 'f (list (vterm 'u) (vterm 'v)))
                     (vterm 'v))))))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::collapse-rule initial-e initial-r)
+            (clover.completion::infer :collapse initial-e initial-r)
           (is (and (equation-set= initial-e result-e)
                    (rewrite-rule-set= initial-r result-r))))))
 
@@ -63,12 +63,10 @@
                     (fterm 'f (list (vterm 'u) (vterm 'v)))
                     (vterm 'u))))))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::collapse-rule initial-e initial-r)
+            (clover.completion::infer :collapse initial-e initial-r)
           (is (and (equation-set= 
                      result-e
-                     (equation-set
-                       (list 
-                         (equation nil (vterm 'x) (vterm 'x)))))
+                     (equation-set nil))
                    (rewrite-rule-set= 
                      result-r
                      (rewrite-rule-set
@@ -76,6 +74,52 @@
                          (rewrite-rule
                            (fterm 'f (list (vterm 'u) (vterm 'v)))
                            (vterm 'u))))))))))
+
+(test clover.tests.completion.deduce-rule.test1
+      (let ((initial-e
+              (equation-set nil))
+            (initial-r
+              (rewrite-rule-set
+                 (list
+                   (rewrite-rule
+                     (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
+                     (vterm 'x))
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'inv (list (vterm 'x))) (vterm 'x)))
+                     (constant 'ZERO))
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) (vterm 'z)))
+                     (fterm 'plus (list (vterm 'x) (fterm 'plus (list (vterm 'y) (vterm 'z))))))
+                   (rewrite-rule
+                     (fterm 'plus (list (fterm 'inv (list (vterm 'x))) (fterm 'plus (list (vterm 'x) (vterm 'y)))))
+                     (vterm 'y))
+                   (rewrite-rule
+                     (fterm 'plus (list (vterm 'x) (constant 'ZERO)))
+                     (vterm 'x))
+                   (rewrite-rule
+                     (fterm 'inv (list (fterm 'inv (list (vterm 'x)))))
+                     (vterm 'x))
+                   (rewrite-rule
+                     (fterm 'plus (list (vterm 'x) (fterm 'inv (list (vterm 'x)))))
+                     (constant 'ZERO))
+                   (rewrite-rule
+                     (fterm 'inv (list (constant 'ZERO)))
+                     (constant 'ZERO))
+                   (rewrite-rule
+                     (fterm 'plus (list (vterm 'x) (fterm 'plus (list (fterm 'inv (list (vterm 'x))) (vterm 'y)))))
+                     (vterm 'y))
+                   (rewrite-rule
+                     (fterm 'inv (list (fterm 'plus (list (vterm 'x) (vterm 'y)))))
+                     (fterm 'plus (list (fterm 'inv (list (vterm 'y)))
+                                        (fterm 'inv (list (vterm 'x))))))))))
+        (multiple-value-bind (result-e result-r)
+            (clover.completion::infer :deduce initial-e initial-r)
+          
+          (is (and (equation-set= 
+                     result-e
+                     (equation-set nil))
+                   (rewrite-rule-set=  result-r initial-r)))))
+      )
 
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :original)
