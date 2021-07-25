@@ -33,4 +33,4 @@
 
 ;; for dictionary ordering, see https://ci.nii.ac.jp/naid/110003743432
 (defparameter *available-term-order-algorithms*
-  (list :dictionary :original))
+  (list :dictionary :original :lpo))

@@ -145,3 +145,7 @@
                t))
          (t (< left-complexity right-complexity)))))))
 
+
+(defmethod term< ((term1 term) (term2 term) (algorithm (eql :lpo)))
+  t
+  )
