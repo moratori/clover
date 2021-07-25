@@ -215,11 +215,12 @@
 ;                  (equation
 ;                    nil
 ;                    (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
-;                    (vterm 'x)
-;                    ))))
-;            (result
-;              (rename-for-human-readable-printing
-;                (kb-completion target 10))))
+;                    (vterm 'x)))))
+;             (tmp 
+;               (kb-completion target 10))
+;             (result
+;               (when tmp
+;                 (rename-for-human-readable-printing tmp))))
 ;
 ;        (is (and result
 ;                 (not (null (rewrite-rule-set.rewrite-rules result)))))))
@@ -248,5 +249,6 @@
 ;                                       (vterm 'z)))))))
 ;            (result
 ;              (kb-completion target 100)))
-;        (print (rename-for-human-readable-printing result))
+;        (when result
+;          (print (rename-for-human-readable-printing result)))
 ;        (is (and result (not (null (rewrite-rule-set.rewrite-rules result)))))))
