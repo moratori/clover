@@ -158,7 +158,7 @@
                    (rewrite-rule-set=  result-r initial-r))))))
 
 (test clover.tests.completion.kb-completion.test1
-      (setf *term-order-algorithm* :original)
+      (setf *term-order-algorithm* :lpo)
 
       (let* ((target 
               (equation-set
@@ -186,7 +186,7 @@
 
 
 ;(test clover.tests.completion.kb-completion.test2
-;      (setf *term-order-algorithm* :original)
+;      (setf *term-order-algorithm* :lpo)
 ;      (setf CLOVER.COMPLETION::*debug-print* 0.3)
 ;
 ;      (let* ((target 
@@ -226,7 +226,7 @@
 ;                 (not (null (rewrite-rule-set.rewrite-rules result)))))))
 
 ;(test clover.tests.completion.kb-completion.test3
-;      (setf *term-order-algorithm* :original)
+;      (setf *term-order-algorithm* :lpo)
 ;      (setf CLOVER.COMPLETION::*debug-print* 0.1)
 ;
 ;      (let* ((target 
