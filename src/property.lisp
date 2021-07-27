@@ -31,6 +31,5 @@
 
 (defparameter *term-order-algorithm* :original)
 
-;; for dictionary ordering, see https://ci.nii.ac.jp/naid/110003743432
 (defparameter *available-term-order-algorithms*
-  (list :dictionary :original :lpo))
+  (list :lpo :original))

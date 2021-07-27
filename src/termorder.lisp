@@ -9,19 +9,21 @@
 (in-package :clover.termorder)
 
 
-(defun %symbol-order (sym1 sym2)
+(defmethod symbol-order ((sym1 symbol) (sym2 symbol))
   (and (string< (string-upcase (symbol-name sym1))
                 (string-upcase (symbol-name sym2)))
        t))
 
-(defun %fsymbol-order-for-dictionary (fterm1 fterm2)
+(defmethod symbol-order ((fterm1 fterm) (fterm2 fterm))
   (let ((arity1 (length (fterm.args fterm1)))
         (arity2 (length (fterm.args fterm2))))
     (cond
-      ((< arity1 arity2) t)
       ((= arity1 arity2) 
-       (%symbol-order (fterm.fsymbol fterm1) (fterm.fsymbol fterm2)))
-      (t nil))))
+       (symbol-order (fterm.fsymbol fterm1)
+                     (fterm.fsymbol fterm2)))
+      ((zerop arity1) t)
+      (t
+       (< arity1 arity2)))))
 
 (defmethod %count-fterm-application ((term vterm))
   0)
@@ -37,57 +39,8 @@
            :initial-value 0)))
 
 
-
-(defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :dictionary)))
-  nil)
-
-(defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :dictionary)))
-  t)
-
-(defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :dictionary)))
-  nil)
-
-(defmethod term< ((term1 fterm) (term2 fterm) (algorithm (eql :dictionary)))
-  (let ((args1 (fterm.args term1))
-        (args2 (fterm.args term2)))
-    (or 
-      (some
-        (lambda (x)
-          (or (term< term1 x algorithm) 
-              (term= term1 x)))
-        args2)
-      (and
-        (every
-          (lambda (x)
-            (term< x term2 algorithm))
-          args1)
-        (or 
-          (%fsymbol-order-for-dictionary term1 term2)
-          (and
-            (string= (string-upcase (symbol-name (fterm.fsymbol term1)))
-                     (string-upcase (symbol-name (fterm.fsymbol term2))))
-            (= (length args1) (length args2))
-            ;; term1 = f(t1, t2, t3, ... , tn)
-            ;; term2 = f(s1, s2, s3, ... , sm)
-            ;; exist i : (si > ti & forall k < i : tk = sk)
-            (let ((first-index 
-                    (loop
-                      :named exit
-                      :for tn :in args1
-                      :for sm :in args2
-                      :for index :from 0
-                      :if (term< tn sm algorithm)
-                      :do (return-from exit index))))
-              (every
-                #'term=
-                (subseq args1 0 first-index)
-                (subseq args2 0 first-index)))))))))
-
-
-
-
 (defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :original)))
-  (%symbol-order (vterm.var term1) (vterm.var term2)))
+  (symbol-order (vterm.var term1) (vterm.var term2)))
 
 (defmethod term< ((term1 vterm) (term2 constant) (algorithm (eql :original)))
   nil)
@@ -104,7 +57,7 @@
   nil)
 
 (defmethod term< ((term1 constant) (term2 constant) (algorithm (eql :original)))
-  (%symbol-order
+  (symbol-order
     (constant.value term1)
     (constant.value term2)))
 
@@ -146,6 +99,57 @@
          (t (< left-complexity right-complexity)))))))
 
 
-(defmethod term< ((term1 term) (term2 term) (algorithm (eql :lpo)))
-  t
-  )
+
+
+
+
+(defun lexicographic-order< (args1 args2)
+  (loop
+    :named exit
+    :for arg1 :in args1
+    :for arg2 :in args2
+    :for index :from 0
+    :do
+    (when (and (term< arg1 arg2 :lpo)
+               (every #'term=
+                      (subseq args1 0 index)
+                      (subseq args2 0 index)))
+      (return-from exit t))))
+
+(defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :lpo)))
+  nil)
+
+(defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :lpo)))
+  nil)
+
+(defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :lpo)))
+  (some
+    (lambda (arg)
+      (or
+        (term< term1 arg algorithm)
+        (term= term1 arg)))
+    (fterm.args term2)))
+
+(defmethod term< ((term1 fterm) (term2 fterm) (algorithm (eql :lpo)))
+  (let ((fsymbol1 (fterm.fsymbol term1))
+        (fsymbol2 (fterm.fsymbol term2))
+        (args1 (fterm.args term1))
+        (args2 (fterm.args term2)))
+    (or
+      (some
+        (lambda (arg)
+          (or
+            (term< term1 arg algorithm)
+            (term= term1 arg)))
+        (fterm.args term2))
+      (and
+        (every
+          (lambda (arg)
+            (term< arg term2 algorithm))
+          args1)
+        (or
+          (symbol-order term1 term2)
+          (and
+            (eq fsymbol1 fsymbol2)
+            (lexicographic-order< args1 args2)))))))
+
