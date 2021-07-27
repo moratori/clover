@@ -15,15 +15,8 @@
        t))
 
 (defmethod symbol-order ((fterm1 fterm) (fterm2 fterm))
-  (let ((arity1 (length (fterm.args fterm1)))
-        (arity2 (length (fterm.args fterm2))))
-    (cond
-      ((= arity1 arity2) 
-       (symbol-order (fterm.fsymbol fterm1)
-                     (fterm.fsymbol fterm2)))
-      ((zerop arity1) t)
-      (t
-       (< arity1 arity2)))))
+  (symbol-order (fterm.fsymbol fterm1)
+                (fterm.fsymbol fterm2)))
 
 (defmethod %count-fterm-application ((term vterm))
   0)

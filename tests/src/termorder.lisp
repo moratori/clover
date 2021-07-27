@@ -145,6 +145,12 @@
       (is (term< (vterm 'x)
                  (fterm 'cons (list (vterm 'x) (vterm 'y)))
                  *term-order-algorithm*))
+
+      (is (term< 
+            (fterm 'append (list (fterm 'reverse (list (vterm 'y))) 
+                                 (fterm 'cons (list (vterm 'x) (constant 'NIL)))))
+            (fterm 'reverse (list (fterm 'cons (list (vterm 'x) (vterm 'y)))))
+                 *term-order-algorithm*))
       )
 
 ;(test clover.tests.util.term<.test3
