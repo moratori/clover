@@ -9,6 +9,8 @@
         :clover.rewrite
         :clover.termorder
         )
+  (:import-from :clover.criticalpair
+                :all-critical-pair)
   (:export
     :kb-completion
     )

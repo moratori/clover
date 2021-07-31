@@ -53,6 +53,7 @@
                  (:file "simplify")
                  (:file "resolution")
                  (:file "rewrite")
+                 (:file "criticalpair")
                  (:file "completion")
                  (:file "clover")
                  (:file "rendertree")

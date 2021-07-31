@@ -37,6 +37,7 @@
                    (:file "substitute")
                    (:file "resolution")
                    (:file "rewrite")
+                   (:file "criticalpair")
                    (:file "completion")
                    (:file "rendertree")
                    (:file "parser"))))))
