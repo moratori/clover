@@ -16,7 +16,7 @@
     (null (set-difference list2 list1 :test #'term=))))
 
 
-(test clover.tests.rewrite.find-subterms.test1
+(test clover.tests.criticalpair.find-subterms.test1
       (let* ((a 
                (fterm 'plus (list (constant 'ZERO)
                                   (vterm 'x))))
@@ -32,7 +32,7 @@
         )
       )
 
-(test clover.tests.rewrite.find-subterms.test2
+(test clover.tests.criticalpair.find-subterms.test2
       (let* ((a 
                (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
                                   (vterm 'x))))
@@ -48,7 +48,7 @@
         )
       )
 
-(test clover.tests.rewrite.find-subterms.test3
+(test clover.tests.criticalpair.find-subterms.test3
       (let* ((a 
                (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y)))
                                   (vterm 'z))))
@@ -64,7 +64,7 @@
                ))
         (is (member expected result :test #'term=))))
 
-(test clover.tests.rewrite.find-subterms.test4
+(test clover.tests.criticalpair.find-subterms.test4
       (let* ((a 
                (fterm 'plus (list (vterm 'x))))
              (b 
@@ -75,7 +75,7 @@
                a))
         (is (member expected result :test #'term=))))
 
-(test clover.tests.rewrite.find-subterms.test5
+(test clover.tests.criticalpair.find-subterms.test5
       (let* ((a 
                (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
              (b 
@@ -87,7 +87,7 @@
                                   (fterm 'inv (list (constant 'ZERO)))))))
         (is (member expected result :test #'term=))))
 
-(test clover.tests.rewrite.find-subterms.test6
+(test clover.tests.criticalpair.find-subterms.test6
       (let* ((a 
                (fterm 'f (list (fterm 'inv (list (vterm 'u))) 
                                (fterm 'g (list (vterm 'w))) 
@@ -107,7 +107,7 @@
         (is (term-set= result expected))))
  
 
-(test clover.tests.rewrite.all-critical-pair.test1
+(test clover.tests.criticalpair.all-critical-pair.test1
       (let* ((rule1
                (rewrite-rule
                  (fterm 'f (list (vterm 'z)))
@@ -204,7 +204,7 @@
       )
 
 
-(test clover.tests.rewrite-rule.all-critical-pair.test2
+(test clover.tests.criticalpair.all-critical-pair.test2
       (let* ((target
                (rewrite-rule-set
                  (list 
@@ -242,7 +242,7 @@
 
         (is (equation-set= result expected))))
 
-(test clover.tests.rewrite-rule.all-critical-pair.test3
+(test clover.tests.criticalpair.all-critical-pair.test3
       (let* ((target
                (rewrite-rule-set
                  (list 
@@ -281,7 +281,7 @@
         (is (equation-set= result expected) )))
 
 
-(test clover.tests.rewrite-rule.all-critical-pair.test4
+(test clover.tests.criticalpair.all-critical-pair.test4
       (let ((target
               (rewrite-rule-set
                 (list 
@@ -296,7 +296,7 @@
         (is 
           (null (equation-set.equations (all-critical-pair target))))))
 
-(test clover.tests.rewrite-rule.all-critical-pair.test5
+(test clover.tests.criticalpair.all-critical-pair.test5
       (let* ((target
               (rewrite-rule-set
                 (list 
@@ -320,7 +320,7 @@
             )
         (is (equation-set= expected result))))
 
-(test clover.tests.rewrite-rule.all-critical-pair.test8
+(test clover.tests.criticalpair.all-critical-pair.test8
       (let* ((target
               (rewrite-rule-set
                 (list 
@@ -343,7 +343,7 @@
               (rename-for-human-readable-printing (all-critical-pair target))))
         (is (equation-set= result expected))))
 
-(test clover.tests.rewrite-rule.all-critical-pair.test9
+(test clover.tests.criticalpair.all-critical-pair.test9
       (let* ((target
               (rewrite-rule-set
                 (list 
