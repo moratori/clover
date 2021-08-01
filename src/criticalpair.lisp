@@ -12,100 +12,105 @@
   (:import-from :clover.termorder
                 :term<)
   (:export
+    :critical-pair
     :all-critical-pair
-    :find-subterms
     ))
 (in-package :clover.criticalpair)
 
 
-
-(defmethod find-subterms ((term1 vterm) (term2 constant))
-  nil)
-
-(defmethod find-subterms ((term1 fterm) (term2 constant))
-  nil)
-
-(defmethod find-subterms ((term1 vterm) (term2 vterm))
-  (list term1))
-
-(defmethod find-subterms ((term1 constant) (term2 vterm))
-  (list term1))
-
-(defmethod find-subterms ((term1 constant) (term2 constant))
-  (list term1)) 
-
-(defmethod find-subterms ((term1 fterm) (term2 vterm))
-  (list term1))
-
-(defmethod find-subterms ((term1 term) (term2 fterm))
-  (labels
-      ((recursive-mgu (term target)
-         (typecase target
-           (fterm
-             (let* ((unifset-from-toplevel
-                      (typecase term
-                        (fterm 
-                          (handler-case
-                              (find-most-general-unifier-set target term)
-                            (ununifiable-error (c) nil)))
-                        (t nil)))
-                    (unifset-from-args
-                      (mapcan
-                        (lambda (arg)
-                          (recursive-mgu term arg))
-                        (fterm.args target))))
-               (if unifset-from-toplevel 
-                   (cons unifset-from-toplevel unifset-from-args)
-                   unifset-from-args)))
-           (vterm 
-             nil
-             ;(unless (occurrence-check target term)
-             ;  (list (unifier-set
-             ;          (list (unifier target term)))))
-             )
-           (constant
-             nil)
-           (t (error "~%target ~A must be term type~%" target)))))
-    (let ((unifiers (recursive-mgu term1 term2)))
-      (remove-duplicates
-        (mapcar 
-          (lambda (unifset)
-            (apply-unifier-set term2 unifset))
-          unifiers)
-        :test #'term=))))
- 
+(defmethod critical-pair ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
+  (let* ((rule1-src
+           (rewrite-rule.src rewrite-rule1))
+         (rule1-dst
+           (rewrite-rule.dst rewrite-rule1))
+         (rule2-src
+           (rewrite-rule.src rewrite-rule2))
+         (rule2-dst
+           (rewrite-rule.dst rewrite-rule2))
+         (theta-list nil))
+    (labels
+        ((recursive-mgu (small target)
+           (typecase target
+             (vterm nil)
+             (constant nil)
+             (fterm
+               (let ((mgu-from-toplevel
+                       (handler-case
+                           (find-most-general-unifier-set
+                             small target)
+                           (ununifiable-error (c) nil)))
+                     (mgu-from-args
+                       (mapcan
+                         (lambda (x)
+                           (recursive-mgu small x))
+                         (fterm.args target))))
+                 (if mgu-from-toplevel
+                     (cons mgu-from-toplevel mgu-from-args)
+                     mgu-from-args)))))
+         (substitute-all-subterm (theta src dst target)
+           (let ((mgu 
+                   (handler-case
+                       (find-most-general-unifier-set src target)
+                       (ununifiable-error (C) 
+                         nil))))
+             (if (and (not (typep target 'vterm))
+                      mgu 
+                      (unifier-set= mgu theta))
+                 dst
+                 (typecase target
+                   (vterm target)
+                   (constant (if (term= target src) dst target))
+                   (fterm (fterm (fterm.fsymbol target)
+                                 (mapcar
+                                   (lambda (arg)
+                                     (substitute-all-subterm theta src dst arg))
+                                   (fterm.args target)))))))))
+      (setf theta-list
+            (remove-duplicates
+              (recursive-mgu rule1-src rule2-src)
+              :test #'unifier-set=))
+      (equation-set
+        (mapcar
+          (lambda (theta)
+            (let ((rewroted-by-rule2
+                    (apply-unifier-set
+                        rule2-dst
+                        theta))
+                    (another
+                      (substitute-all-subterm
+                        theta rule1-src rule1-dst rule2-src)))
+                (rename
+                  (equation
+                    nil
+                    rewroted-by-rule2
+                    (apply-unifier-set another theta)))))
+            theta-list)))))
 
 (defmethod all-critical-pair ((rewrite-rule-set rewrite-rule-set))
-  (let* ((rules 
-           (rewrite-rule-set.rewrite-rules rewrite-rule-set))
+  (let* ((rules
+           (rewrite-rule-set.rewrite-rules
+             rewrite-rule-set))
          (tmp
            (loop
              :for rule1 :in rules
              :for renamed-rule1 := (rename rule1)
              :append
-             (loop 
+             (loop
                :for rule2 :in rules
                :for renamed-rule2 := (rename rule2)
-               :append
-               (let* ((rule1-src (rewrite-rule.src renamed-rule1))
-                      (rule2-src (rewrite-rule.src renamed-rule2))
-                      (subterms  (find-subterms rule1-src rule2-src)))
-                 (mapcan
-                   (lambda (term)
-                     (let ((rewroted-by-rule1 (rewrite-all-ways term renamed-rule1))
-                           (rewroted-by-rule2 (rewrite-all-ways term renamed-rule2)))
-                       (loop
-                         :for p1 :in rewroted-by-rule1
-                         :append
-                         (loop
-                           :for p2 :in rewroted-by-rule2
-                           :collect (rename (equation nil p1 p2))))))
-                   subterms))))))
+               :collect
+               (critical-pair renamed-rule1 renamed-rule2))))
+         (result
+           (mapcan
+             (lambda (x) 
+               (equation-set.equations x))
+             tmp)))
     (equation-set
       (remove-duplicates
         (remove-if
           #'tautology-p
-          tmp)
+          result)
         :test (lambda (x y)
                 (or (equation= x y)
                     (alphabet= x y)))))))
+

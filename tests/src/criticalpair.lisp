@@ -10,102 +10,53 @@
 (in-package :clover.tests.criticalpair)
 
 
-(defun term-set= (list1 list2)
-  (and 
-    (null (set-difference list1 list2 :test #'term=))
-    (null (set-difference list2 list1 :test #'term=))))
-
-
-(test clover.tests.criticalpair.find-subterms.test1
-      (let* ((a 
-               (fterm 'plus (list (constant 'ZERO)
-                                  (vterm 'x))))
-             (b 
-               (fterm 'plus (list (fterm 'plus (list (vterm 'w) (vterm 'u)))
-                                  (vterm 'v))))
+(test clover.tests.criticalpair.critical-pair.test1
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'z)))
+                 (constant 'A)))
+             (rule2
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'x)))
+                 (fterm 'g (list (vterm 'x)))))
              (result
-               (find-subterms a b))
+               (rename-for-human-readable-printing (critical-pair rule1 rule2)))
              (expected
-               (fterm 'plus (list (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
-                                  (vterm 'v)))))
-        (is (member expected result :test #'term=))
-        )
+               (equation-set
+                 (list (equation nil 
+                                 (constant 'A)
+                                 (fterm 'g (list (vterm 'CLOVER.PARSER::X))))))))
+        (is 
+          (equation-set= expected result)))
+
+      (let* ((rule1
+               (rewrite-rule
+                 (fterm 'f (list (vterm 'x) (vterm 'x)))
+                 (vterm 'x)
+                 ))
+             (rule2
+               (rewrite-rule
+                 (fterm 'g (list (fterm 'f (list (vterm 'u) (vterm 'v))) (vterm 'u)))
+                 (fterm 'h (list (vterm 'u)))))
+             (rule-set
+               (rewrite-rule-set
+                 (list rule1 rule2))) 
+             (result1
+               (rename-for-human-readable-printing (critical-pair rule1 rule2)))
+             (result2
+               (rename-for-human-readable-printing (critical-pair rule2 rule1)))
+             (expected
+               (equation-set
+                 (list 
+                   (equation
+                     nil
+                     (fterm 'g (list (vterm 'CLOVER.PARSER::X) (vterm 'CLOVER.PARSER::X)))
+                     (fterm 'h (list (vterm 'CLOVER.PARSER::X))))))))
+        (is (equation-set= expected result1))
+        (is (not (equation-set= expected result2))))
+
       )
 
-(test clover.tests.criticalpair.find-subterms.test2
-      (let* ((a 
-               (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
-                                  (vterm 'x))))
-             (b 
-               (fterm 'plus (list (fterm 'plus (list (vterm 'w) (vterm 'u)))
-                                  (vterm 'v))))
-             (result
-               (find-subterms a b))
-             (expected
-               (fterm 'plus (list (fterm 'plus (list (fterm 'inv (list (vterm 'x))) (vterm 'x)))
-                                  (vterm 'v)))))
-        (is (member expected result :test #'term=))
-        )
-      )
-
-(test clover.tests.criticalpair.find-subterms.test3
-      (let* ((a 
-               (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y)))
-                                  (vterm 'z))))
-             (b 
-               (fterm 'plus (list (fterm 'plus (list (vterm 'w) (vterm 'u)))
-                                  (vterm 'v))))
-             (result
-               (find-subterms a b))
-             (expected
-               (fterm 'plus (list (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y)))
-                                                     (vterm 'z)))
-                                  (vterm 'v)))
-               ))
-        (is (member expected result :test #'term=))))
-
-(test clover.tests.criticalpair.find-subterms.test4
-      (let* ((a 
-               (fterm 'plus (list (vterm 'x))))
-             (b 
-               (fterm 'plus (list (vterm 'y))))
-             (result
-               (find-subterms a b))
-             (expected
-               a))
-        (is (member expected result :test #'term=))))
-
-(test clover.tests.criticalpair.find-subterms.test5
-      (let* ((a 
-               (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
-             (b 
-               (fterm 'plus (list (vterm 'u) (fterm 'inv (list (vterm 'u))))))
-             (result
-               (find-subterms a b))
-             (expected
-               (fterm 'plus (list (constant 'ZERO)
-                                  (fterm 'inv (list (constant 'ZERO)))))))
-        (is (member expected result :test #'term=))))
-
-(test clover.tests.criticalpair.find-subterms.test6
-      (let* ((a 
-               (fterm 'f (list (fterm 'inv (list (vterm 'u))) 
-                               (fterm 'g (list (vterm 'w))) 
-                               (vterm 'z)))
-               )
-             (b 
-               (fterm 'f (list (vterm 'x)
-                               (fterm 'g (list (vterm 'x))) 
-                               (fterm 'h (list (vterm 'x) (vterm 'y))))))
-             (result
-               (find-subterms a b))
-             (expected
-               (list (fterm 'f (list (fterm 'inv (list (vterm 'u)))
-                               (fterm 'g (list (fterm 'inv (list (vterm 'u)))))
-                               (fterm 'h (list (fterm 'inv (list (vterm 'u)))
-                                               (vterm 'y))))))))
-        (is (term-set= result expected))))
- 
 
 (test clover.tests.criticalpair.all-critical-pair.test1
       (let* ((rule1
