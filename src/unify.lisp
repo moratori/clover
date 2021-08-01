@@ -209,6 +209,8 @@
         :object2 fterm2)))
   (%find-most-general-unifier-set fterm1 fterm2))
 
+(defmethod find-most-general-unifier-set ((term1 term) (term2 term))
+  (%find-most-general-unifier-set term1 term2))
 
 (defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
   ;; clause1がclause2を包摂するかを判定する
