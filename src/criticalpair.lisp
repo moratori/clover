@@ -18,6 +18,10 @@
 (in-package :clover.criticalpair)
 
 
+(defgeneric critical-pair (rule1 rule2)
+  (:documentation "https://gist.github.com/moratori/0c21dbafac0391f3aa0ee3f41a002f2f"))
+
+
 (defmethod critical-pair ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
   (let* ((rule1-src
            (rewrite-rule.src rewrite-rule1))
