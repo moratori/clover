@@ -103,6 +103,12 @@
       #'rename
       (clause-set.clauses clause-set))))
 
+(defmethod rename ((equation-set equation-set))
+  (equation-set
+    (mapcar 
+      #'rename
+      (equation-set.equations equation-set))))
+
 
 (defmethod rename-for-human-readable-printing ((clause clause))
   (let* ((unifier-set (make-rename-binds clause))

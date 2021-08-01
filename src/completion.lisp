@@ -204,8 +204,10 @@
     (values (car ret) (cdr ret))))
 
 (defmethod kb-completion ((equation-set equation-set) giveup-threshold)
-  (let ((result-equation-set equation-set)
-        (result-rewrite-rule-set (rewrite-rule-set nil))
+  (let ((result-equation-set
+          (rename equation-set))
+        (result-rewrite-rule-set
+          (rewrite-rule-set nil))
         (cnt 0))
 
     (catch 'kb-completion_failed
