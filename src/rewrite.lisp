@@ -19,18 +19,6 @@
 (in-package :clover.rewrite)
 
 
-(defun copy-variant (original index variants)
-  "originalのindex目の要素をvariantsの要素で置き換えたもののリストを返す"
-  (unless (null original) 
-    (mapcar
-      (lambda (x)
-        (loop
-          :for elm :in original
-          :for ind :from 0
-          :collect
-          (if (= ind index) x elm)))
-      variants)))
-
 
 
 (defmethod %rewrite ((vterm vterm) (src vterm) (dst vterm))
@@ -75,6 +63,11 @@
 
 
 
+(defgeneric rewrite-final (target rewrite-rule)
+  (:documentation 
+   "rewrite-ruleを用いて、targetが書き換え不能になるまで書き換える。rewrite-ruleよにっては、停止しない可能性がある。"))
+
+
 (defmethod rewrite-final ((term vterm) (rewrite-rule rewrite-rule))
   (rewrite term rewrite-rule))
 
@@ -108,6 +101,20 @@
     (rewrite-final (equation.left equation) rewrite-rule-set)
     (rewrite-final (equation.right equation) rewrite-rule-set)))
 
+
+
+
+(defun copy-variant (original index variants)
+  "originalのindex目の要素をvariantsの要素で置き換えたもののリストを返す"
+  (unless (null original) 
+    (mapcar
+      (lambda (x)
+        (loop
+          :for elm :in original
+          :for ind :from 0
+          :collect
+          (if (= ind index) x elm)))
+      variants)))
 
 (defmethod rewrite-all-ways ((term term) (rewrite-rule rewrite-rule))
   nil)
