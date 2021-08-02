@@ -4,19 +4,16 @@
         :clover.types
         :clover.util)
   (:export
+    :function-symbol-order
     :term<
     ))
 (in-package :clover.termorder)
 
 
-(defmethod symbol-order ((sym1 symbol) (sym2 symbol))
+(defmethod %symbol-order ((sym1 symbol) (sym2 symbol))
   (and (string< (string-upcase (symbol-name sym1))
                 (string-upcase (symbol-name sym2)))
        t))
-
-(defmethod symbol-order ((fterm1 fterm) (fterm2 fterm))
-  (symbol-order (fterm.fsymbol fterm1)
-                (fterm.fsymbol fterm2)))
 
 (defmethod %count-fterm-application ((term vterm))
   0)
@@ -32,8 +29,24 @@
            :initial-value 0)))
 
 
+(defmethod function-symbol-order ((fterm1 fterm)
+                                  (fterm2 fterm)
+                                  (algorithm (eql :original)))
+  (%symbol-order
+    (fterm.fsymbol fterm1)
+    (fterm.fsymbol fterm2)))
+
+(defmethod function-symbol-order ((fterm1 fterm)
+                                  (fterm2 fterm)
+                                  (algorithm (eql :lpo)))
+  (%symbol-order
+    (fterm.fsymbol fterm1)
+    (fterm.fsymbol fterm2)))
+ 
+
+
 (defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :original)))
-  (symbol-order (vterm.var term1) (vterm.var term2)))
+  (%symbol-order (vterm.var term1) (vterm.var term2)))
 
 (defmethod term< ((term1 vterm) (term2 constant) (algorithm (eql :original)))
   nil)
@@ -48,9 +61,7 @@
   (ground-term-p term1))
 
 (defmethod term< ((term1 constant) (term2 constant) (algorithm (eql :original)))
-  (symbol-order
-    (constant.value term1)
-    (constant.value term2)))
+  (function-symbol-order term1 term2 algorithm))
 
 (defmethod term< ((term1 constant) (term2 fterm) (algorithm (eql :original)))
   t)
@@ -139,7 +150,7 @@
             (term< arg term2 algorithm))
           args1)
         (or
-          (symbol-order term1 term2)
+          (function-symbol-order term1 term2 algorithm)
           (and
             (eq fsymbol1 fsymbol2)
             (lexicographic-order< args1 args2)))))))
