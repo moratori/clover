@@ -228,3 +228,19 @@
 ;          :for src := (rewrite-rule.src rule)
 ;          :for dst := (rewrite-rule.dst rule)
 ;          :do (is (term< dst src *term-order-algorithm*)))))
+
+;(test clover.tests.util.term<.test5
+;      (setf *term-order-algorithm* :lpo)
+;
+;      (is (or
+;            (term< 
+;              (constant 'ZERO)
+;              (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+;                                 (vterm 'x)))
+;              *term-order-algorithm*)
+;            (term< 
+;              (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+;                                 (vterm 'x)))
+;              (constant 'ZERO)
+;              *term-order-algorithm*)))
+;      )
