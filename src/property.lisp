@@ -27,7 +27,7 @@
   "where to intern symbol ")
 
 (defparameter *vterm-for-human-readable*
-  (list "X" "Y" "Z" "W" "S" "T" "U" "V" "M" "N"))
+  (list "X" "Y" "Z" "W" "S" "T" "U" "V" "M" "N" "X0" "X1" "X2" "X3" "X4" "X5"))
 
 (defparameter *term-order-algorithm* :original)
 
