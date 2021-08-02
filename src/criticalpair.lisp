@@ -7,7 +7,6 @@
         :clover.unify
         :clover.substitute
         :clover.rename
-        :clover.rewrite
         )
   (:import-from :clover.termorder
                 :term<)
