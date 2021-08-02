@@ -39,15 +39,13 @@
   nil)
 
 (defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :original)))
-  ;; term2 が groundであった場合は、term1の方が大きい？
-  t)
+  (not (ground-term-p term2)))
 
 (defmethod term< ((term1 constant) (term2 vterm) (algorithm (eql :original)))
   t)
 
 (defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :original)))
-  ;; term1 が groundであった場合は、term1の方が小さい？
-  nil)
+  (ground-term-p term1))
 
 (defmethod term< ((term1 constant) (term2 constant) (algorithm (eql :original)))
   (symbol-order
