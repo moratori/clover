@@ -157,6 +157,26 @@
                      (equation-set nil))
                    (rewrite-rule-set=  result-r initial-r))))))
 
+(test clover.tests.completion.deduce-rule.test3
+      (let ((initial-e
+              (equation-set nil))
+            (initial-r
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'g (list (vterm 'x)))))
+                    (fterm 'g (list (fterm 'h (list (vterm 'x))))))
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'h (list (vterm 'x)))))
+                    (fterm 'g (list (vterm 'x))))))))
+        (multiple-value-bind (result-e result-r)
+            (clover.completion::infer :deduce initial-e initial-r)
+          
+          (is (and (equation-set= 
+                     result-e
+                     (equation-set nil))
+                   (rewrite-rule-set=  result-r initial-r))))))
+
 (test clover.tests.completion.kb-completion.test1
       (setf *term-order-algorithm* :lpo)
 
