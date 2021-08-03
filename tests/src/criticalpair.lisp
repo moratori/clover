@@ -6,7 +6,10 @@
         :clover.rewrite
         :clover.rename
         :clover.criticalpair
-        :1am))
+        :1am)
+  (:import-from :clover.parser
+                :parse-premise-logical-expression)
+  )
 (in-package :clover.tests.criticalpair)
 
 
@@ -316,3 +319,43 @@
             (result
               (rename-for-human-readable-printing (all-critical-pair target))))
         (is (equation-set= result expected)))) 
+
+(test clover.tests.criticalpair.all-critical-pair.test10
+      (let* ((target
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'CLOVER.PARSER::plus (list (fterm 'CLOVER.PARSER::inv (list (vterm 'x)))
+                                       (fterm 'CLOVER.PARSER::plus (list (vterm 'x) (vterm 'y)))))
+                    (vterm 'y))
+                  (rewrite-rule
+                    (fterm 'CLOVER.PARSER::plus (list (fterm 'CLOVER.PARSER::plus (list (vterm 'x) (vterm 'y)))
+                                       (vterm 'z)))
+                    (fterm 'CLOVER.PARSER::plus (list (vterm 'x)
+                                       (fterm 'CLOVER.PARSER::plus (list (vterm 'y) (vterm 'z))))))
+                  (rewrite-rule
+                    (fterm 'CLOVER.PARSER::plus (list (fterm 'CLOVER.PARSER::inv (list (vterm 'x)))
+                                       (vterm 'x)))
+                    (constant 'CLOVER.PARSER::ZERO))
+                  (rewrite-rule
+                    (fterm 'CLOVER.PARSER::plus (list (constant 'CLOVER.PARSER::ZERO)
+                                       (vterm 'x)))
+                    (vterm 'x)))))
+             (expected
+               (rename
+                 (equation-set
+                 (mapcar
+                   (lambda (x)
+                     (car (clause.literals (parse-premise-logical-expression x))))
+                   (list 
+                     "z = plus(inv(plus(x,y)),plus(x,plus(y,z)))"
+                     "x = plus(inv(inv(x)),ZERO)"
+                     "x = plus(inv(ZERO),x)"
+                     "plus(x,y) = plus(inv(inv(x)),y)"
+                     "plus(inv(x),plus(plus(x,y),z)) = plus(y,z)"
+                     "plus(plus(x,y),plus(z,w)) = plus(plus(x,plus(y,z)),w)"
+                     "plus(inv(x),plus(x,y)) = plus(ZERO,y)"
+                     "plus(ZERO,plus(x,y)) = plus(x,y)")))))
+             (result
+               (rename-for-human-readable-printing (all-critical-pair target))))
+        (is (alphabet= expected result))))
