@@ -123,18 +123,17 @@
       (throw 'kb-completion_failed nil))
     (let* ((candidate
              (append right< left<))
-           (selected
-            (alexandria:random-elt candidate))
-           (new-rule
-             (%orient selected)))
+           (new-rules
+             (mapcar #'%orient candidate)))
       (values
         (equation-set
-          (remove selected 
-                  (equation-set.equations equation-set)
-                  :test #'equation=))
+          (remove-if
+            (lambda (x)
+              (member x candidate :test #'equation=))
+            (equation-set.equations equation-set)))
         (rewrite-rule-set
-          (cons 
-            new-rule
+          (append
+            new-rules
             (rewrite-rule-set.rewrite-rules rewrite-rule-set)))))))
 
 
@@ -162,25 +161,28 @@
              :for applied-src :in applied-small-rules
              :for original-src := (rewrite-rule.src rule)
              :if (not (term= original-src applied-src))
-             :collect (cons rule applied-src)))
-         (selected
-           (when changed
-             (alexandria:random-elt changed))))
+             :collect (cons rule applied-src))))
     (if (null changed)
         (values equation-set rewrite-rule-set)
-        (destructuring-bind (rule . applied-src) selected
-          (values
-            (equation-set
-              (cons
-                (equation 
-                  nil
-                  (rewrite-rule.dst rule)
-                  applied-src)
-                (equation-set.equations equation-set)))
-            (rewrite-rule-set
-              (remove rule rules :test #'rewrite-rule=)))))))
-
-
+        (values
+          (equation-set
+            (append
+              (mapcar
+                (lambda (x)
+                  (equation
+                    nil
+                    (rewrite-rule.dst (car x))
+                    (cdr x)))
+                changed)
+              (equation-set.equations equation-set)))
+          (rewrite-rule-set
+            (remove-if
+              (lambda (x)
+                (find-if
+                  (lambda (y) 
+                    (rewrite-rule= x (car y)))
+                  changed))
+              rules))))))
 
 
 (defmethod apply-inference-rules ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
@@ -196,25 +198,25 @@
                           (rename-for-human-readable-printing eqs))
                   (format t "      ret rewrite-rule-set = ~A~%"
                           (rename-for-human-readable-printing rrls))
-                  (format t "      added equation   = ~A~%"
+                  (format t "      added equation       = ~A~%"
                           (set-difference (equation-set.equations
                                             eqs) 
                                           (equation-set.equations
                                             (car target))
                                           :test #'equation=))
-                  (format t "      removed equation = ~A~%"
+                  (format t "      removed equation     = ~A~%"
                           (set-difference (equation-set.equations
                                             (car target))
                                           (equation-set.equations
                                             eqs)
                                           :test #'equation=))
-                  (format t "      added rwrule     = ~A~%"
+                  (format t "      added rwrule         = ~A~%"
                           (set-difference (rewrite-rule-set.rewrite-rules
                                             rrls)
                                           (rewrite-rule-set.rewrite-rules
                                             (cdr target))
                                           :test #'rewrite-rule=))
-                  (format t "      removed rwrule   = ~A~%"
+                  (format t "      removed rwrule       = ~A~%"
                           (set-difference (rewrite-rule-set.rewrite-rules
                                             (cdr target))
                                           (rewrite-rule-set.rewrite-rules
