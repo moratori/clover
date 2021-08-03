@@ -184,6 +184,50 @@
                   changed))
               rules))))))
 
+(defun debug-print-for-each-rule (rule target eqs rrls)
+  (when *debug-print*
+    (format t "~%@@@@@ infered by ~A and simplify/delete @@@@@~%" rule)
+    (format t "      ret equation-set     = ~A~%"
+            (rename-for-human-readable-printing eqs))
+    (format t "      ret rewrite-rule-set = ~A~%"
+            (rename-for-human-readable-printing rrls))
+    (let ((added-equation
+            (rename-for-human-readable-printing
+              (equation-set
+                (set-difference (equation-set.equations eqs) 
+                                (equation-set.equations (car target))
+                                :test #'equation=))))
+          (removed-equations
+            (rename-for-human-readable-printing
+              (equation-set
+                (set-difference (equation-set.equations (car target))
+                                (equation-set.equations eqs)
+                                :test #'equation=))))
+          (added-rwrule
+            (rename-for-human-readable-printing
+              (rewrite-rule-set
+                (set-difference (rewrite-rule-set.rewrite-rules rrls)
+                                (rewrite-rule-set.rewrite-rules (cdr target))
+                                :test #'rewrite-rule=))))
+          (removed-rwrule
+            (rename-for-human-readable-printing
+              (rewrite-rule-set
+                (set-difference (rewrite-rule-set.rewrite-rules (cdr target))
+                                (rewrite-rule-set.rewrite-rules rrls)
+                                :test #'rewrite-rule=)))))
+      (format t "      added equation(+~A)  = ~A~%"
+              (length (equation-set.equations added-equation))
+              added-equation)
+      (format t "      added rwrule(+~A)    = ~A~%"
+              (length (rewrite-rule-set.rewrite-rules added-rwrule))
+              added-rwrule)
+      (format t "      removed equation(-~A)= ~A~%"
+              (length (equation-set.equations removed-equations))
+              removed-equations)
+      (format t "      removed rwrule(-~A)  = ~A~%"
+              (length (rewrite-rule-set.rewrite-rules removed-rwrule))
+              removed-rwrule))))
+
 
 (defmethod apply-inference-rules ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (let ((ret
@@ -191,46 +235,7 @@
             (lambda (target rule)
               (multiple-value-bind (eqs rrls)
                   (infer rule (car target) (cdr target))
-
-                (when *debug-print*
-                  (format t "~%@@@@@ infered by ~A and simplify/delete @@@@@~%" rule)
-                  (format t "      ret equation-set     = ~A~%"
-                          (rename-for-human-readable-printing eqs))
-                  (format t "      ret rewrite-rule-set = ~A~%"
-                          (rename-for-human-readable-printing rrls))
-                  (format t "      added equation       = ~A~%"
-                          (rename-for-human-readable-printing
-                            (equation-set
-                              (set-difference (equation-set.equations
-                                                eqs) 
-                                              (equation-set.equations
-                                                (car target))
-                                              :test #'equation=))))
-                  (format t "      removed equation     = ~A~%"
-                          (rename-for-human-readable-printing
-                            (equation-set
-                              (set-difference (equation-set.equations
-                                                (car target))
-                                              (equation-set.equations
-                                                eqs)
-                                              :test #'equation=))))
-                  (format t "      added rwrule         = ~A~%"
-                          (rename-for-human-readable-printing
-                            (rewrite-rule-set
-                              (set-difference (rewrite-rule-set.rewrite-rules
-                                                rrls)
-                                              (rewrite-rule-set.rewrite-rules
-                                                (cdr target))
-                                              :test #'rewrite-rule=))))
-                  (format t "      removed rwrule       = ~A~%"
-                          (rename-for-human-readable-printing
-                            (rewrite-rule-set
-                              (set-difference (rewrite-rule-set.rewrite-rules
-                                                (cdr target))
-                                              (rewrite-rule-set.rewrite-rules
-                                                rrls)
-                                              :test #'rewrite-rule=)))))
-
+                (debug-print-for-each-rule rule target eqs rrls)
                 (cons eqs rrls)))
             (list :collapse
                   :compose
