@@ -17,7 +17,7 @@
   )
 (in-package :clover.completion)
 
-(defparameter *debug-print* 0)
+(defparameter *debug-print* nil)
 
 
 (defmethod %orient ((equation equation))
@@ -190,16 +190,42 @@
               (multiple-value-bind (eqs rrls)
                   (infer rule (car target) (cdr target))
 
-                (when (and (typep *debug-print* 'number)
-                           (< 0 *debug-print*))
-                  (format t "@@@@@ infered by ~A and simplify/delete @@@@@~%" rule)
-                  (format t "      equation-set     = ~A~%"
+                (when *debug-print*
+                  (format t "~%@@@@@ infered by ~A and simplify/delete @@@@@~%" rule)
+                  (format t "      ret equation-set     = ~A~%"
                           (rename-for-human-readable-printing eqs))
-                  (format t "      rewrite-rule-set = ~A~%"
-                          (rename-for-human-readable-printing rrls)))
+                  (format t "      ret rewrite-rule-set = ~A~%"
+                          (rename-for-human-readable-printing rrls))
+                  (format t "      added equation   = ~A~%"
+                          (set-difference (equation-set.equations
+                                            eqs) 
+                                          (equation-set.equations
+                                            (car target))
+                                          :test #'equation=))
+                  (format t "      removed equation = ~A~%"
+                          (set-difference (equation-set.equations
+                                            (car target))
+                                          (equation-set.equations
+                                            eqs)
+                                          :test #'equation=))
+                  (format t "      added rwrule     = ~A~%"
+                          (set-difference (rewrite-rule-set.rewrite-rules
+                                            rrls)
+                                          (rewrite-rule-set.rewrite-rules
+                                            (cdr target))
+                                          :test #'rewrite-rule=))
+                  (format t "      removed rwrule   = ~A~%"
+                          (set-difference (rewrite-rule-set.rewrite-rules
+                                            (cdr target))
+                                          (rewrite-rule-set.rewrite-rules
+                                            rrls)
+                                          :test #'rewrite-rule=)))
 
                 (cons eqs rrls)))
-            (list :collapse :compose :orient :deduce)
+            (list :collapse
+                  :compose
+                  :orient 
+                  :deduce)
             :initial-value (cons equation-set rewrite-rule-set))))
     (values (car ret) (cdr ret))))
 
@@ -216,15 +242,16 @@
                          (> giveup-threshold cnt))
              :do
 
-             (when (and (typep *debug-print* 'number)
-                        (< 0 *debug-print*))
-               (format t "~%#################### Completion ROUND ~A ####################~%" cnt)
-               (format t "equation-set = ~%    ~A~%"
+             (when *debug-print*
+               (format t "~%######################################################################~%")
+               (format t "# Completion ROUND ~A~%" cnt)
+               (format t "######################################################################~%")
+               (format t "initial equation-set = ~%    ~A~%"
                        (rename-for-human-readable-printing result-equation-set))
-               (format t "rewrite-rule-set = ~%    ~A~%"
+               (format t "initial rewrite-rule-set = ~%    ~A~%"
                        (rename-for-human-readable-printing result-rewrite-rule-set))
                (force-output *standard-output*)
-               (sleep *debug-print*))
+               (sleep 0.1))
 
              (incf cnt)
              (multiple-value-bind (eqs rrls)

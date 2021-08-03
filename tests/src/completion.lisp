@@ -291,7 +291,7 @@
 
 ;(test clover.tests.completion.kb-completion.test2
 ;      (setf *term-order-algorithm* :lpo)
-;      (setf CLOVER.COMPLETION::*debug-print* 0.3)
+;      (setf CLOVER.COMPLETION::*debug-print* t)
 ;
 ;      (let* ((target 
 ;              (equation-set
@@ -331,7 +331,7 @@
 
 ;(test clover.tests.completion.kb-completion.test3
 ;      (setf *term-order-algorithm* :lpo)
-;      (setf CLOVER.COMPLETION::*debug-print* 0.1)
+;      (setf CLOVER.COMPLETION::*debug-print* t)
 ;
 ;      (let* ((target 
 ;              (equation-set
