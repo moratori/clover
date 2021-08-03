@@ -368,3 +368,13 @@
         (%alphabet=-for-rule-or-eq
           eq1-left eq1-right eq2-right eq2-left)))))
 
+(defmethod alphabet= ((equation-set1 equation-set) (equation-set2 equation-set))
+  (and 
+    (null (set-difference 
+            (equation-set.equations equation-set1)
+            (equation-set.equations equation-set2)
+            :test #'alphabet=))
+    (null (set-difference 
+            (equation-set.equations equation-set2)
+            (equation-set.equations equation-set1)
+            :test #'alphabet=))))
