@@ -10,7 +10,7 @@
 (in-package :clover.tests.termorder)
 
 
-(test clover.tests.util.term<.test1
+(test clover.tests.termorder.term<.test1
       (setf *term-order-algorithm* :original)
       (is (term< (vterm 'x)
                  (vterm 'y)
@@ -130,7 +130,7 @@
 
       )
 
-(test clover.tests.util.term<.test2
+(test clover.tests.termorder.term<.test2
 
       (setf *term-order-algorithm* :lpo)
 
@@ -153,7 +153,7 @@
                  *term-order-algorithm*))
       )
 
-;(test clover.tests.util.term<.test3
+;(test clover.tests.termorder.term<.test3
 ;      (setf *term-order-algorithm* :lpo)
 ;      (let ((target
 ;              (rewrite-rule-set
@@ -195,7 +195,7 @@
 ;          :for dst := (rewrite-rule.dst rule)
 ;          :do (is (term< dst src *term-order-algorithm*)))))
 
-;(test clover.tests.util.term<.test4
+;(test clover.tests.termorder.term<.test4
 ;      (setf *term-order-algorithm* :lpo)
 ;      (let ((target
 ;              (rewrite-rule-set
@@ -229,7 +229,7 @@
 ;          :for dst := (rewrite-rule.dst rule)
 ;          :do (is (term< dst src *term-order-algorithm*)))))
 
-;(test clover.tests.util.term<.test5
+;(test clover.tests.termorder.term<.test5
 ;      (setf *term-order-algorithm* :lpo)
 ;
 ;      (is (or
@@ -245,7 +245,7 @@
 ;              *term-order-algorithm*)))
 ;      )
 
-(test clover.tests.util.term<.test6
+(test clover.tests.termorder.term<.test6
       (setf *term-order-algorithm* :lpo)
 
       (defmethod clover.termorder:function-symbol-order ((term1 fterm)
