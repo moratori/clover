@@ -244,3 +244,49 @@
 ;              (constant 'ZERO)
 ;              *term-order-algorithm*)))
 ;      )
+
+(test clover.tests.util.term<.test6
+      (setf *term-order-algorithm* :lpo)
+
+      (defmethod clover.termorder:function-symbol-order ((term1 fterm)
+                                                         (term2 fterm)
+                                                         (algorithm (eql :lpo)))
+        (let* ((table
+                 (list 
+                   (list "INV" "PLUS" "ZERO")
+                   (list "PLUS" "ZERO")
+                   (list "ZERO")))
+               (fsymbol1
+                 (fterm.fsymbol term1))
+               (fsymbol2
+                 (fterm.fsymbol term2))
+               (lookup
+                 (cdr (assoc fsymbol2 table :test #'string=))))
+          (member fsymbol1 lookup :test #'string=)))
+
+      (is (term< 
+            (vterm 'x)
+            (fterm 'plus (list (constant 'ZERO)
+                               (vterm 'x)))
+            *term-order-algorithm*))
+
+      (is (term< 
+            (constant 'ZERO)
+            (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                               (vterm 'x)))
+            *term-order-algorithm*))
+
+      (is (term< 
+            (fterm 'plus (list (Vterm 'x) (fterm 'plus (list (vterm 'y) (vterm 'z)))))
+            (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) (vterm 'z)))
+            *term-order-algorithm*))
+
+
+      (defmethod clover.termorder:function-symbol-order ((fterm1 fterm)
+                                                         (fterm2 fterm)
+                                                         (algorithm (eql :lpo)))
+        (clover.termorder::%symbol-order
+          (fterm.fsymbol fterm1)
+          (fterm.fsymbol fterm2)))
+
+      )
