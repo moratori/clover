@@ -199,29 +199,37 @@
                   (format t "      ret rewrite-rule-set = ~A~%"
                           (rename-for-human-readable-printing rrls))
                   (format t "      added equation       = ~A~%"
-                          (set-difference (equation-set.equations
-                                            eqs) 
-                                          (equation-set.equations
-                                            (car target))
-                                          :test #'equation=))
+                          (rename-for-human-readable-printing
+                            (equation-set
+                              (set-difference (equation-set.equations
+                                                eqs) 
+                                              (equation-set.equations
+                                                (car target))
+                                              :test #'equation=))))
                   (format t "      removed equation     = ~A~%"
-                          (set-difference (equation-set.equations
-                                            (car target))
-                                          (equation-set.equations
-                                            eqs)
-                                          :test #'equation=))
+                          (rename-for-human-readable-printing
+                            (equation-set
+                              (set-difference (equation-set.equations
+                                                (car target))
+                                              (equation-set.equations
+                                                eqs)
+                                              :test #'equation=))))
                   (format t "      added rwrule         = ~A~%"
-                          (set-difference (rewrite-rule-set.rewrite-rules
-                                            rrls)
-                                          (rewrite-rule-set.rewrite-rules
-                                            (cdr target))
-                                          :test #'rewrite-rule=))
+                          (rename-for-human-readable-printing
+                            (rewrite-rule-set
+                              (set-difference (rewrite-rule-set.rewrite-rules
+                                                rrls)
+                                              (rewrite-rule-set.rewrite-rules
+                                                (cdr target))
+                                              :test #'rewrite-rule=))))
                   (format t "      removed rwrule       = ~A~%"
-                          (set-difference (rewrite-rule-set.rewrite-rules
-                                            (cdr target))
-                                          (rewrite-rule-set.rewrite-rules
-                                            rrls)
-                                          :test #'rewrite-rule=)))
+                          (rename-for-human-readable-printing
+                            (rewrite-rule-set
+                              (set-difference (rewrite-rule-set.rewrite-rules
+                                                (cdr target))
+                                              (rewrite-rule-set.rewrite-rules
+                                                rrls)
+                                              :test #'rewrite-rule=)))))
 
                 (cons eqs rrls)))
             (list :collapse
