@@ -106,17 +106,14 @@
 
 
 (defun lexicographic-order< (args1 args2)
-  (loop
-    :named exit
-    :for arg1 :in args1
-    :for arg2 :in args2
-    :for index :from 0
-    :do
-    (when (and (term< arg1 arg2 :lpo)
-               (every #'term=
-                      (subseq args1 0 index)
-                      (subseq args2 0 index)))
-      (return-from exit t))))
+  (when (and (not (null args1))
+             (not (null args2)))
+    (let ((head1 (car args1))
+          (head2 (car args2)))
+      (if (term< head1 head2 :lpo)
+        (= (length args1) (length args2))
+        (and (term= head1 head2)
+             (lexicographic-order< (cdr args1) (cdr args2)))))))
 
 (defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :lpo)))
   nil)
