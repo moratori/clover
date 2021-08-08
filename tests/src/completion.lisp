@@ -364,30 +364,73 @@
 ;        (is (and result
 ;                 (not (null (rewrite-rule-set.rewrite-rules result)))))))
 
-;(test clover.tests.completion.kb-completion.test3
-;      (setf *term-order-algorithm* :lpo)
-;      (setf CLOVER.COMPLETION::*debug-print* t)
-;
-;      (let* ((target 
-;              (equation-set
-;                (list
-;                  (equation 
-;                    nil
-;                    (vterm 'x)
-;                    (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
-;                  (equation
-;                    nil
-;                    (constant 'ZERO)
-;                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
-;                                       (vterm 'x))))
-;                  (equation 
-;                    nil
-;                    (fterm 'plus (list (vterm 'x)
-;                                       (fterm 'plus (list (vterm 'y) (vterm 'z)))))
-;                    (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
-;                                       (vterm 'z)))))))
-;            (result
-;              (kb-completion target 100)))
-;        (when result
-;          (print (rename-for-human-readable-printing result)))
-;        (is (and result (not (null (rewrite-rule-set.rewrite-rules result)))))))
+(test clover.tests.completion.kb-completion.test3
+      (setf *term-order-algorithm* :lpo)
+
+      (let* ((ordering
+               (function-symbol-ordering
+                (list 
+                  'zero 
+                  'plus
+                  'inv)))
+             (target 
+              (equation-set
+                (list
+                  (equation 
+                    nil
+                    (vterm 'x)
+                    (fterm 'plus (list (constant 'ZERO) (vterm 'x))))
+                  (equation
+                    nil
+                    (constant 'ZERO)
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'x)))
+                                       (vterm 'x))))
+                  (equation 
+                    nil
+                    (fterm 'plus (list (vterm 'x)
+                                       (fterm 'plus (list (vterm 'y) (vterm 'z)))))
+                    (fterm 'plus (list (fterm 'plus (list (vterm 'x) (vterm 'y))) 
+                                       (vterm 'z)))))))
+            (result
+              (rename-for-human-readable-printing
+                (kb-completion target ordering 100)))
+            (expected
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'plus (list (constant 'zero) (vterm 'CLOVER.PARSER::x)))
+                    (vterm 'CLOVER.PARSER::x))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (vterm 'CLOVER.PARSER::x)))
+                    (constant 'zero))
+                  (rewrite-rule
+                    (fterm 'plus (list (constant 'zero) (vterm 'CLOVER.PARSER::x)))
+                    (vterm 'CLOVER.PARSER::x))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (vterm 'CLOVER.PARSER::x)))
+                    (constant 'zero))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (vterm 'CLOVER.PARSER::y))) (vterm 'CLOVER.PARSER::z)))
+                    (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (fterm 'plus (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::z))))))
+                  (rewrite-rule
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (vterm 'CLOVER.PARSER::y)))))
+                    (vterm 'CLOVER.PARSER::y))
+                  (rewrite-rule
+                    (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (constant 'zero)))
+                    (vterm 'CLOVER.PARSER::x))
+                  (rewrite-rule
+                    (fterm 'inv (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x)))))
+                    (vterm 'CLOVER.PARSER::x))
+                  (rewrite-rule
+                    (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (fterm 'inv (list (vterm 'CLOVER.PARSER::x)))))
+                    (constant 'zero))
+                  (rewrite-rule
+                    (fterm 'inv (list (constant 'zero)))
+                    (constant 'zero))
+                  (rewrite-rule
+                    (fterm 'plus (list (vterm 'CLOVER.PARSER::x) (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (vterm 'CLOVER.PARSER::y)))))
+                    (vterm 'CLOVER.PARSER::y))
+                  (rewrite-rule
+                    (fterm 'inv (list (fterm 'plus (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::x)))))
+                    (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (fterm 'inv (list (vterm 'CLOVER.PARSER::y))))))))))
+        (is (and result (rewrite-rule-set= result expected)))))
