@@ -3,133 +3,60 @@
         :clover.conditions
         :clover.types
         :clover.util)
+  (:import-from :clover.rename
+                :collect-variables)
   (:export
     :function-symbol-order
+    :term<=
     :term<
     ))
 (in-package :clover.termorder)
 
 
-(defmethod %symbol-order ((sym1 symbol) (sym2 symbol))
-  (and (string< (string-upcase (symbol-name sym1))
-                (string-upcase (symbol-name sym2)))
-       t))
-
-(defmethod %count-fterm-application ((term vterm))
-  0)
-
-(defmethod %count-fterm-application ((term constant))
-  0)
-
-(defmethod %count-fterm-application ((term fterm))
-  (1+ 
-   (reduce (lambda (r x)
-             (+ r (%count-fterm-application x)))
-           (fterm.args term)
-           :initial-value 0)))
-
-
-(defmethod function-symbol-order ((fterm1 fterm)
-                                  (fterm2 fterm)
-                                  (algorithm (eql :original)))
-  (%symbol-order
-    (fterm.fsymbol fterm1)
-    (fterm.fsymbol fterm2)))
-
-(defmethod function-symbol-order ((fterm1 fterm)
-                                  (fterm2 fterm)
+(defmethod function-symbol-order ((ordering function-symbol-ordering)
+                                  (left symbol)
+                                  (right symbol)
                                   (algorithm (eql :lpo)))
-  (%symbol-order
-    (fterm.fsymbol fterm1)
-    (fterm.fsymbol fterm2)))
- 
+  (let* ((ordering (function-symbol-ordering.ordering ordering))
+         (pos-left (position left ordering :test #'eq))
+         (pos-right (position right ordering :test #'eq)))
+    (unless (and ordering pos-left pos-right)
+      (error "unable to get position ~A,~A in ~A" left right ordering))
+    (< pos-left pos-right)))
 
 
-(defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :original)))
-  (%symbol-order (vterm.var term1) (vterm.var term2)))
-
-(defmethod term< ((term1 vterm) (term2 constant) (algorithm (eql :original)))
-  nil)
-
-(defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :original)))
-  (not (ground-term-p term2)))
-
-(defmethod term< ((term1 constant) (term2 vterm) (algorithm (eql :original)))
-  t)
-
-(defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :original)))
-  (ground-term-p term1))
-
-(defmethod term< ((term1 constant) (term2 constant) (algorithm (eql :original)))
-  (function-symbol-order term1 term2 algorithm))
-
-(defmethod term< ((term1 constant) (term2 fterm) (algorithm (eql :original)))
-  t)
-
-(defmethod term< ((term1 fterm) (term2 constant) (algorithm (eql :original)))
-  nil)
-
-(defmethod term< ((term1 fterm) (term2 fterm) (algorithm (eql :original)))
-  (cond
-    ((and (not (ground-term-p term1))
-            (ground-term-p term2))
-     nil)
-    ((and (ground-term-p term1)
-          (not (ground-term-p term2)))
-     t)
-    ;; term1 = g(t1, t2, ,,, tn)
-    ;; term2 = f(s1, s2, ,,, sm)
-    ;; exist i: si > term1 or s1 = term1
-    ((some
-       (lambda (x)
-         (or 
-           (term< term1 x algorithm)
-           (term= term1 x)))
-       (fterm.args term2))
-     t)
-    (t
-     ;; term1 = term2 = ground
-     ;;       or
-     ;; term1 = term2 = func
-     (let ((left-complexity  (%count-fterm-application term1))
-           (right-complexity (%count-fterm-application term2)))
-       (cond
-         ((= left-complexity right-complexity)
-          (and (string< (format nil "~A" term1)
-                        (format nil "~A" term2))
-               t))
-         (t (< left-complexity right-complexity)))))))
-
-
-
-
-
-
-(defun lexicographic-order< (args1 args2)
+(defun lexicographic-order< (args1 args2 ordering)
   (when (and (not (null args1))
              (not (null args2)))
     (let ((head1 (car args1))
           (head2 (car args2)))
-      (if (term< head1 head2 :lpo)
+      (if (term< head1 head2 ordering :lpo)
         (= (length args1) (length args2))
         (and (term= head1 head2)
-             (lexicographic-order< (cdr args1) (cdr args2)))))))
+             (lexicographic-order< (cdr args1) (cdr args2) ordering))))))
 
-(defmethod term< ((term1 vterm) (term2 vterm) (algorithm (eql :lpo)))
+
+
+
+(defmethod term<= ((term1 term) (term2 term) (ordering function-symbol-ordering) (algorithm (eql :lpo)))
+  (or
+    (term= term1 term2)
+    (term< term1 term2 ordering algorithm)))
+
+
+(defmethod term< ((term1 vterm) (term2 vterm) (ordering function-symbol-ordering) (algorithm (eql :lpo)))
   nil)
 
-(defmethod term< ((term1 fterm) (term2 vterm) (algorithm (eql :lpo)))
-  nil)
-
-(defmethod term< ((term1 vterm) (term2 fterm) (algorithm (eql :lpo)))
+(defmethod term< ((term1 vterm) (term2 fterm) (ordering function-symbol-ordering) (algorithm (eql :lpo)))
   (some
-    (lambda (arg)
-      (or
-        (term< term1 arg algorithm)
-        (term= term1 arg)))
-    (fterm.args term2)))
+    (lambda (var)
+      (term= term1 var))
+    (collect-variables term2)))
 
-(defmethod term< ((term1 fterm) (term2 fterm) (algorithm (eql :lpo)))
+(defmethod term< ((term1 fterm) (term2 vterm) (ordering function-symbol-ordering)  (algorithm (eql :lpo)))
+  nil)
+
+(defmethod term< ((term1 fterm) (term2 fterm) (ordering function-symbol-ordering) (algorithm (eql :lpo)))
   (let ((fsymbol1 (fterm.fsymbol term1))
         (fsymbol2 (fterm.fsymbol term2))
         (args1 (fterm.args term1))
@@ -137,18 +64,15 @@
     (or
       (some
         (lambda (arg)
-          (or
-            (term< term1 arg algorithm)
-            (term= term1 arg)))
+          (term<= term1 arg ordering algorithm))
         (fterm.args term2))
       (and
         (every
           (lambda (arg)
-            (term< arg term2 algorithm))
+            (term< arg term2 ordering algorithm))
           args1)
         (or
-          (function-symbol-order term1 term2 algorithm)
+          (function-symbol-order ordering fsymbol1 fsymbol2 algorithm)
           (and
             (eq fsymbol1 fsymbol2)
-            (lexicographic-order< args1 args2)))))))
-
+            (lexicographic-order< args1 args2 ordering)))))))

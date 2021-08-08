@@ -2,7 +2,7 @@
   (:use :cl
         :clover.property
         :clover.conditions
-        :clover.types 
+        :clover.types
         :clover.util
         :clover.unify
         :clover.rename
@@ -20,13 +20,13 @@
 (defparameter *debug-print* nil)
 
 
-(defmethod %orient ((equation equation))
+(defmethod %orient ((ordering function-symbol-ordering) (equation equation))
   (let ((left (equation.left equation))
         (right (equation.right equation)))
     (cond
-      ((term< left right *term-order-algorithm*)
+      ((term< left right ordering *term-order-algorithm*)
        (rename (rewrite-rule right left)))
-      ((term< right left *term-order-algorithm*)
+      ((term< right left ordering *term-order-algorithm*)
        (rename (rewrite-rule left right)))
       (t (error "unable to orient equation ~A by ~A"
                 equation
@@ -41,10 +41,10 @@
                (dst (rewrite-rule.dst x))
                (rewrote (rewrite src rule)))
           (not (term= rewrote src))))
-      (rewrite-rule-set.rewrite-rules rules)))) 
+      (rewrite-rule-set.rewrite-rules rules))))
 
 (defmethod delete-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
-  (values 
+  (values
     (equation-set
       (remove-duplicates
         (remove-if
@@ -66,16 +66,16 @@
   (values
     (equation-set
       (mapcar
-        (lambda (x) 
+        (lambda (x)
           (rewrite-final x rewrite-rule-set))
         (equation-set.equations equation-set)))
     rewrite-rule-set))
 
 
 
-(defmethod infer :around (rule equation-set rewrite-rule-set)
+(defmethod infer :around (rule ordering equation-set rewrite-rule-set)
   (multiple-value-bind (applied-equation-set applied-rewrite-rule-set)
-      (call-next-method rule equation-set rewrite-rule-set)
+      (call-next-method rule ordering equation-set rewrite-rule-set)
     (multiple-value-bind (simplified-e simplified-r)
         (simplify-rule applied-equation-set applied-rewrite-rule-set)
       (multiple-value-bind (deleted-e deleted-r)
@@ -83,6 +83,7 @@
         (values deleted-e deleted-r)))))
 
 (defmethod infer ((rule (eql :compose))
+                  (ordering function-symbol-ordering)
                   (equation-set equation-set)
                   (rewrite-rule-set rewrite-rule-set))
   (values
@@ -98,6 +99,7 @@
         (rewrite-rule-set.rewrite-rules rewrite-rule-set)))))
 
 (defmethod infer ((rule (eql :deduce))
+                  (ordering function-symbol-ordering)
                   (equation-set equation-set)
                   (rewrite-rule-set rewrite-rule-set))
   (let ((eqs (all-critical-pair rewrite-rule-set)))
@@ -110,6 +112,7 @@
 
 
 (defmethod infer ((rule (eql :orient))
+                  (ordering function-symbol-ordering)
                   (equation-set equation-set)
                   (rewrite-rule-set rewrite-rule-set))
   (let (right< left<)
@@ -117,14 +120,16 @@
       :for equation :in (equation-set.equations equation-set)
       :for left  := (equation.left equation)
       :for right := (equation.right equation)
-      :if (term< left right *term-order-algorithm*) :do (push equation right<)
-      :if (term< right left *term-order-algorithm*) :do (push equation left<))
+      :if (term< left right ordering *term-order-algorithm*) :do (push equation right<)
+      :if (term< right left ordering *term-order-algorithm*) :do (push equation left<))
     (when (and (null right<) (null left<))
       (throw 'kb-completion_failed nil))
     (let* ((candidate
              (append right< left<))
            (new-rules
-             (mapcar #'%orient candidate)))
+             (mapcar
+               (lambda (c) (%orient ordering c))
+               candidate)))
       (values
         (equation-set
           (remove-if
@@ -138,6 +143,7 @@
 
 
 (defmethod infer ((rule (eql :collapse))
+                  (ordering function-symbol-ordering)
                   (equation-set equation-set)
                   (rewrite-rule-set rewrite-rule-set))
   (let* ((rules
@@ -179,7 +185,7 @@
             (remove-if
               (lambda (x)
                 (find-if
-                  (lambda (y) 
+                  (lambda (y)
                     (rewrite-rule= x (car y)))
                   changed))
               rules))))))
@@ -194,7 +200,7 @@
     (let ((added-equation
             (rename-for-human-readable-printing
               (equation-set
-                (set-difference (equation-set.equations eqs) 
+                (set-difference (equation-set.equations eqs)
                                 (equation-set.equations (car target))
                                 :test #'equation=))))
           (removed-equations
@@ -229,22 +235,22 @@
               removed-rwrule))))
 
 
-(defmethod apply-inference-rules ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
+(defmethod apply-inference-rules ((ordering function-symbol-ordering) (equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (let ((ret
           (reduce
             (lambda (target rule)
               (multiple-value-bind (eqs rrls)
-                  (infer rule (car target) (cdr target))
+                  (infer rule ordering (car target) (cdr target))
                 (debug-print-for-each-rule rule target eqs rrls)
                 (cons eqs rrls)))
             (list :collapse
                   :compose
-                  :orient 
+                  :orient
                   :deduce)
             :initial-value (cons equation-set rewrite-rule-set))))
     (values (car ret) (cdr ret))))
 
-(defmethod kb-completion ((equation-set equation-set) giveup-threshold)
+(defmethod kb-completion ((equation-set equation-set) (ordering function-symbol-ordering) giveup-threshold)
   (let ((result-equation-set
           (rename equation-set))
         (result-rewrite-rule-set
@@ -271,6 +277,7 @@
              (incf cnt)
              (multiple-value-bind (eqs rrls)
                  (apply-inference-rules
+                   ordering
                    result-equation-set
                    result-rewrite-rule-set)
                (setf result-equation-set eqs
@@ -278,4 +285,3 @@
 
     (when (null (equation-set.equations result-equation-set))
       result-rewrite-rule-set)))
-

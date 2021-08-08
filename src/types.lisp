@@ -45,12 +45,14 @@
         :rewrite-rule.dst
         :rewrite-rule-set
         :rewrite-rule-set.rewrite-rules
+        :function-symbol-ordering
+        :function-symbol-ordering.ordering
   ))
 (in-package :clover.types)
 
 
 (defun %%clause-set (obj)
-  (and 
+  (and
     (listp obj)
     (every (lambda (x)
              (typep x 'clause))
@@ -61,7 +63,7 @@
 
 
 (defun %%clause (obj)
-  (and 
+  (and
     (listp obj)
     (every (lambda (x)
              (typep x 'literal))
@@ -72,7 +74,7 @@
 
 
 (defun %%equation-set (obj)
-  (and 
+  (and
     (listp obj)
     (every (lambda (x)
              (typep x 'equation))
@@ -83,7 +85,7 @@
 
 
 (defun %%unifier-set (obj)
-  (and 
+  (and
     (listp obj)
     (every (lambda (x)
              (typep x 'unifier))
@@ -94,7 +96,7 @@
 
 
 (defun %%rewrite-rule-set (obj)
-  (and 
+  (and
     (listp obj)
     (every (lambda (x)
              (typep x 'rewrite-rule))
@@ -106,7 +108,7 @@
 
 (defun %%args (obj)
   (or (null obj)
-      (and 
+      (and
           (listp obj)
           (every (lambda (x) (typep x 'term)) obj))))
 
@@ -115,9 +117,9 @@
 
 
 (defun %%clause-type (obj)
-  (and 
+  (and
     (typep obj 'symbol)
-    (or 
+    (or
       (eq obj :conseq)
       (eq obj :premise)
       (eq obj :center)
@@ -126,6 +128,14 @@
 (deftype %clause-type ()
   '(satisfies %%clause-type))
 
+(defun %%function-symbol-ordering (obj)
+  (or (null obj)
+      (and
+          (listp obj)
+          (every (lambda (x) (typep x 'symbol)) obj))))
+
+(deftype %function-symbol-ordering ()
+  '(satisfies %%function-symbol-ordering))
 
 
 (defstruct term)
@@ -142,7 +152,7 @@
    (var (error "default value required") :type symbol :read-only t))
 
 (defstruct (fterm
-             (:print-object 
+             (:print-object
                (lambda (object stream)
                  (let* ((fsymbol (fterm.fsymbol object))
                         (fsymbol-name (symbol-name fsymbol))
@@ -162,7 +172,7 @@
              (:include fterm)
              (:print-object
               (lambda (object stream)
-                (format stream "~A" 
+                (format stream "~A"
                         (string-upcase (symbol-name (constant.value object))))))
              (:constructor constant
               (fsymbol &aux (args nil)))
@@ -172,9 +182,9 @@
   )
 
 (defstruct (unifier
-             (:print-object 
+             (:print-object
                (lambda (object stream)
-                 (format stream "~A->~A" 
+                 (format stream "~A->~A"
                          (unifier.src object)
                          (unifier.dst object))))
              (:constructor unifier (src dst))
@@ -186,9 +196,9 @@
 
 
 (defstruct (unifier-set
-             (:print-object 
+             (:print-object
                (lambda (object stream)
-                 (format stream "{~{~A~^,~}}" 
+                 (format stream "{~{~A~^,~}}"
                          (unifier-set.unifiers object))))
              (:constructor unifier-set (unifiers))
              (:conc-name unifier-set.))
@@ -221,7 +231,7 @@
 (defstruct (clause
              (:print-object
                (lambda (object stream)
-                 (cond 
+                 (cond
                    ((null (clause.literals object))
                     (format stream "□"))
                    (t
@@ -241,7 +251,7 @@
 
 
 (defstruct (clause-set
-             (:print-object 
+             (:print-object
                (lambda (object stream)
                  (format stream "~{~A~%~}"
                          (clause-set.clauses object))))
@@ -256,9 +266,9 @@
 (defstruct (equation
              (:include literal)
              (:conc-name equation.)
-             (:constructor equation 
-              (negation left right &aux 
-                        (predicate (intern "=" *parsed-symbol-intern-package*)) 
+             (:constructor equation
+              (negation left right &aux
+                        (predicate (intern "=" *parsed-symbol-intern-package*))
                         (args (list left right))))
              (:print-object
               (lambda (object stream)
@@ -273,7 +283,7 @@
   )
 
 (defstruct (equation-set
-             (:print-object 
+             (:print-object
               (lambda (object stream)
                 (format stream "{~{~A~^,~}}"
                         (equation-set.equations object))))
@@ -284,9 +294,9 @@
 
 
 (defstruct (rewrite-rule
-             (:print-object 
+             (:print-object
                (lambda (object stream)
-                 (format stream "~A=>~A" 
+                 (format stream "~A=>~A"
                          (rewrite-rule.src object)
                          (rewrite-rule.dst object))))
              (:constructor rewrite-rule (src dst))
@@ -297,11 +307,20 @@
 
 
 (defstruct (rewrite-rule-set
-             (:print-object 
+             (:print-object
                (lambda (object stream)
-                 (format stream "{~{~A~^,~}}" 
+                 (format stream "{~{~A~^,~}}"
                          (rewrite-rule-set.rewrite-rules object))))
              (:constructor rewrite-rule-set (rewrite-rules))
              (:conc-name rewrite-rule-set.))
   (rewrite-rules nil :type %rewrite-rule-set :read-only t))
 
+
+(defstruct (function-symbol-ordering
+             (:print-object
+              (lambda (object stream)
+                (format stream "~{~A ~^< ~}"
+                        (function-symbol-ordering.ordering object))))
+             (:constructor function-symbol-ordering (ordering))
+             (:conc-name function-symbol-ordering.))
+  (ordering nil :type %function-symbol-ordering :read-only t))

@@ -44,9 +44,11 @@
                     (vterm 'x))
                   (rewrite-rule
                     (fterm 'f (list (vterm 'u) (vterm 'v)))
-                    (vterm 'v))))))
+                    (vterm 'v)))))
+            (ordering (function-symbol-ordering nil))
+            )
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :collapse initial-e initial-r)
+            (clover.completion::infer :collapse ordering initial-e initial-r)
           (is (and (equation-set= initial-e result-e)
                    (rewrite-rule-set= initial-r result-r))))))
 
@@ -61,9 +63,11 @@
                     (vterm 'x))
                   (rewrite-rule
                     (fterm 'f (list (vterm 'u) (vterm 'v)))
-                    (vterm 'u))))))
+                    (vterm 'u)))))
+            (ordering (function-symbol-ordering nil))
+            )
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :collapse initial-e initial-r)
+            (clover.completion::infer :collapse ordering initial-e initial-r)
           (is (and (equation-set= 
                      result-e
                      (equation-set nil))
@@ -112,9 +116,10 @@
                      (fterm 'inv (list (fterm 'plus (list (vterm 'x) (vterm 'y)))))
                      (fterm 'plus (list (fterm 'inv (list (vterm 'y)))
                                         (fterm 'inv (list (vterm 'x)))))))
-                )))
+                ))
+            (ordering (function-symbol-ordering nil)))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :collapse initial-e initial-r)
+            (clover.completion::infer :collapse ordering initial-e initial-r)
           (is (and (equation-set= 
                      result-e
                      (equation-set nil))
@@ -149,9 +154,10 @@
                                          (fterm 'cons (list (vterm 'x) (constant 'NIL))))))
                   (rewrite-rule
                     (fterm 'reverse (list (fterm 'append (list (vterm 'x) (fterm 'cons (list (vterm 'y) (constant 'NIL)))))))
-                    (fterm 'cons (list (vterm 'y) (fterm 'reverse (list (vterm 'x))))))))))
+                    (fterm 'cons (list (vterm 'y) (fterm 'reverse (list (vterm 'x)))))))))
+            (ordering (function-symbol-ordering nil)))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :collapse initial-e initial-r)
+            (clover.completion::infer :collapse ordering initial-e initial-r)
           (is (and (equation-set= 
                      result-e
                      (equation-set nil))
@@ -170,9 +176,10 @@
                     (fterm 'g (list (fterm 'h (list (vterm 'x))))))
                   (rewrite-rule
                     (fterm 'h (list (fterm 'h (list (vterm 'x)))))
-                    (fterm 'g (list (vterm 'x))))))))
+                    (fterm 'g (list (vterm 'x)))))))
+            (ordering (function-symbol-ordering nil)))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :collapse initial-e initial-r)
+            (clover.completion::infer :collapse ordering initial-e initial-r)
           
           (is (and (equation-set= 
                      result-e
@@ -215,9 +222,10 @@
                    (rewrite-rule
                      (fterm 'inv (list (fterm 'plus (list (vterm 'x) (vterm 'y)))))
                      (fterm 'plus (list (fterm 'inv (list (vterm 'y)))
-                                        (fterm 'inv (list (vterm 'x))))))))))
+                                        (fterm 'inv (list (vterm 'x)))))))))
+            (ordering (function-symbol-ordering nil)))
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :deduce initial-e initial-r)
+            (clover.completion::infer :deduce ordering initial-e initial-r)
           
           (is (and (equation-set= 
                      result-e
@@ -252,9 +260,11 @@
                                          (fterm 'cons (list (vterm 'x) (constant 'NIL))))))
                   (rewrite-rule
                     (fterm 'reverse (list (fterm 'append (list (vterm 'x) (fterm 'cons (list (vterm 'y) (constant 'NIL)))))))
-                    (fterm 'cons (list (vterm 'y) (fterm 'reverse (list (vterm 'x))))))))))
+                    (fterm 'cons (list (vterm 'y) (fterm 'reverse (list (vterm 'x)))))))))
+            (ordering (function-symbol-ordering nil))
+            )
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :deduce initial-e initial-r)
+            (clover.completion::infer :deduce ordering initial-e initial-r)
           
           (is (and (equation-set= 
                      result-e
@@ -272,9 +282,11 @@
                     (fterm 'g (list (fterm 'h (list (vterm 'x))))))
                   (rewrite-rule
                     (fterm 'h (list (fterm 'h (list (vterm 'x)))))
-                    (fterm 'g (list (vterm 'x))))))))
+                    (fterm 'g (list (vterm 'x)))))))
+            (ordering (function-symbol-ordering nil))
+            )
         (multiple-value-bind (result-e result-r)
-            (clover.completion::infer :deduce initial-e initial-r)
+            (clover.completion::infer :deduce ordering initial-e initial-r)
           
           (is (and (equation-set= 
                      result-e
@@ -291,9 +303,12 @@
                     nil
                     (fterm 'h (list (fterm 'h (list (vterm 'x)))))
                     (fterm 'g (list (vterm 'x)))))))
+             (ordering
+               (function-symbol-ordering
+                 (list 'g 'h)))
             (result
               (rename-for-human-readable-printing
-                (kb-completion target 10)))
+                (kb-completion target ordering 10)))
             (expected
               (rewrite-rule-set
                 (list 
