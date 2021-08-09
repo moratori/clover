@@ -324,45 +324,66 @@
         (is (rewrite-rule-set= result expected))))
 
 
-;(test clover.tests.completion.kb-completion.test2
-;      (setf *term-order-algorithm* :lpo)
-;      (setf CLOVER.COMPLETION::*debug-print* t)
-;
-;      (let* ((target 
-;              (equation-set
-;                (list
-;                  (equation 
-;                    nil
-;                    (fterm 'append (list (constant 'NIL) (vterm 'x)))
-;                    (vterm 'x))
-;                  (equation
-;                    nil
-;                    (fterm 'append (list (fterm 'cons (list (vterm 'x) 
-;                                                            (vterm 'y)))
-;                                         (vterm 'z)))
-;                    (fterm 'cons (list (vterm 'x) (fterm 'append (list (vterm 'y) (vterm 'z))))))
-;                  (equation
-;                    nil
-;                    (fterm 'reverse (list (constant 'NIL)))
-;                    (constant 'NIL))
-;                  (equation
-;                    nil
-;                    (fterm 'reverse (list (fterm 'cons (list (vterm 'x) (vterm 'y)))))
-;                    (fterm 'append (list (fterm 'reverse (list (vterm 'y)))
-;                                         (fterm 'cons (list (vterm 'x) (constant 'NIL)))))
-;                    )
-;                  (equation
-;                    nil
-;                    (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
-;                    (vterm 'x)))))
-;             (tmp 
-;               (kb-completion target 10))
-;             (result
-;               (when tmp
-;                 (rename-for-human-readable-printing tmp))))
-;
-;        (is (and result
-;                 (not (null (rewrite-rule-set.rewrite-rules result)))))))
+(test clover.tests.completion.kb-completion.test2
+      (setf *term-order-algorithm* :lpo)
+
+      (let* ((ordering
+              (function-symbol-ordering
+                (list 'nil 'cons 'append 'reverse)))
+             (target 
+              (equation-set
+                (list
+                  (equation 
+                    nil
+                    (fterm 'append (list (constant 'NIL) (vterm 'x)))
+                    (vterm 'x))
+                  (equation
+                    nil
+                    (fterm 'append (list (fterm 'cons (list (vterm 'x) 
+                                                            (vterm 'y)))
+                                         (vterm 'z)))
+                    (fterm 'cons (list (vterm 'x) (fterm 'append (list (vterm 'y) (vterm 'z))))))
+                  (equation
+                    nil
+                    (fterm 'reverse (list (constant 'NIL)))
+                    (constant 'NIL))
+                  (equation
+                    nil
+                    (fterm 'reverse (list (fterm 'cons (list (vterm 'x) (vterm 'y)))))
+                    (fterm 'append (list (fterm 'reverse (list (vterm 'y)))
+                                         (fterm 'cons (list (vterm 'x) (constant 'NIL)))))
+                    )
+                  (equation
+                    nil
+                    (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
+                    (vterm 'x)))))
+             (tmp 
+               (kb-completion target ordering 10))
+             (result
+               (when tmp
+                 (rename-for-human-readable-printing tmp)))
+             (expected
+               (rewrite-rule-set
+                 (list
+                   (rewrite-rule
+                     (fterm 'append (list (constant 'NIL) (vterm 'CLOVER.PARSER::x)))
+                     (vterm 'CLOVER.PARSER::x))
+                   (rewrite-rule
+                     (fterm 'reverse (list (constant 'NIL)))
+                     (constant 'NIL))
+                   (rewrite-rule
+                     (fterm 'reverse (list (fterm 'reverse (list (vterm 'CLOVER.PARSER::x)))))
+                     (vterm 'CLOVER.PARSER::x))
+                   (rewrite-rule
+                     (fterm 'append (list (fterm 'cons (list (vterm 'CLOVER.PARSER::x) (vterm 'CLOVER.PARSER::y))) (vterm 'CLOVER.PARSER::z)))
+                     (fterm 'cons (list (vterm 'CLOVER.PARSER::x) (fterm 'append (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::Z))))))
+                   (rewrite-rule
+                     (fterm 'reverse (list (fterm 'cons (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::x)))))
+                     (fterm 'append (list (fterm 'reverse (list (vterm 'CLOVER.PARSER::x))) (fterm 'cons (list (vterm 'CLOVER.PARSER::y) (constant 'NIL)))))) 
+                   (rewrite-rule
+                     (fterm 'reverse (list (fterm 'append (list (vterm 'CLOVER.PARSER::y) (fterm 'cons (list (vterm 'CLOVER.PARSER::x)(constant 'NIL)))))))
+                     (fterm 'cons (list (vterm 'CLOVER.PARSER::x) (fterm 'reverse (list (vterm 'CLOVER.PARSER::y))))))))))
+        (is (and result (rewrite-rule-set= result expected)))))
 
 (test clover.tests.completion.kb-completion.test3
       (setf *term-order-algorithm* :lpo)
