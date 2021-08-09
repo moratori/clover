@@ -243,9 +243,9 @@
                   (infer rule ordering (car target) (cdr target))
                 (debug-print-for-each-rule rule target eqs rrls)
                 (cons eqs rrls)))
-            (list :collapse
+            (list :orient
                   :compose
-                  :orient
+                  :collapse
                   :deduce)
             :initial-value (cons equation-set rewrite-rule-set))))
     (values (car ret) (cdr ret))))
