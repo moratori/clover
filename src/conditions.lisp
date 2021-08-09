@@ -12,6 +12,7 @@
     :null-clause-not-found
     :multiple-clause-found
     :expr-parse-error
+    :unable-to-orient-equation
     )
   )
 (in-package :clover.conditions)
@@ -70,6 +71,9 @@
   ())
 
 (define-condition multiple-clause-found (clover-toplevel-condition)
+  ())
+
+(define-condition unable-to-orient-equation (clover-toplevel-condition)
   ())
 
 (defmethod print-object ((error clover-toplevel-condition) stream)

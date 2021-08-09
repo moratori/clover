@@ -28,9 +28,12 @@
        (rename (rewrite-rule right left)))
       ((term< right left ordering *term-order-algorithm*)
        (rename (rewrite-rule left right)))
-      (t (error "unable to orient equation ~A by ~A"
-                equation
-                *term-order-algorithm*)))))
+      (t (error 
+           (make-condition 'unable-to-orient-equation
+                           :message 
+                           (format nil "unable to orient equation ~A by ~A"
+                                   equation
+                                   *term-order-algorithm*)))))))
 
 (defmethod %collect-small-rules ((rule rewrite-rule) (rules rewrite-rule-set))
   "x <- R のうち、ruleによってx.leftを書き換えることのできないrを集める"
@@ -123,7 +126,12 @@
       :if (term< left right ordering *term-order-algorithm*) :do (push equation right<)
       :if (term< right left ordering *term-order-algorithm*) :do (push equation left<))
     (when (and (null right<) (null left<))
-      (throw 'kb-completion_failed nil))
+      (error 
+        (make-condition 'unable-to-orient-equation
+                        :message 
+                        (format nil "unable to orient equation ~A by ~A"
+                                equation-set
+                                *term-order-algorithm*))))
     (let* ((candidate
              (append right< left<))
            (new-rules
@@ -255,33 +263,36 @@
           (rename equation-set))
         (result-rewrite-rule-set
           (rewrite-rule-set nil))
-        (cnt 0))
+        (cnt 0)
+        (failed nil))
 
-    (catch 'kb-completion_failed
-           (loop
-             :while (and (not (null (equation-set.equations result-equation-set)))
-                         (> giveup-threshold cnt))
-             :do
+    (handler-case
+        (loop
+          :while (and (not (null (equation-set.equations result-equation-set)))
+                      (> giveup-threshold cnt))
+          :do
 
-             (when *debug-print*
-               (format t "~%######################################################################~%")
-               (format t "# Completion ROUND ~A~%" cnt)
-               (format t "######################################################################~%")
-               (format t "initial equation-set = ~%    ~A~%"
-                       (rename-for-human-readable-printing result-equation-set))
-               (format t "initial rewrite-rule-set = ~%    ~A~%"
-                       (rename-for-human-readable-printing result-rewrite-rule-set))
-               (force-output *standard-output*)
-               (sleep 0.1))
+          (when *debug-print*
+            (format t "~%######################################################################~%")
+            (format t "# Completion ROUND ~A~%" cnt)
+            (format t "######################################################################~%")
+            (format t "initial equation-set = ~%    ~A~%"
+                    (rename-for-human-readable-printing result-equation-set))
+            (format t "initial rewrite-rule-set = ~%    ~A~%"
+                    (rename-for-human-readable-printing result-rewrite-rule-set))
+            (force-output *standard-output*)
+            (sleep 0.1))
 
-             (incf cnt)
-             (multiple-value-bind (eqs rrls)
-                 (apply-inference-rules
-                   ordering
-                   result-equation-set
-                   result-rewrite-rule-set)
-               (setf result-equation-set eqs
-                     result-rewrite-rule-set rrls))))
+          (incf cnt)
+          (multiple-value-bind (eqs rrls)
+              (apply-inference-rules
+                ordering
+                result-equation-set
+                result-rewrite-rule-set)
+            (setf result-equation-set eqs
+                  result-rewrite-rule-set rrls)))
+        (unable-to-orient-equation (c) (setf failed t)))
 
-    (when (null (equation-set.equations result-equation-set))
+    (when (and (null (equation-set.equations result-equation-set))
+               (not failed))
       result-rewrite-rule-set)))
