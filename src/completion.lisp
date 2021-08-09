@@ -40,7 +40,7 @@
         (let* ((src (rewrite-rule.src x))
                (dst (rewrite-rule.dst x))
                (rewrote (rewrite src rule)))
-          (not (term= rewrote src))))
+          (term/= rewrote src)))
       (rewrite-rule-set.rewrite-rules rules))))
 
 (defmethod delete-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
@@ -166,7 +166,7 @@
              :for rule :in rules
              :for applied-src :in applied-small-rules
              :for original-src := (rewrite-rule.src rule)
-             :if (not (term= original-src applied-src))
+             :if (term/= original-src applied-src)
              :collect (cons rule applied-src))))
     (if (null changed)
         (values equation-set rewrite-rule-set)

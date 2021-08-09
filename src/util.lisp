@@ -13,6 +13,7 @@
     :goal-clause-p
     :clause-subset
     :term=
+    :term/=
     :unifier=
     :unifier-set=
     :literal=
@@ -50,6 +51,9 @@
         (unifier.src unif) 
         prohibited-variable-list :test #'term=))
     (unifier-set.unifiers unifier-set)))
+
+(defmethod term/= ((obj1 t) (obj2 t))
+  (not (term= obj1 obj2)))
 
 (defmethod term= ((obj1 t) (obj2 t))
   nil)
@@ -183,7 +187,7 @@
               (dst (unifier.dst unifier)))
           (every
             (lambda (target)
-              (or (not (term= src (unifier.src target)))
+              (or (term/= src (unifier.src target))
                   (term= dst (unifier.dst target))))
             unifiers)))
       unifiers)))

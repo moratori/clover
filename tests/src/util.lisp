@@ -9,11 +9,11 @@
 
 (test clover.tests.util.term=
       (is (term= (vterm 'x) (vterm 'x)))
-      (is (not (term= (vterm 'x) (vterm 'y))))
+      (is (term/= (vterm 'x) (vterm 'y)))
       (is (term= (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y))))) 
                  (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))))
-      (is (not (term= (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y))))) 
-                      (fterm 'f (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
+      (is (term/= (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y))))) 
+                      (fterm 'f (list (vterm 'x) (fterm 'h (list (vterm 'y)))))))
       )
 
 
