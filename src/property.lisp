@@ -29,7 +29,7 @@
 (defparameter *vterm-for-human-readable*
   (list "X" "Y" "Z" "W" "S" "T" "U" "V" "M" "N" "X0" "X1" "X2" "X3" "X4" "X5"))
 
-(defparameter *term-order-algorithm* :original)
+(defparameter *term-order-algorithm* :lpo)
 
 (defparameter *available-term-order-algorithms*
-  (list :lpo :original))
+  (list :lpo))
