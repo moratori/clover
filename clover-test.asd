@@ -39,6 +39,7 @@
                    (:file "rewrite")
                    (:file "criticalpair")
                    (:file "completion")
+                   (:file "multicompletion")
                    (:file "rendertree")
                    (:file "parser"))))))
   :description "Test system for clover")

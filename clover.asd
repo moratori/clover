@@ -12,7 +12,7 @@
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
-               :bordeaux-threads
+               :lparallel
                :yacc
                :cl-lex
                :alexandria
@@ -55,6 +55,7 @@
                  (:file "rewrite")
                  (:file "criticalpair")
                  (:file "completion")
+                 (:file "multicompletion")
                  (:file "clover")
                  (:file "rendertree")
                  (:module "repl"
