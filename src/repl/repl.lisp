@@ -10,6 +10,10 @@
         :clover.repl.util
         :ppcre
         )
+  (:import-from :clover.multicompletion
+                :multi-kb-completion)
+  (:import-from :clover.rename
+                :rename-for-human-readable-printing)
   (:export 
     :main
     ))
@@ -21,11 +25,11 @@
 (defparameter *axiomatic-system-list* nil
   "assoc list of (axiomatic-system-name . clause-set)")
 
+(defparameter *completed-system-list* nil
+  "assoc lis of (axiomatic-system-name . rewrite-rule-set)")
+
 (defparameter *render-tree-path-name* nil
   "file path to output refutation tree")
-
-(defparameter *statistical-profiler* nil
-  "whether to profile resolution process")
 
 
 
@@ -50,8 +54,6 @@
     :set-history             keep resolution history. this option automatically 
                              enabled if save-tree option on.
     :unset-history           disable history
-    :set-profiler            enable statistical profiler
-    :unset-profiler          disable statistical profiler
     :save-tree    <path>     save Graphviz code to <path>
     :unsave-tree~%"))
 
@@ -67,21 +69,55 @@
           *current-axiomatic-system*
           (first (assoc name *axiomatic-system-list* :test #'string=))))
 
+(defmethod update-axiomatic-system ((name string) (rewrite-rule-set rewrite-rule-set))
+  (setf *completed-system-list*
+          (cons (cons name rewrite-rule-set) 
+                (remove-if 
+                  (lambda (x)
+                    (destructuring-bind (current-name . _) x
+                      (declare (ignore _))
+                      (string= current-name name)))
+                  *completed-system-list*))
+          *current-axiomatic-system*
+          (first (assoc name *completed-system-list* :test #'string=))))
+
+
+(defmethod prompt-and-do-completion ((equation-set equation-set) (name string))
+  (%stdout "Detected that a set of equations has been inputted.")
+  (when (yes-or-no-p "Do you want to execute completion algorithm? ")
+    (let ((completed
+            (multi-kb-completion
+              equation-set
+              15)))
+      (cond
+        (completed
+         (%stdout "~%The completion process was successful: ~%")
+         (loop
+           :for rule :in (rewrite-rule-set.rewrite-rules
+                           (rename-for-human-readable-printing completed))
+           :do (%stdout "~A~%" rule))
+         (update-axiomatic-system name completed))
+        (t 
+         (%stdout "The completion process failed~%"))))))
+
+
 
 (defmethod %perform-command ((command (eql :SHOW-AXIOM)) args)
   (loop
     :for (name . ax) :in *axiomatic-system-list*
+    :for completed := (assoc name *completed-system-list* :test #'string=)
     :do
-    (%stdout "===Axiom: ~A===~%~A~%" name ax)))
-
-
-(defmethod %perform-command ((command (eql :set-profiler)) args)
-  (setf *statistical-profiler* t)
-  (%stdout "statistical profiler enabled~%"))
-
-(defmethod %perform-command ((command (eql :unset-profiler)) args)
-  (setf *statistical-profiler* nil)
-  (%stdout "statistical profiler disabled~%"))
+    (progn
+      (%stdout "=====Axiom: ~A=====~%~A~%" name ax)
+      (when completed
+        (%stdout "completed axiom:~%")
+        (loop
+          :for each :in (rewrite-rule-set.rewrite-rules 
+                          (rename-for-human-readable-printing
+                            (cdr completed)))
+          :do 
+          (%stdout "~A~%" each))
+        (%stdout "~%")))))
 
 
 (defmethod %perform-command :around ((command (eql :DEF-AXIOM)) args)
@@ -116,8 +152,12 @@
         (setf cnt (1+ cnt)
               clauses (push parsed clauses)))
       (%prompt-def cnt))
-    
-    (update-axiomatic-system name (clause-set clauses))))
+
+    (let* ((cs (clause-set clauses))
+           (es (convert-to-equation-set cs)))
+      (update-axiomatic-system name cs)
+      (when es
+        (prompt-and-do-completion es name)))))
 
 
 
@@ -148,56 +188,88 @@
     (t 
      (%stdout "invalid command argument: ~A~%" args))))
 
+
+(defmethod do-resolution ((clause-set clause-set))
+  (multiple-value-bind (depth clause-set)
+      (handler-case
+          (time (start_resolution clause-set))
+        (clover-toplevel-condition (con)
+          (%stdout "unexpected error occurred: ~A~%" con)
+          (throw 'exit nil))
+        (condition (con)
+          (%stdout "caught an signal : ~A~%" con)
+          (%stdout "process canceled~%~%")
+          (values nil nil)))
+    (cond 
+      (depth
+       (%stdout "~A under the ~A~%~%"
+                (make-bold-string "PROVABLE")
+                *current-axiomatic-system*)
+       (when *render-tree-path-name*
+         (render-refutation-tree clause-set *render-tree-path-name*))
+       (when *save-resolution-history*
+         (render-refutation-tree clause-set *standard-output*)))
+      (t
+       (%stdout "unknown provability under the ~A~%~%"
+                *current-axiomatic-system*)))))
+
+(defmethod do-trs ((clause clause) (rewrite-rule-set rewrite-rule-set))
+  (let* ((literals (clause.literals clause))
+         (irreducibles nil)
+         (ret
+           (every
+             (lambda (eqs)
+               (let* ((left (equation.left eqs))
+                      (right (equation.right eqs))
+                      (tmp (equation (not (equation.negation eqs))
+                                     left
+                                     right)))
+                 (multiple-value-bind (r v) (start_trs tmp rewrite-rule-set)
+                   (push v irreducibles)
+                   r)))
+             literals)))
+    (if ret
+        (progn
+          (%stdout "The equation can be ~A under the axiom ~A~%"
+                   (make-bold-string "PROVED")
+                   *current-axiomatic-system*)
+          (%stdout "~%irreducible form under the ~A:~%"
+                   *current-axiomatic-system*)
+          (loop
+            :for each :in irreducibles
+            :do
+            (%stdout "~A~%" each)))
+        (%stdout "The equation cannot be proved under axioms ~A~%"
+                 *current-axiomatic-system*))))
+
+
 (defmethod %perform-command ((command (eql :DEFAULT)) args)
   (let* ((line (first args))
          (expr (parse-conseq-logical-expression line))
          (axiomatic-system 
-           (cdr (assoc *current-axiomatic-system* *axiomatic-system-list* :test #'string=)))
+           (cdr (assoc *current-axiomatic-system*
+                       *axiomatic-system-list* :test #'string=)))
          (clauses
            (when axiomatic-system
-             (clause-set.clauses axiomatic-system))))
+             (clause-set.clauses axiomatic-system)))
+         (completed
+           (cdr (assoc *current-axiomatic-system*
+                       *completed-system-list* :test #'string=)))
+         (is-equation
+           (every
+             (lambda (x)
+               (typep x 'equation))
+             (clause.literals expr))))
 
     (when *render-tree-path-name*
       (setf *save-resolution-history* t))
 
-    (catch 'exit 
-        (multiple-value-bind (depth clause-set)
-            (handler-case
-                (if *statistical-profiler*
-                  (progn
-                    #+sbcl 
-                    (sb-sprof:with-profiling 
-                      (:max-samples 3000
-                       :report :flat
-                       :loop nil
-                       :mode :cpu
-                       :show-progress nil)
-                      (time (start_resolution 
-                              (clause-set (cons expr clauses)))))
-                    #-sbcl 
-                    (time (start_resolution 
-                            (clause-set (cons expr clauses)))))
-                  (time (start_resolution 
-                          (clause-set (cons expr clauses)))))
-            (clover-toplevel-condition (con)
-              (%stdout "unexpected error occurred: ~A~%" con)
-              (throw 'exit nil))
-            (condition (con)
-              (%stdout "caught an signal : ~A~%" con)
-              (%stdout "process canceled~%~%")
-              (values nil nil)))
-          (cond 
-            (depth
-             (%stdout "~A under the ~A~%~%"
-                      (make-bold-string "PROVABLE")
-                      *current-axiomatic-system*)
-             (when *render-tree-path-name*
-               (render-refutation-tree clause-set *render-tree-path-name*))
-             (when *save-resolution-history*
-               (render-refutation-tree clause-set *standard-output*)))
-            (t
-             (%stdout "unknown provability under the ~A~%~%"
-                      *current-axiomatic-system*)))))))
+    (catch 
+      'exit 
+      (if (and completed is-equation)
+          (do-trs expr completed)
+          (do-resolution 
+            (clause-set (cons expr clauses)))))))
 
 
 (defmethod %perform-command :around ((command (eql :SAVE-AXIOM)) args)
@@ -262,8 +334,14 @@
                     (expr-parse-error (con)
                       (%stdout "parser error: ~A~%~A~%" con trimmed)
                       (throw 'exit nil))))))
-          (update-axiomatic-system fname (clause-set clauses))
-          (%stdout "load completed~%")))))))
+
+            (update-axiomatic-system fname (clause-set clauses))
+            (%stdout "load completed~%")
+
+            (let* ((cs (clause-set clauses))
+                   (es (convert-to-equation-set cs)))
+              (when es
+                (prompt-and-do-completion es fname)))))))))
 
 
 (defmethod %perform-command :around ((command (eql :SAVE-TREE)) args)

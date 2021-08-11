@@ -12,15 +12,15 @@
 (in-package :clover.multicompletion)
 
 
-(unless lparallel:*kernel*
-  (let ((cpu-number
-          (handler-case
-              (cpus:get-number-of-processors)
+(defun initialize-lparallel-kernel ()
+  (unless lparallel:*kernel*
+    (let ((cpu-number
+            (handler-case
+                (cpus:get-number-of-processors)
               (error (c) 1))))
-    (setf lparallel:*kernel* 
-          (lparallel:make-kernel
-            (if (>= 1 cpu-number) 1 (1- cpu-number))))))
-
+      (setf lparallel:*kernel* 
+            (lparallel:make-kernel
+              (if (>= 1 cpu-number) 1 (1- cpu-number)))))))
 
 
 (defun permutation (candidate)
@@ -96,6 +96,7 @@
       function-symbols-permutation)))
 
 (defmethod multi-kb-completion ((equation-set equation-set) giveup-threshold)
+  (initialize-lparallel-kernel)
   (lparallel.cognate:psome
     (lambda (ordering)
       (handler-case

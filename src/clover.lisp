@@ -10,8 +10,11 @@
         )
   (:import-from :clover.unify
                 :alphabet=)
+  (:import-from :clover.rewrite
+                :rewrite-final)
   (:export
     :start_resolution
+    :start_trs
     :find-lemmas
     ))
 (in-package :clover.clover)
@@ -34,6 +37,17 @@
 (defmethod node-same-class ((node1 clause-set) (node2 clause-set))
   (alphabet= node1 node2))
 
+(defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
+  (let* ((left (equation.left expr))
+         (right (equation.right expr))
+         (negation (equation.negation expr))
+         (final-left (rewrite-final left rewrite-rule-set))
+         (final-right (rewrite-final right rewrite-rule-set)))
+    (if negation
+        (values (term/= final-left final-right)
+                (equation negation final-left final-right))
+        (values (term= final-left final-right)
+                (equation negation final-left final-right)))))
 
 (defmethod start_resolution ((clause-set clause-set))
   (when (some
