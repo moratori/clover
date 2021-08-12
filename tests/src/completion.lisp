@@ -455,3 +455,56 @@
                     (fterm 'inv (list (fterm 'plus (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::x)))))
                     (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (fterm 'inv (list (vterm 'CLOVER.PARSER::y))))))))))
         (is (and result (rewrite-rule-set= result expected)))))
+
+
+;(test clover.tests.completion.kb-completion.test4
+;      (setf *term-order-algorithm* :lpo)
+;
+;      (let* ((ordering
+;               (function-symbol-ordering
+;                (list 
+;                  'e
+;                  'g
+;                  'f
+;                  'a
+;                  'i)))
+;             (target 
+;              (equation-set
+;                (list
+;                  (equation
+;                    nil
+;                    (fterm 'a (list (constant 'E)
+;                                    (vterm 'x)))
+;                    (vterm 'x))
+;                  (equation
+;                    nil
+;                    (fterm 'a (list (fterm 'i (list (vterm 'x)))
+;                                    (vterm 'x)))
+;                    (constant 'E))
+;                  (equation
+;                    nil
+;                    (fterm 'f (list (fterm 'a (list (vterm 'x) (vterm 'y)))))
+;                    (fterm 'a (list (fterm 'f (list (vterm 'x)))
+;                                    (fterm 'f (list (vterm 'y))))))
+;                  (equation
+;                    nil
+;                    (fterm 'g (list (fterm 'a (list (vterm 'x) (vterm 'y)))))
+;                    (fterm 'a (list (fterm 'g (list (vterm 'x)))
+;                                    (fterm 'g (list (vterm 'y))))))
+;                  (equation
+;                    nil
+;                    (fterm 'a (list (fterm 'f (list (vterm 'x)))
+;                                    (fterm 'g (list (vterm 'y)))))
+;                    (fterm 'a (list (fterm 'g (list (vterm 'y)))
+;                                    (fterm 'f (list (vterm 'x))))))
+;                  (equation
+;                    nil
+;                    (fterm 'a (list (vterm 'x)
+;                                    (fterm 'a (list (vterm 'y) (vterm 'z)))))
+;                    (fterm 'a (list (fterm 'a (list (vterm 'x) (vterm 'y)))
+;                                    (vterm 'z)))))))
+;            (result
+;              (rename-for-human-readable-printing
+;                (kb-completion target ordering 15))))
+;        (is (and result (print result))))
+;      )
