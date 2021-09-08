@@ -4,13 +4,20 @@
 
 ## 概要
 
-一階述語論理式の充足不可能性を判定するツールです。  
-判定には導出原理(Resolution Principle)を使用しています。  
-判定できた場合は、導出反駁木(Refutation Tree)を示すGraphvizのコードを出力することが可能です  
+一階述語論理式の証明を行うCommon Lisp実装のツールです。以下のアルゴリズムを実装しています。
+* 導出原理(Resolution Principle)
+* Knuth-Bendixの完備化アルゴリズム
+
+なお、導出原理を用いて式の証明ができた場合は、導出反駁木としてGraphvizのコードを出力することが可能です。
 
 ![sample proof figure](sample-refutation-tree.png)
 
 ## 使い方
+
+`:def-axiom`コマンドを用いて、証明したい式の前提となる式を定義します。
+その後、証明したい式を入力うることで証明書を試行しす。
+
+### 導出原理による証明例
 
 ```
 $ ./roswell/clover.ros
@@ -59,13 +66,51 @@ PROVABLE under the human
  !love(y,x) | !love(x,y) | happy(y)
 ```
 
+### 完備化された項書き換え系の元での等式証明例
+
+入力された式が等式である場合は、完備化を試みます。
+完備化が成功した場合は、項書き換え系の元で等式を証明することができます。
+
+```
+(NIL)>>> :def-axiom group
+input . to finish definition
+axiom[1]>>> plus(ZERO,x) = x
+axiom[2]>>> plus(plus(x,y),z) = plus(x, plus(y,z))
+axiom[3]>>> plus(i(x),x) = ZERO
+axiom[4]>>> .
+Detected that a set of equations has been inputted.
+Do you want to execute completion algorithm?  (yes or no) yes
+
+The completion process was successful:
+i(plus(y,x))=>plus(i(x),i(y))
+i(i(x))=>x
+i(ZERO)=>ZERO
+plus(x,ZERO)=>x
+plus(x,i(x))=>ZERO
+plus(x,plus(i(x),y))=>y
+plus(i(x),plus(x,y))=>y
+plus(ZERO,x)=>x
+plus(plus(x,y),z)=>plus(x,plus(y,z))
+plus(i(x),x)=>ZERO
+(group)>>> plus(plus(x,y),plus(z,w)) = plus(x, plus(y, plus(z, w)))
+The equation can be PROVED under the axiom group
+
+irreducible form under the group:
+plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
+```
+
 ## インストール
 
 ### バイナリ
 
+LinuxとWindows向けにビルドしたバイナリをダウンロード可能です。
+
 [Releases](https://github.com/moratori/clover/releases)
 
 ### Quicklispから
+
+Common Lispの実行環境がある場合は、quicklispにてソースをロードして実行することも可能です。
+なお、quicklispのパブリックなリポジトリには存在しないため、手動でlocal-projects配下にcloneしてロードする必要があります。
 
 ```
 $ cd /path/to/quicklisp/local-projects/
