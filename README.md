@@ -151,6 +151,50 @@ Command help
 (NIL)>>> 
 ```
 
+## 式の入力形式
+
+前提となる式を定義する際には、`<premise expression>`の形式で入力します。
+それ以外の場合は、`<consequence expression>`の形式で入力します。
+
+
+```
+<premise expression> ::= <equation> 
+                       | <premise logical expression>
+
+<consequence expression> ::= <equation>
+                           | <consequence logical expression>
+```
+
+```
+<equation> ::= <term> "=" <term> 
+             | <term> "!=" <term>
+
+<premise logical expression> ::= <symbol> <argument>
+                               | "!" <symbol> <argument>
+                               | <premise logical expression> "|" <premise logical expression>
+
+<consequence logical expression> ::= <symbol> <argument>
+                                   | "!" <symbol> <argument>
+                                   | <consequence logical expression> "&" <consequence logical expression>
+
+<argument> ::= "(" ")"
+             | "(" <term sequence> ")"
+
+<term> ::= "[" "]"
+         | "[" <term sequence> "]"
+         | <constant>
+         | <symbol>
+         | <symbol> "(" <term sequence> ")"
+
+<term sequence> ::= <term>
+                  | <term sequence> "," <term>
+
+<symbol>   ::= "a" | "b" | "c" | "d" | ...
+<constant> ::= "A" | "B" | "C" | "D" | ...
+
+```
+
+
 ## Author
 
 * moratori
