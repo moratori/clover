@@ -1001,7 +1001,7 @@ Avenhaus, Denzinger 93: Distributing equational theorem proving)
                                      (list (constant 'CLOVER.PARSER::X))))))))
           (equation-set= result expected)))
 
-(is
+      (is
         (let ((result
                 (parse-mkbtt-expression
                   "(VAR X y)
@@ -1009,6 +1009,57 @@ Avenhaus, Denzinger 93: Distributing equational theorem proving)
                           HOGE(x()) -> bar(X,y)
                           )
                           (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                   "))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::BAR
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression
+                  "(COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                  (VAR X y)
+                   (RULES hoge(X) -> foo(x)
+                          HOGE(x()) -> bar(X,y)
+                          )
+                   "))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::BAR
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression
+                  "
+                  (VAR X y)
+                  (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                   (RULES hoge(X) -> foo(x)
+                          HOGE(x()) -> bar(X,y)
+                          )
                    "))
               (expected
                 (equation-set
