@@ -1,4 +1,4 @@
-(defpackage clover.repl.util
+(defpackage clover.ui.util
   (:use :cl
         :ppcre
         )
@@ -10,7 +10,7 @@
     :%read-line-with-sigint-guard
     :%parse-input-line
     ))
-(in-package :clover.repl.util)
+(in-package :clover.ui.util)
 
 
 (defmacro %stdout (control-string &rest values)

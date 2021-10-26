@@ -59,10 +59,12 @@
                  (:file "multicompletion")
                  (:file "clover")
                  (:file "rendertree")
-                 (:module "repl"
+                 (:module "ui"
                   :components 
                   ((:file "util")
-                   (:file "repl"))))))
+                   (:file "batch")
+                   (:file "repl")
+                   (:file "main"))))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string

@@ -5,6 +5,8 @@
         :clover.multicompletion
         :clover.rename
         :1am)
+  (:import-from :clover.parser
+                :parse-mkbtt-expression)
   )
 (in-package :clover.tests.multicompletion)
 
@@ -255,3 +257,22 @@
                     (fterm 'inv (list (fterm 'plus (list (vterm 'CLOVER.PARSER::y) (vterm 'CLOVER.PARSER::x)))))
                     (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (fterm 'inv (list (vterm 'CLOVER.PARSER::y))))))))))
         (is (and result (rewrite-rule-set= result expected)))))
+
+
+
+(test clover.tests.multicompletion.multi-kb-completion.test4
+      ;; コマンドラインから実行したときに発生した例外が表示されるか確認する
+      (is
+        (multi-kb-completion
+          (parse-mkbtt-expression
+"(VAR x y)
+(RULES
+cons(S, cons(W, x)) -> cons(W, x)
+cons(x, cons(S, cons(W, y))) -> cons(x, cons(W, y))
+cons(W, cons(B, x)) -> cons(S, x)
+cons(x, cons(W, cons(B, y))) -> cons(x, cons(S, y))
+)"
+            )
+          15)
+        )
+)

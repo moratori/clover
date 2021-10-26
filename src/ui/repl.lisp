@@ -1,4 +1,4 @@
-(defpackage clover.repl
+(defpackage clover.ui.repl
   (:use :cl
         :clover.property
         :clover.conditions
@@ -8,7 +8,7 @@
         :clover.util
         :clover.clover
         :clover.converter
-        :clover.repl.util
+        :clover.ui.util
         :ppcre
         )
   (:import-from :clover.multicompletion
@@ -18,7 +18,7 @@
   (:export 
     :main
     ))
-(in-package :clover.repl)
+(in-package :clover.ui.repl)
 
 (defparameter *current-axiomatic-system* nil
   "name of current axiomatic-system")
@@ -370,8 +370,7 @@
 
 (defun main ()
   (%perform-command :help nil)
-  (%prompt-toplevel *current-axiomatic-system*)
-
+  (%prompt-toplevel *current-axiomatic-system*) 
   (catch 'exit
       (handler-case 
           (loop 
