@@ -720,3 +720,247 @@
                                                    (list (constant 'CLOVER.PARSER::B )  (constant 'CLOVER.PARSER::NIL )))))))))))
 
       )
+
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test1
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR x)(RULES hoge(x) -> foo(x))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (vterm 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR y)(RULES hoge(x) -> foo(x))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR X)(RULES hoge(x) -> foo(x))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR X)(RULES hoge() -> foo())"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (constant 'CLOVER.PARSER::HOGE)
+                              (constant 'CLOVER.PARSER::FOO))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR x)(RULES hoge(x,a) -> foo(x,b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::A)
+                                           ))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B)
+                                           )))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR x y)(RULES hoge(x,a) -> foo(x,b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::A)
+                                           ))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B)
+                                           )))))))
+          (equation-set= result expected)))
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR x a)(RULES hoge(x,a) -> foo(x,b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::A)
+                                           ))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B)
+                                           )))))))
+          (equation-set= result expected))))      
+
+
+
+#|
+--- CASE 1:
+     (VAR X Y Z)
+     (RULES
+       foo(X) -> hoge(X)
+     )
+     
+     YES
+     (VAR X)
+     (RULES
+       hoge(X) -> foo(X)
+     )
+
+--- CASE2:
+     (VAR X Y Z)
+     (RULES
+       foo(x) -> hoge(x)
+     )
+     
+     YES
+     (VAR )
+     (RULES
+       hoge(x()) -> foo(x())
+     )
+--- CASE3:
+     (VAR X)
+     (RULES
+       hoge(X) -> foo(x)
+     )
+     
+     YES
+     (VAR X)
+     (RULES
+       hoge(X) -> foo(x())
+     )
+|#
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test2
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression 
+                  "(VAR x a)(RULES hoge(x,a,0()) -> f_oo_(x, b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::A)
+                                           (constant 'CLOVER.PARSER::0)))
+                              (fterm 'CLOVER.PARSER::F_OO_
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression 
+                  "(VAR x a)(RULES HOGE(x,a,0()) -> F_OO_(x, b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::A)
+                                           (constant 'CLOVER.PARSER::0)))
+                              (fterm 'CLOVER.PARSER::F_OO_
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression 
+                  "(VAR x a)(RULES Hoge(x,a,0()) -> F_oo_(x, b))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::A)
+                                           (constant 'CLOVER.PARSER::0)))
+                              (fterm 'CLOVER.PARSER::F_OO_
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (constant 'CLOVER.PARSER::B))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR X)(RULES hoge(X) -> foo(x))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression "(VAR x)(RULES HOGE(x) -> foo(X))"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+      )
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test3
+      (is
+        (let ((result
+                (parse-mkbtt-expression
+                  "(VAR X y)
+                   (RULES hoge(X) -> foo(x)
+                          HOGE(x()) -> bar(X,y)
+                          )"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::BAR
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+)
