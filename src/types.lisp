@@ -24,6 +24,7 @@
         :term
         :vterm
         :vterm.var
+        :vterm.original-str
         :fterm
         :fterm.fsymbol
         :fterm.args
@@ -47,6 +48,9 @@
         :rewrite-rule-set.rewrite-rules
         :function-symbol-ordering
         :function-symbol-ordering.ordering
+        :mkbtt-form
+        :mkbtt-form.var
+        :mkbtt-form.rules
   ))
 (in-package :clover.types)
 
@@ -137,6 +141,15 @@
 (deftype %function-symbol-ordering ()
   '(satisfies %%function-symbol-ordering))
 
+(defun %%mkbtt-var-type (obj)
+  (or (null obj)
+      (and
+          (listp obj)
+          (every (lambda (x) (typep x 'vterm)) obj))))
+
+(deftype %mkbtt-var-type ()
+  '(satisfies %%mkbtt-var-type))
+
 
 (defstruct term)
 
@@ -145,11 +158,14 @@
                (lambda (object stream)
                  (format stream "~A" (string-downcase (symbol-name (vterm.var object))))))
              (:include term)
-             (:constructor vterm (var))
+             (:constructor vterm (var &optional original-str))
              (:conc-name vterm.))
   "変数項を表現する構造体
    シンボルを保持する"
-   (var (error "default value required") :type symbol :read-only t))
+   (var (error "default value required") :type symbol :read-only t)
+  ; mkbtt形式をパースする際に、大文字小文字を区別する必要があることから
+  ; 元の文字列を保持する
+   (original-str "" :type string :read-only t))
 
 (defstruct (fterm
              (:print-object
@@ -324,3 +340,15 @@
              (:constructor function-symbol-ordering (ordering))
              (:conc-name function-symbol-ordering.))
   (ordering nil :type %function-symbol-ordering :read-only t))
+
+(defstruct (mkbtt-form
+             (:print-object
+               (lambda (object stream)
+                 (format stream "(VAR ~{~A~^ ~})~%" (mkbtt-form.var object))
+                 (format stream "(RULES~%~{~A~%  ~})" 
+                         (equation-set.equations
+                           (mkbtt-form.rules object)))))
+             (:constructor mkbtt-form (var rules))
+             (:conc-name mkbtt-form.))
+  (var   nil :type %mkbtt-var-type :read-only t)
+  (rules nil :type equation-set :read-only t))

@@ -28,7 +28,7 @@
     :rewrite-rule-set=
     :prohibited-unifier-set-p
     :occurrence-check
-    :convert-to-equation-set
+    :collect-variables
     ))
 (in-package :clover.util)
 
@@ -252,19 +252,17 @@
 (defmethod conseq-clause-p ((clause clause))
   (eq (clause.clause-type clause) :conseq))
 
-(defmethod convert-to-equation-set ((clause-set clause-set))
-  (let ((tmp
-          (loop
-            :named exit
-            :for clause :in (clause-set.clauses clause-set)
-            :for literals := (clause.literals clause)
-            :for len := (length literals)
-            :collect
-            (if (or (< 1 len)
-                    (zerop len)
-                    (not (typep (first literals) 'equation))
-                    (equation.negation (car literals)))
-                (return-from exit nil)
-                (first literals)))))
-    (when tmp
-      (equation-set tmp))))
+
+(defmethod collect-variables ((vterm vterm))
+  (list vterm))
+
+(defmethod collect-variables ((fterm fterm))
+  (mapcan
+    #'collect-variables
+    (fterm.args fterm)))
+
+(defmethod collect-variables ((literal literal))
+  (mapcan
+    #'collect-variables
+    (literal.args literal))) 
+

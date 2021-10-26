@@ -7,6 +7,7 @@
         :clover.parser
         :clover.util
         :clover.clover
+        :clover.converter
         :clover.repl.util
         :ppcre
         )

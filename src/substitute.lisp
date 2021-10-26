@@ -14,11 +14,20 @@
 
 
 (defmethod apply-unifier ((vterm vterm) (unifier unifier))
-  (let ((src (unifier.src unifier))
-        (dst (unifier.dst unifier)))
-    (if (term= src vterm)
-      dst
-      vterm)))
+  (let* ((src (unifier.src unifier))
+         (dst (unifier.dst unifier))
+         (orgstr-vterm (vterm.original-str vterm))
+         (orgstr-src   (vterm.original-str src)))
+    (cond
+      ((string/= orgstr-src "")
+       (if (and (term= src vterm)
+                (string= orgstr-src orgstr-vterm))
+           dst
+           vterm))
+      (t
+       (if (term= src vterm)
+           dst
+           vterm)))))
 
 (defmethod apply-unifier ((fterm fterm) (unifier unifier))
   (fterm
@@ -47,6 +56,12 @@
     (clause.parent2 clause)
     (clause.unifier clause)
     (clause.clause-type clause)))
+
+(defmethod apply-unifier ((equation equation) (unifier unifier))
+  (equation
+    (equation.negation equation)
+    (apply-unifier (equation.left equation) unifier)
+    (apply-unifier (equation.right equation) unifier)))
 
 (defmethod apply-unifier ((target unifier) (unifier unifier))
   (let ((src (apply-unifier (unifier.src target) unifier))

@@ -6,11 +6,14 @@
         :clover.conditions
         :clover.types
         :clover.util
+        :clover.converter
         )
   (:export 
     :%intern-symbol-to-specified-package
     :parse-premise-logical-expression
-    :parse-conseq-logical-expression))
+    :parse-conseq-logical-expression
+    :parse-mkbtt-expression
+    ))
 
 (in-package :clover.parser)
 
@@ -33,6 +36,17 @@
       (parse-with-lexer 
         (%conseq-expression-lexer string)
         %conseq-expression-parser)
+    (condition (con)
+      (error (make-condition 'expr-parse-error 
+                             :message 
+                             (format nil "~A error occurred while parsing string: ~A" con string))))))
+
+(defun parse-mkbtt-expression (string)
+  (handler-case 
+      (convert-to-equation-set
+        (parse-with-lexer 
+          (%mkbtt-expression-lexer string)
+          %mkbtt-form-parser))
     (condition (con)
       (error (make-condition 'expr-parse-error 
                              :message 
@@ -62,6 +76,16 @@
   ("\\]"       (return (values :list-rparen 'list-rparen)))
   ("[A-Z]+"    (return (values :constant $@)))
   ("[a-z0-9]+" (return (values :symbol $@))))
+
+
+(define-string-lexer %mkbtt-expression-lexer
+  ("RULES"     (return (values :rules 'rules)))
+  ("VAR"       (return (values :var   'var)))
+  ("->"        (return (values :equality 'equality)))
+  (","          (return (values :comma  'comma)))
+  ("\\("        (return (values :lparen 'lparen)))
+  ("\\)"        (return (values :rparen 'rparen)))
+  ("[a-zA-Z0-9_]+" (return (values :symbol $@))))
 
 
 (define-parser %premise-expression-parser 
@@ -295,3 +319,90 @@
        (declare (ignore comma))
        (append termseq
                (list term))))))
+
+
+(define-parser %mkbtt-form-parser
+  (:start-symbol mkbtt)
+  (:terminals    (:rules
+                  :var
+                  :equality
+                  :comma
+                  :lparen
+                  :rparen
+                  :symbol))
+
+  (mkbtt
+    (:lparen :var var-list :rparen :lparen :rules equation-list :rparen
+     (lambda (lparen_1_ var_   var-list rparen_1_
+              lparen_2_ rules_ equation-list rparen_2_)
+       (mkbtt-form var-list equation-list)))
+
+    (:lparen :var :rparen :lparen :rules equation-list :rparen
+     (lambda (lparen_1_ var_   rparen_1_
+              lparen_2_ rules_ equation-list rparen_2_)
+       (mkbtt-form nil equation-list))))
+
+  (var-list
+    (:symbol
+     (lambda (symbol)
+       (list 
+         (vterm
+           (%intern-symbol-to-specified-package
+             (string-upcase symbol))
+           symbol
+           ))) )
+    (:symbol var-list
+     (lambda (symbol vl)
+       (cons 
+         (vterm
+           (%intern-symbol-to-specified-package
+             (string-upcase symbol))
+           symbol
+           )
+         vl))))
+
+  (equation-list
+    (term :equality term
+     (lambda (term1 _ term2)
+       (equation-set
+         (list
+           (equation nil term1 term2)))))
+    (term :equality term equation-list
+     (lambda (term1 _ term2 eqlist)
+       (equation-set
+         (cons
+           (equation nil term1 term2)
+           (equation-set.equations eqlist))))))
+  (term
+    (:symbol
+     (lambda (symbol)
+       (vterm
+         (%intern-symbol-to-specified-package
+           (string-upcase symbol))
+         symbol
+         )))
+    (:symbol :lparen :rparen
+     (lambda (symbol lparen rparen)
+       (declare (ignore lparen rparen))
+       (constant
+         (%intern-symbol-to-specified-package
+           (string-upcase symbol)))))
+    (:symbol :lparen termseq :rparen
+     (lambda (symbol lparen termseq rparen)
+       (declare (ignore lparen rparen))
+         (fterm
+           (%intern-symbol-to-specified-package
+             (string-upcase symbol))
+           termseq
+           ))))
+  (termseq
+    (term
+      (lambda (term)
+        (list term)))
+    (termseq :comma term
+     (lambda (termseq comma term)
+       (declare (ignore comma))
+       (append termseq
+               (list term)))))
+  )
+

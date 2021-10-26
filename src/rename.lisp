@@ -11,23 +11,9 @@
                 :%intern-symbol-to-specified-package)
   (:export
     :rename
-    :collect-variables
     :rename-for-human-readable-printing))
 (in-package :clover.rename)
 
-
-(defmethod collect-variables ((vterm vterm))
-  (list vterm))
-
-(defmethod collect-variables ((fterm fterm))
-  (mapcan
-    #'collect-variables
-    (fterm.args fterm)))
-
-(defmethod collect-variables ((literal literal))
-  (mapcan
-    #'collect-variables
-    (literal.args literal)))
 
 (defmethod make-rename-binds ((clause clause))
   (unifier-set

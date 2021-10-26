@@ -3,8 +3,6 @@
         :clover.conditions
         :clover.types
         :clover.util)
-  (:import-from :clover.rename
-                :collect-variables)
   (:export
     :function-symbol-order
     :term<=
