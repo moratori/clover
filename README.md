@@ -153,6 +153,8 @@ Command help
 
 ## 式の入力形式
 
+### REPL
+
 前提となる式を定義する際には、`<premise expression>`の形式で入力します。
 それ以外の場合は、`<consequence expression>`の形式で入力します。
 
@@ -189,8 +191,8 @@ Command help
 <term sequence> ::= <term>
                   | <term sequence> "," <term>
 
-<symbol>   ::= "a" | "b" | "c" | "d" | ...
-<constant> ::= "A" | "B" | "C" | "D" | ...
+<symbol>   ::= "a" | "b" | "c" | "d" | ... | "z" | ... | "aaa" | ...
+<constant> ::= "A" | "B" | "C" | "D" | ... | "Z" | ... | "AAA" | ...
 
 ```
 
