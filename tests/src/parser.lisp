@@ -964,3 +964,66 @@
                                      (list (constant 'CLOVER.PARSER::X))))))))
           (equation-set= result expected)))
 )
+
+
+
+
+
+
+
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test4
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression
+                  "(VAR X y)
+                   (RULES hoge(X) -> foo(x)
+                          HOGE(x()) -> bar(X,y)
+                          )
+                          (COMMENT example Z22 from
+Avenhaus, Denzinger 93: Distributing equational theorem proving)
+                   "))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::BAR
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+
+(is
+        (let ((result
+                (parse-mkbtt-expression
+                  "(VAR X y)
+                   (RULES hoge(X) -> foo(x)
+                          HOGE(x()) -> bar(X,y)
+                          )
+                          (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                   "))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::BAR
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::FOO
+                                     (list (constant 'CLOVER.PARSER::X))))))))
+          (equation-set= result expected)))
+
+)
