@@ -12,7 +12,7 @@
 
 ![sample proof figure](sample-refutation-tree.png)
 
-## 使い方
+## REPLの使い方
 
 `:def-axiom`コマンドを用いて、証明したい式の前提となる式を定義します。
 その後、証明したい式を入力することで証明を試行します。
