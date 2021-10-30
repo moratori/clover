@@ -15,6 +15,7 @@
                :lparallel
                :yacc
                :cl-lex
+               :lexer ;https://github.com/massung/lexer.git
                :alexandria
                :cl-ppcre
                :cl-custom-hash-table
