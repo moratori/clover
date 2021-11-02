@@ -8,6 +8,13 @@
         :clover.util
         :clover.converter
         )
+  (:import-from :lexer
+                :define-lexer
+                :with-lexer
+                :with-token-reader
+                :push-lexer
+                :pop-lexer
+                )
   (:export 
     :%intern-symbol-to-specified-package
     :parse-premise-logical-expression
@@ -43,10 +50,11 @@
 
 (defun parse-mkbtt-expression (string)
   (handler-case 
-      (convert-to-equation-set
-        (parse-with-lexer 
-          (%mkbtt-expression-lexer string)
-          %mkbtt-form-parser))
+      (with-lexer (lexer 'mkbtt-toplevel-lexer string)
+        (with-token-reader (token-reader lexer)
+          (convert-to-equation-set
+            (mkbtt-form 
+              (parse-with-lexer token-reader %mkbtt-form-parser)))))
     (condition (con)
       (error (make-condition 'expr-parse-error 
                              :message 
@@ -78,14 +86,30 @@
   ("[a-z0-9]+" (return (values :symbol $@))))
 
 
-(define-string-lexer %mkbtt-expression-lexer
-  ("RULES"     (return (values :rules 'rules)))
-  ("VAR"       (return (values :var   'var)))
-  ("->"        (return (values :equality 'equality)))
-  (","          (return (values :comma  'comma)))
-  ("\\("        (return (values :lparen 'lparen)))
-  ("\\)"        (return (values :rparen 'rparen)))
-  ("[a-zA-Z0-9_]+" (return (values :symbol $@))))
+(define-lexer mkbtt-comment-lexer (state)
+  ("[^%(%)]+"     (values :simple-comment-content $$))
+  ("%("           (push-lexer state #'mkbtt-comment-lexer :lparen)) 
+  ("%)"           (pop-lexer state :rparen)))
+
+(define-lexer mkbtt-var-lexer (state)
+  ("[%s%n]+"               :next-token)
+  ("[a-zA-Z0-9_]+" (values :var-symbol $$))
+  ("%)"                    (pop-lexer state :rparen)))
+
+(define-lexer mkbtt-rules-lexer (state)
+  ("[%s%n]+"       :next-token)
+  ("%->"           (values :equality 'equality))
+  (","             (values :comma  'comma))
+  ("[a-zA-Z0-9_]+" (values :rules-symbol $$))
+  ("%("            (push-lexer state #'mkbtt-rules-lexer :lparen) )
+  ("%)"            (pop-lexer state :rparen)))
+
+(define-lexer mkbtt-toplevel-lexer (state)
+  ("[%s%n]+"      :next-token)
+  ("%(COMMENT"    (push-lexer state #'mkbtt-comment-lexer :start-comment))
+  ("%(VAR"        (push-lexer state #'mkbtt-var-lexer     :start-var))
+  ("%(RULES"      (push-lexer state #'mkbtt-rules-lexer   :start-rules)))
+
 
 
 (define-parser %premise-expression-parser 
@@ -322,79 +346,73 @@
 
 
 (define-parser %mkbtt-form-parser
-  (:start-symbol mkbtt)
-  (:terminals    (:rules
-                  :var
-                  :equality
-                  :comma
-                  :lparen
+  (:start-symbol mkbtt-form)
+  (:terminals    (:lparen
                   :rparen
-                  :symbol))
+                  :comma
+                  :equality
+                  :start-comment
+                  :start-var
+                  :start-rules
+                  :var-symbol
+                  :rules-symbol
+                  :simple-comment-content))
+  (mkbtt-form
+    (statement
+      (lambda (statement) (list statement)))
+    (mkbtt-form statement
+      (lambda (mkbtt-form statement)
+        (append mkbtt-form (list statement)))))
 
-  (mkbtt
-    (:lparen :var var-list :rparen :lparen :rules equation-list :rparen
-     (lambda (lparen_1_ var_   var-list rparen_1_
-              lparen_2_ rules_ equation-list rparen_2_)
-       (mkbtt-form var-list equation-list)))
+  (statement
+    (:start-comment comment-content :rparen
+     (lambda (start-comment comment-content rparen)
+       (declare (ignore start-comment rparen))
+       (mkbtt-comment-form
+         comment-content)))
+    (:start-var var-list :rparen
+     (lambda (start-var var-list rparen)
+       (declare (ignore start-var rparen))
+       (mkbtt-var-form
+         var-list)))
+    (:start-rules equations :rparen
+     (lambda (start-rules equations rparen)
+       (mkbtt-rules-form
+         (equation-set equations)))))
 
-    (:lparen :var :rparen :lparen :rules equation-list :rparen
-     (lambda (lparen_1_ var_   rparen_1_
-              lparen_2_ rules_ equation-list rparen_2_)
-       (mkbtt-form nil equation-list))))
+  (equations
+    (equation
+      (lambda (equation) (list equation)))
+    (equations equation
+      (lambda (equations equation)
+        (append equations (list equation)))))
 
-  (var-list
-    (:symbol
-     (lambda (symbol)
-       (list 
-         (vterm
-           (%intern-symbol-to-specified-package
-             (string-upcase symbol))
-           symbol
-           ))) )
-    (:symbol var-list
-     (lambda (symbol vl)
-       (cons 
-         (vterm
-           (%intern-symbol-to-specified-package
-             (string-upcase symbol))
-           symbol
-           )
-         vl))))
-
-  (equation-list
+  (equation
     (term :equality term
-     (lambda (term1 _ term2)
-       (equation-set
-         (list
-           (equation nil term1 term2)))))
-    (term :equality term equation-list
-     (lambda (term1 _ term2 eqlist)
-       (equation-set
-         (cons
-           (equation nil term1 term2)
-           (equation-set.equations eqlist))))))
+      (lambda (left equality right)
+        (declare (ignore equality))
+        (equation nil left right))))
+
   (term
-    (:symbol
+    (:rules-symbol
      (lambda (symbol)
        (vterm
          (%intern-symbol-to-specified-package
            (string-upcase symbol))
-         symbol
-         )))
-    (:symbol :lparen :rparen
+         symbol)))
+    (:rules-symbol :lparen :rparen
      (lambda (symbol lparen rparen)
        (declare (ignore lparen rparen))
+       ;; constant
        (constant
          (%intern-symbol-to-specified-package
            (string-upcase symbol)))))
-    (:symbol :lparen termseq :rparen
+    (:rules-symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
-         (fterm
-           (%intern-symbol-to-specified-package
-             (string-upcase symbol))
-           termseq
-           ))))
+       (fterm (%intern-symbol-to-specified-package
+                (string-upcase symbol)) termseq))))
+
   (termseq
     (term
       (lambda (term)
@@ -404,5 +422,53 @@
        (declare (ignore comma))
        (append termseq
                (list term)))))
-  )
 
+  (var-list
+    (:var-symbol
+     (lambda (symbol)
+       (list (vterm 
+               (%intern-symbol-to-specified-package
+                 (string-upcase symbol))
+               symbol))))
+    (var-list :var-symbol
+     (lambda (var-list symbol)
+       (append 
+         var-list
+         (list (vterm (%intern-symbol-to-specified-package
+                        (string-upcase symbol)) symbol))))))
+
+  (comment-content
+    (:simple-comment-content
+     (lambda (x) x))
+    (:lparen :rparen
+     (lambda (x y)
+       (declare (ignore x y))
+       "()"))
+    (:lparen :rparen comment-content
+     (lambda (x y z)
+       (declare (ignore x y))
+       (concatenate 'string "()" z)))
+    (:lparen comment-content :rparen
+     (lambda (x y z) 
+       (declare (ignore x z))
+       (concatenate 'string "(" y ")")))
+    (:lparen comment-content :rparen comment-content
+     (lambda (x y z w) 
+       (declare (ignore x z))
+       (concatenate 'string "(" y ")" w)))
+    (comment-content :lparen :rparen
+     (lambda (x y z) 
+       (declare (ignore y z))
+       (concatenate 'string x "()")))
+    (comment-content :lparen :rparen comment-content
+     (lambda (x y z w)
+       (declare (ignore y z))
+       (concatenate 'string x "()" w)))
+    (comment-content :lparen comment-content :rparen
+     (lambda (x y z w) 
+       (declare (ignore y w))
+       (concatenate 'string x z)))
+    (comment-content :lparen comment-content :rparen comment-content
+     (lambda (x y z w v)
+       (declare (ignore y w))
+       (concatenate 'string x "(" z ")" v)))))

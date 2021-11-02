@@ -49,8 +49,13 @@
         :function-symbol-ordering
         :function-symbol-ordering.ordering
         :mkbtt-form
-        :mkbtt-form.var
-        :mkbtt-form.rules
+        :mkbtt-form.value
+        :mkbtt-var-form
+        :mkbtt-var-form.value
+        :mkbtt-rules-form
+        :mkbtt-rules-form.value
+        :mkbtt-comment-form
+        :mkbtt-comment-form.value
   ))
 (in-package :clover.types)
 
@@ -149,6 +154,21 @@
 
 (deftype %mkbtt-var-type ()
   '(satisfies %%mkbtt-var-type))
+
+
+(defun %%mkbtt-form-type (obj)
+  (or
+    (null obj)
+    (and (listp obj)
+         (every 
+           (lambda (x)
+             (or (typep x 'mkbtt-var-form)
+                 (typep x 'mkbtt-comment-form)
+                 (typep x 'mkbtt-rules-form)))
+           obj))))
+
+(deftype %mkbtt-form-type ()
+  '(satisfies %%mkbtt-form-type))
 
 
 (defstruct term)
@@ -344,11 +364,35 @@
 (defstruct (mkbtt-form
              (:print-object
                (lambda (object stream)
-                 (format stream "(VAR ~{~A~^ ~})~%" (mkbtt-form.var object))
-                 (format stream "(RULES~%~{~A~%  ~})" 
-                         (equation-set.equations
-                           (mkbtt-form.rules object)))))
-             (:constructor mkbtt-form (var rules))
+                 (format stream "~{~A~%~}~%" (mkbtt-form.value object))))
+             (:constructor mkbtt-form (value))
              (:conc-name mkbtt-form.))
-  (var   nil :type %mkbtt-var-type :read-only t)
-  (rules nil :type equation-set :read-only t))
+  (value nil :type %mkbtt-form-type :read-only t))
+
+(defstruct (mkbtt-var-form
+             (:print-object
+              (lambda (object stream)
+                 (format stream "(VAR ~{~A~^ ~})~%"
+                         (mkbtt-var-form.value object))))
+             (:conc-name mkbtt-var-form.)
+             (:constructor mkbtt-var-form (value)))
+  (value nil :type %mkbtt-var-type :read-only t))
+
+(defstruct (mkbtt-comment-form
+             (:print-object
+              (lambda (object stream)
+                 (format stream "(COMMENT ~A)~%"
+                         (mkbtt-comment-form.value object))))
+             (:conc-name mkbtt-comment-form.)
+             (:constructor mkbtt-comment-form (value)))
+  (value "" :type string :read-only t))
+
+(defstruct (mkbtt-rules-form
+             (:print-object
+              (lambda (object stream)
+                 (format stream "(RULES ~{~A~^ ~})~%"
+                         (mkbtt-rules-form.value object))))
+             (:conc-name mkbtt-rules-form.)
+             (:constructor mkbtt-rules-form (value)))
+  (value "" :type equation-set :read-only t))
+

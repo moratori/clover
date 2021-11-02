@@ -12,6 +12,7 @@
     :null-clause-not-found
     :multiple-clause-found
     :expr-parse-error
+    :mkbtt-parse-error
     :unable-to-orient-equation
     )
   )
@@ -74,6 +75,9 @@
   ())
 
 (define-condition unable-to-orient-equation (clover-toplevel-condition)
+  ())
+
+(define-condition mkbtt-parse-error (expr-parse-error)
   ())
 
 (defmethod print-object ((error clover-toplevel-condition) stream)

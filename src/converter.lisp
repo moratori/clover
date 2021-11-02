@@ -30,37 +30,51 @@
       (equation-set tmp))))
 
 (defmethod convert-to-equation-set ((mkbtt-form mkbtt-form))
-  (let* ((var (mkbtt-form.var mkbtt-form))
-         (eqs (equation-set.equations
-                (mkbtt-form.rules mkbtt-form)))
-         (var-in-expr 
-           (remove-duplicates
-             (mapcan #'collect-variables eqs)
-             :test 
-             (lambda (x y)
-               (and 
-                 (term= x y)
-                 (string= (vterm.original-str x)
-                          (vterm.original-str y))))))
-         (should-be-constant
-           (remove-if
-             (lambda (v) 
-               (member v var
-                       :test
-                       (lambda (x y)
-                         (and (term= x y)
-                              (string= (vterm.original-str x)
-                                       (vterm.original-str y))))))
-             var-in-expr))
-         (binding
-           (unifier-set
+  (let* ((forms (mkbtt-form.value mkbtt-form))
+         (var-forms 
+           (remove-if-not
+             (lambda (x) (typep x 'mkbtt-var-form)) forms))
+         (rules-forms
+           (remove-if-not
+             (lambda (x) (typep x 'mkbtt-rules-form)) forms)))
+
+    (unless (and (= (length var-forms) 1)
+                 (= (length rules-forms) 1))
+      (error (make-condition
+               'mkbtt-parse-error
+               :message "invalid mkbtt form")))
+
+    (let* ((var (mkbtt-var-form.value (first var-forms)))
+           (eqs (equation-set.equations
+                  (mkbtt-rules-form.value (first rules-forms))))
+           (var-in-expr 
+             (remove-duplicates
+               (mapcan #'collect-variables eqs)
+               :test 
+               (lambda (x y)
+                 (and 
+                   (term= x y)
+                   (string= (vterm.original-str x)
+                            (vterm.original-str y))))))
+           (should-be-constant
+             (remove-if
+               (lambda (v) 
+                 (member v var
+                         :test
+                         (lambda (x y)
+                           (and (term= x y)
+                                (string= (vterm.original-str x)
+                                         (vterm.original-str y))))))
+               var-in-expr))
+           (binding
+             (unifier-set
+               (mapcar
+                 (lambda (x)
+                   (unifier x (constant (vterm.var x))))
+               should-be-constant)))
+           (ret
              (mapcar
-               (lambda (x)
-                 (unifier x (constant (vterm.var x))))
-             should-be-constant)))
-         (ret
-           (mapcar
-             (lambda (e)
-               (apply-unifier-set e binding))
-             eqs)))
-    (equation-set ret)))
+               (lambda (e)
+                 (apply-unifier-set e binding))
+               eqs)))
+      (equation-set ret))))
