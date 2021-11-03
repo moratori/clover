@@ -43,12 +43,12 @@
   (let* ((fname (first args))
          (content (alexandria:read-file-into-string fname))
          (eqs (parse-mkbtt-expression content))
-         (completed (multi-kb-completion eqs 15))
-         (readable
-           (rename-for-human-readable-printing completed)))
-    (loop
-      :for rule :in (rewrite-rule-set.rewrite-rules readable)
-      :do (%stdout "~A~%" rule))))
+         (completed (multi-kb-completion eqs 15)))
+    (when completed
+      (loop
+        :for rule :in (rewrite-rule-set.rewrite-rules
+                        (rename-for-human-readable-printing completed))
+        :do (%stdout "~A~%" rule)))))
 
 
 (defun main (args)
