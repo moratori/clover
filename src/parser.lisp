@@ -102,7 +102,7 @@
   ("[%s%n]+"           :next-token)
   ("%->"               (values :equality 'equality))
   (","                 (values :comma  'comma))
-  ("[a-zA-Z0-9_%+%*%.%-/]+" (values :rules-symbol $$))
+  ("[a-zA-Z0-9_%+%*%.%-/@&\\]+" (values :rules-symbol $$))
   ("%("                (push-lexer state #'mkbtt-rules-lexer :lparen) )
   ("%)"                (pop-lexer state :rparen)))
 
