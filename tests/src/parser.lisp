@@ -1100,6 +1100,21 @@ Avenhaus, Denzinger 93: Distributing equational theorem proving)
       (is
         (let ((result
                 (parse-mkbtt-expression
+                  "(VAR)(RULES x -> y A -> B)"))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (constant 'CLOVER.PARSER::X)
+                              (constant 'CLOVER.PARSER::y))
+                    (equation nil 
+                              (constant 'CLOVER.PARSER::A)
+                              (constant 'CLOVER.PARSER::B))))))
+          (equation-set= result expected)))
+
+      (is
+        (let ((result
+                (parse-mkbtt-expression
                   "
                   (VAR X y)
                   (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)

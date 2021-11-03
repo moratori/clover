@@ -362,6 +362,10 @@
        (declare (ignore start-comment rparen))
        (mkbtt-comment-form
          comment-content)))
+    (:start-var :rparen
+     (lambda (start-var rparen)
+       (declare (ignore start-var rparen))
+       (mkbtt-var-form nil)))
     (:start-var var-list :rparen
      (lambda (start-var var-list rparen)
        (declare (ignore start-var rparen))
