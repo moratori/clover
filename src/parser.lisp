@@ -26,7 +26,9 @@
 
 
 (defun %intern-symbol-to-specified-package (string)
-  (intern string *parsed-symbol-intern-package*))
+  (intern 
+    (string-upcase string)
+    *parsed-symbol-intern-package*))
 
 (defun parse-premise-logical-expression (string)
   (handler-case
@@ -140,8 +142,7 @@
          (list 
            (literal 
              nil
-             (%intern-symbol-to-specified-package 
-               (string-upcase symbol))
+             (%intern-symbol-to-specified-package symbol)
              argument)))))
 
     (:not :symbol argument
@@ -151,8 +152,7 @@
          (list
            (literal
              t
-             (%intern-symbol-to-specified-package 
-               (string-upcase symbol))
+             (%intern-symbol-to-specified-package symbol)
              argument)))))
 
     (premise :or premise
@@ -197,21 +197,18 @@
     (:constant
      (lambda (constant)
          (constant
-           (%intern-symbol-to-specified-package 
-             (string-upcase constant)))))
+           (%intern-symbol-to-specified-package constant))))
 
     (:symbol
      (lambda (symbol)
          (vterm 
-           (%intern-symbol-to-specified-package 
-             (string-upcase symbol)))))
+           (%intern-symbol-to-specified-package symbol))))
 
     (:symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
          (fterm
-           (%intern-symbol-to-specified-package
-             (string-upcase symbol))
+           (%intern-symbol-to-specified-package symbol)
            termseq))))
 
   (termseq
@@ -255,8 +252,7 @@
          (list 
            (literal 
              t
-             (%intern-symbol-to-specified-package 
-               (string-upcase symbol))
+             (%intern-symbol-to-specified-package symbol)
              argument))
          nil nil nil :conseq)))
 
@@ -267,8 +263,7 @@
          (list
            (literal
              nil
-             (%intern-symbol-to-specified-package 
-               (string-upcase symbol))
+             (%intern-symbol-to-specified-package symbol)
              argument))
          nil nil nil :conseq)))
 
@@ -315,21 +310,18 @@
     (:constant
      (lambda (constant)
          (constant
-           (%intern-symbol-to-specified-package 
-             (string-upcase constant)))))
+           (%intern-symbol-to-specified-package constant))))
 
     (:symbol
      (lambda (symbol)
          (vterm 
-           (%intern-symbol-to-specified-package 
-             (string-upcase symbol)))))
+           (%intern-symbol-to-specified-package symbol))))
 
     (:symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
          (fterm
-           (%intern-symbol-to-specified-package
-             (string-upcase symbol))
+           (%intern-symbol-to-specified-package symbol)
            termseq))))
 
   (termseq
@@ -397,21 +389,18 @@
     (:rules-symbol
      (lambda (symbol)
        (vterm
-         (%intern-symbol-to-specified-package
-           (string-upcase symbol))
+         (%intern-symbol-to-specified-package symbol)
          symbol)))
     (:rules-symbol :lparen :rparen
      (lambda (symbol lparen rparen)
        (declare (ignore lparen rparen))
        ;; constant
        (constant
-         (%intern-symbol-to-specified-package
-           (string-upcase symbol)))))
+         (%intern-symbol-to-specified-package symbol))))
     (:rules-symbol :lparen termseq :rparen
      (lambda (symbol lparen termseq rparen)
        (declare (ignore lparen rparen))
-       (fterm (%intern-symbol-to-specified-package
-                (string-upcase symbol)) termseq))))
+       (fterm (%intern-symbol-to-specified-package symbol) termseq))))
 
   (termseq
     (term
@@ -427,15 +416,14 @@
     (:var-symbol
      (lambda (symbol)
        (list (vterm 
-               (%intern-symbol-to-specified-package
-                 (string-upcase symbol))
+               (%intern-symbol-to-specified-package symbol)
                symbol))))
     (var-list :var-symbol
      (lambda (var-list symbol)
        (append 
          var-list
-         (list (vterm (%intern-symbol-to-specified-package
-                        (string-upcase symbol)) symbol))))))
+         (list (vterm (%intern-symbol-to-specified-package symbol)
+                      symbol))))))
 
   (comment-content
     (:simple-comment-content
