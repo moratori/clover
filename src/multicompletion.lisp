@@ -105,9 +105,9 @@
             ordering
             giveup-threshold)
         (clover-toplevel-condition (c) nil)
-        (error (c)
+        (condition (c)
           (format *standard-output*
-                  "~%unexpected errpr ~A occurred while completion" c)
+                  "~%unexpected condition ~A occurred while completion" c)
           nil)))
     (make-ordering equation-set)))
 
