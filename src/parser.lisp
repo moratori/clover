@@ -97,12 +97,12 @@
   ("%)"                    (pop-lexer state :rparen)))
 
 (define-lexer mkbtt-rules-lexer (state)
-  ("[%s%n]+"       :next-token)
-  ("%->"           (values :equality 'equality))
-  (","             (values :comma  'comma))
-  ("[a-zA-Z0-9_]+" (values :rules-symbol $$))
-  ("%("            (push-lexer state #'mkbtt-rules-lexer :lparen) )
-  ("%)"            (pop-lexer state :rparen)))
+  ("[%s%n]+"           :next-token)
+  ("%->"               (values :equality 'equality))
+  (","                 (values :comma  'comma))
+  ("[a-zA-Z0-9_%+%*]+" (values :rules-symbol $$))
+  ("%("                (push-lexer state #'mkbtt-rules-lexer :lparen) )
+  ("%)"                (pop-lexer state :rparen)))
 
 (define-lexer mkbtt-toplevel-lexer (state)
   ("[%s%n]+"      :next-token)
