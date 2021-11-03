@@ -110,7 +110,9 @@
   ("[%s%n]+"      :next-token)
   ("%(COMMENT"    (push-lexer state #'mkbtt-comment-lexer :start-comment))
   ("%(VAR"        (push-lexer state #'mkbtt-var-lexer     :start-var))
-  ("%(RULES"      (push-lexer state #'mkbtt-rules-lexer   :start-rules)))
+  ("%(RULES"      (push-lexer state #'mkbtt-rules-lexer   :start-rules))
+  ("%(FROM|%(from"(push-lexer state #'mkbtt-comment-lexer :start-from))
+  )
 
 
 
@@ -343,6 +345,7 @@
                   :rparen
                   :comma
                   :equality
+                  :start-from
                   :start-comment
                   :start-var
                   :start-rules
@@ -360,6 +363,11 @@
     (:start-comment comment-content :rparen
      (lambda (start-comment comment-content rparen)
        (declare (ignore start-comment rparen))
+       (mkbtt-comment-form
+         comment-content)))
+    (:start-from comment-content :rparen
+     (lambda (start-from comment-content rparen)
+       (declare (ignore start-from rparen))
        (mkbtt-comment-form
          comment-content)))
     (:start-var :rparen
