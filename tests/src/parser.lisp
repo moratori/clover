@@ -1092,6 +1092,36 @@ Avenhaus, Denzinger 93: Distributing equational theorem proving)
                                      (list (vterm 'CLOVER.PARSER::X)))
                               (fterm 'CLOVER.PARSER::FOO
                                      (list (constant 'CLOVER.PARSER::X))))))))
-          (equation-set= result expected)))
+          (equation-set= result expected))))
 
-)
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test5
+      (is
+        (let ((result
+                (parse-mkbtt-expression
+                  "
+                  (VAR X y)
+                  (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                   (RULES hoge(X) -> .(x, -(X))
+                          HOGE(x()) -> /(X,y)
+                          )
+                  (COMMENT example Z22 from Avenhaus, Denzinger (93): Distributing equational theorem proving)
+                   "))
+              (expected
+                (equation-set
+                  (list
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (constant 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::/
+                                     (list (vterm 'CLOVER.PARSER::X)
+                                           (vterm 'CLOVER.PARSER::Y))))
+                    (equation nil 
+                              (fterm 'CLOVER.PARSER::HOGE
+                                     (list (vterm 'CLOVER.PARSER::X)))
+                              (fterm 'CLOVER.PARSER::.
+                                     (list (constant 'CLOVER.PARSER::X)
+                                           (fterm 'CLOVER.PARSER::-
+                                                  (list (vterm 'CLOVER.PARSER::X))))))))))
+          (equation-set= result expected))))
