@@ -8,13 +8,12 @@
 |#
 
 (defsystem "clover"
-  :version "0.1.0"
+  :version "2.1.1"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
                :lparallel
                :yacc
-               :cl-lex
                :lexer ;https://github.com/massung/lexer.git
                :alexandria
                :cl-ppcre

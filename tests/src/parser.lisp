@@ -1204,3 +1204,44 @@ Avenhaus, Denzinger 93: Distributing equational theorem proving)
           (equation-set= result expected)))
 
           )
+
+
+(test clover.tests.parser.parse-mkbtt-expression.test6
+      (is (clause=
+               (parse-premise-logical-expression 
+                 (format nil "~A" (parse-premise-logical-expression "!+(/(-(x)),A) | @(A, B) | !*(x,y,.(ABC))")))
+               (clause 
+                 (list 
+                   (literal t
+                            'CLOVER.PARSER::+
+                            (list (fterm 'CLOVER.PARSER::/ (list (fterm 'CLOVER.PARSER::- (list (vterm 'CLOVER.PARSER::X)))))
+                                  (constant 'CLOVER.PARSER::A )))
+                   (literal nil
+                            'CLOVER.PARSER::@
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
+                   (literal t
+                            'CLOVER.PARSER::*
+                            (list (vterm 'CLOVER.PARSER::X)
+                                  (vterm 'CLOVER.PARSER::Y)
+                                  (fterm 'CLOVER.PARSER::. (list (constant 'CLOVER.PARSER::ABC )))))))))
+
+      (is (clause=
+               (parse-conseq-logical-expression "!@(g(f(x)),A) & \\(A, B) & !+(x,y,*(ABC))")
+               (clause 
+                 (list 
+                   (literal nil
+                            'CLOVER.PARSER::@
+                            (list (fterm 'CLOVER.PARSER::G (list (fterm 'CLOVER.PARSER::F (list (vterm 'CLOVER.PARSER::X)))))
+                                  (constant 'CLOVER.PARSER::A )))
+                   (literal t
+                            'CLOVER.PARSER::\\
+                            (list (constant 'CLOVER.PARSER::A )
+                                  (constant 'CLOVER.PARSER::B )))
+                   (literal nil
+                            'CLOVER.PARSER::+
+                            (list (vterm 'CLOVER.PARSER::X)
+                                  (vterm 'CLOVER.PARSER::Y)
+                                  (fterm 'CLOVER.PARSER::* (list (constant 'CLOVER.PARSER::ABC )))))))))
+      )
+

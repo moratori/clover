@@ -1,7 +1,6 @@
 (defpackage clover.parser
   (:use :cl
         :yacc
-        :cl-lex
         :clover.property
         :clover.conditions
         :clover.types
@@ -32,9 +31,9 @@
 
 (defun parse-premise-logical-expression (string)
   (handler-case
-      (parse-with-lexer 
-        (%premise-expression-lexer string)
-        %premise-expression-parser)
+      (with-lexer (lexer 'premise-expression-lexer string)
+        (with-token-reader (token-reader lexer)
+          (parse-with-lexer token-reader %premise-expression-parser)))
     (condition (con)
       (error (make-condition 'expr-parse-error 
                              :message 
@@ -42,9 +41,10 @@
 
 (defun parse-conseq-logical-expression (string)
   (handler-case 
-      (parse-with-lexer 
-        (%conseq-expression-lexer string)
-        %conseq-expression-parser)
+      (with-lexer (lexer 'conseq-expression-lexer string)
+        (with-token-reader (token-reader lexer)
+          (parse-with-lexer token-reader %conseq-expression-parser)))
+
     (condition (con)
       (error (make-condition 'expr-parse-error 
                              :message 
@@ -62,31 +62,31 @@
                              :message 
                              (format nil "~A error occurred while parsing string: ~A" con string))))))
 
+(define-lexer premise-expression-lexer (state)
+  ("[%s%n]+"      :next-token)
+  ("="         (values :equality 'equality))
+  ("%|"        (values :or     'or))
+  ("%!"         (values :not    'not))
+  (","         (values :comma  'comma))
+  ("%("        (values :lparen 'lparen))
+  ("%)"        (values :rparen 'rparen))
+  ("%["        (values :list-lparen 'list-lparen))
+  ("%]"        (values :list-rparen 'list-rparen))
+  ("[A-Z]+"    (values :constant $$))
+  ("[a-z0-9_%+%*%.%-/@\\]+" (values :symbol $$)))
 
-(define-string-lexer %premise-expression-lexer
-  ("="         (return (values :equality 'equality)))
-  ("\\|"       (return (values :or     'or)))
-  ("\\!"       (return (values :not    'not)))
-  (","         (return (values :comma  'comma)))
-  ("\\("       (return (values :lparen 'lparen)))
-  ("\\)"       (return (values :rparen 'rparen)))
-  ("\\["       (return (values :list-lparen 'list-lparen)))
-  ("\\]"       (return (values :list-rparen 'list-rparen)))
-  ("[A-Z]+"    (return (values :constant $@)))
-  ("[a-z0-9]+" (return (values :symbol $@))))
-
-(define-string-lexer %conseq-expression-lexer
-  ("="         (return (values :equality 'equality)))
-  ("\\&"       (return (values :and     'and)))
-  ("\\!"       (return (values :not    'not)))
-  (","         (return (values :comma  'comma)))
-  ("\\("       (return (values :lparen 'lparen)))
-  ("\\)"       (return (values :rparen 'rparen)))
-  ("\\["       (return (values :list-lparen 'list-lparen)))
-  ("\\]"       (return (values :list-rparen 'list-rparen)))
-  ("[A-Z]+"    (return (values :constant $@)))
-  ("[a-z0-9]+" (return (values :symbol $@))))
-
+(define-lexer conseq-expression-lexer (state)
+  ("[%s%n]+"      :next-token)
+  ("="         (values :equality 'equality))
+  ("&"         (values :and     'and))
+  ("%!"         (values :not    'not))
+  (","         (values :comma  'comma))
+  ("%("        (values :lparen 'lparen))
+  ("%)"        (values :rparen 'rparen))
+  ("%["        (values :list-lparen 'list-lparen))
+  ("%]"        (values :list-rparen 'list-rparen))
+  ("[A-Z]+"    (values :constant $$))
+  ("[a-z0-9_%+%*%.%-/@\\]+" (values :symbol $$)))
 
 (define-lexer mkbtt-comment-lexer (state)
   ("[^%(%)]+"     (values :simple-comment-content $$))
