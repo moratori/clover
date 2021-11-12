@@ -9,6 +9,7 @@
     :*vterm-for-human-readable*
     :*available-term-order-algorithms*
     :*term-order-algorithm*
+    :*take-limit-from-permutation-generator*
     )
   )
 (in-package :clover.property)
@@ -33,3 +34,5 @@
 
 (defparameter *available-term-order-algorithms*
   (list :lpo))
+
+(defparameter *take-limit-from-permutation-generator* 1024)

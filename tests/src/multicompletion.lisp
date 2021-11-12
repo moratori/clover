@@ -70,36 +70,70 @@
 
 (test clover.tests.multicompletion.permutation.test1
       (is
-        (equal
-          (clover.multicompletion::permutation nil)
-          nil))
-      (is
-        (equal
-          (clover.multicompletion::permutation (list 1))
-          (list (list 1))))
-      (is
-        (equal
-          (clover.multicompletion::permutation (list 1 2))
-          '((1 2) (2 1))))
-      (is
-        (equal
-          (clover.multicompletion::permutation (list 1 2 3))
-          '((1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))))
-      )
+        (let ((expected nil)
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation nil))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp)))))
 
-(test clover.tests.multicompletion.make-ordering.test1
-      (is (= 24 
-             (length
-               (clover.multicompletion::make-ordering
-                 (equation-set
-                   (list
-                     (equation
-                       nil
-                       (fterm 'f (list (fterm 'g (list (vterm 'x) (constant 'zero) (constant 'hoge)))
-                                       (fterm 'h (list (constant 'aaa) (vterm 'y) (fterm 'i (list (vterm 'z)))))))
-                       (fterm 'f (list (fterm 'g (list (constant 'bbb) (constant 'zero) (constant 'hoge)))
-                                       (fterm 'h (list (constant 'aaa) (vterm 'y) (fterm 'i (list (vterm 'z)))))))))))))))
+      (is
+        (let ((expected (list (list 1)))
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation
+                          (list 1)))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp)))))
 
+      (is
+        (let ((expected (list (list 1 2)
+                               (list 2 1)))
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation
+                          (list 1 2)))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp)))))
+
+      (is
+        (let ((expected (list (list 1 2 3)
+                               (list 1 3 2)
+                               (list 2 1 3)
+                               (list 2 3 1)
+                               (list 3 2 1)
+                               (list 3 1 2)))
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation
+                          (list 1 2 3)))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp)))))
+
+      (is
+        (let ((expected (list (list nil)))
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation
+                          (list nil)))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp)))))
+
+      (is
+        (let ((expected (list (list nil t)
+                               (list t nil)))
+              (result (clover.multicompletion::take
+                        300 
+                        (clover.multicompletion::permutation
+                          (list nil t)))))
+          (and
+            (null (set-difference result expected :test #'equalp))
+            (null (set-difference expected result :test #'equalp))))))
 
 
 (test clover.tests.multicompletion.multi-kb-completion.test1

@@ -5,10 +5,13 @@
         :clover.types
         :clover.completion
         )
+  (:import-from :generators
+                :make-generator
+                :yield
+                :next
+                :stop-iteration)
   (:export
-    :multi-kb-completion
-    )
-  )
+    :multi-kb-completion))
 (in-package :clover.multicompletion)
 
 
@@ -21,25 +24,6 @@
       (setf lparallel:*kernel* 
             (lparallel:make-kernel
               (if (>= 1 cpu-number) 1 (1- cpu-number)))))))
-
-
-(defun permutation (candidate)
-  (cond
-    ((null candidate) nil)
-    ((= (length candidate) 1) (list candidate))
-    ((< 1 (length candidate))
-     (loop
-       :for elm :in candidate
-       :for idx :from 0
-       :for left := (subseq candidate 0 idx)
-       :for right := (subseq candidate (1+ idx))
-       :for other := (append left right)
-       :append
-       (mapcar
-         (lambda (x)
-           (cons elm x))
-         (permutation other))))))
-
 
 (defmethod collect-constant-symbol ((term term))
   nil)
@@ -68,7 +52,7 @@
     :test #'eq))
 
 
-(defmethod make-ordering ((equation-set equation-set))
+(defmethod collect-symbol ((equation-set equation-set))
   (let* ((eqs
            (equation-set.equations equation-set))
          (all-terms
@@ -89,26 +73,78 @@
              :test #'eq))
          (function-symbols-permutation
            (permutation function-symbols)))
-    (mapcar
-      (lambda (perm)
-        (function-symbol-ordering
-          (append constant-symbols perm)))
-      function-symbols-permutation)))
+     (values constant-symbols function-symbols)))
+
+
+(defun permutation (elements)
+  (make-generator ()
+    (if (<= (length elements) 1)
+        (yield elements)
+        (handler-case
+            (loop
+              :with gen := (permutation (subseq elements 1))
+              :for perm := (next gen)
+              :do
+              (loop
+                :for i :from 0 :below (length elements)
+                :do
+                (yield 
+                  (append 
+                    (subseq perm 0 i)
+                    (subseq elements 0 1)
+                    (subseq perm i)))))
+          (stop-iteration (c) 
+            (declare (ignore c)) nil)))))
+
+(defun take (n gen)
+  (let (result)
+    (handler-case 
+        (dotimes (i n)
+          (let ((value (next gen)))
+            (when value
+              (push value result))))
+      (stop-iteration (c)
+        (declare (ignore c))))
+    result))
+
+
 
 (defmethod multi-kb-completion ((equation-set equation-set) giveup-threshold)
   (initialize-lparallel-kernel)
-  (lparallel.cognate:psome
-    (lambda (ordering)
-      (handler-case
-          (kb-completion
-            equation-set
-            ordering
-            giveup-threshold)
-        (clover-toplevel-condition (c) nil)
-        (condition (c)
-          (format *standard-output*
-                  "~%unexpected condition ~A occurred while completion" c)
-          nil)))
-    (make-ordering equation-set)))
-
+  (multiple-value-bind (constant-symbols function-symbols)
+      (collect-symbol equation-set)
+    (if (null function-symbols)
+        (kb-completion
+          equation-set
+          (function-symbol-ordering constant-symbols)
+          giveup-threshold)
+        (let ((fun-sym-order-generator
+                (permutation function-symbols)))
+          (loop
+            :named exit
+            :for function-order := (take *take-limit-from-permutation-generator*
+                                         fun-sym-order-generator)
+            :while (not (null function-order))
+            :for actual-order := (mapcar 
+                                   (lambda (order)
+                                     (function-symbol-ordering
+                                       (append constant-symbols order)))
+                                   function-order)
+            :do
+            (let ((result
+                    (lparallel.cognate:psome
+                      (lambda (order)
+                        (handler-case
+                            (kb-completion
+                              equation-set
+                              order
+                              giveup-threshold)
+                          (clover-toplevel-condition (c) nil)
+                          (condition (c)
+                            (format *standard-output*
+                                    "~%unexpected condition ~A occurred while completion" c)
+                            nil)))
+                      actual-order)))
+              (when result
+                (return-from exit result))))))))
 
