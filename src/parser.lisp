@@ -1,12 +1,15 @@
 (defpackage clover.parser
   (:use :cl
-        :yacc
         :clover.property
         :clover.conditions
         :clover.types
         :clover.util
         :clover.converter
         )
+  (:import-from :yacc
+                :define-parser
+                :parse-with-lexer
+                )
   (:import-from :lexer
                 :define-lexer
                 :with-lexer
