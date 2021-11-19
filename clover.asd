@@ -8,7 +8,7 @@
 |#
 
 (defsystem "clover"
-  :version "2.1.1"
+  :version "2.2.1"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
