@@ -293,6 +293,8 @@
                   result-rewrite-rule-set rrls)))
         (unable-to-orient-equation (c) (setf failed t)))
 
-    (when (and (null (equation-set.equations result-equation-set))
+    (if (and (null (equation-set.equations result-equation-set))
                (not failed))
-      result-rewrite-rule-set)))
+        (values t ordering result-rewrite-rule-set)
+        (values nil ordering nil))))
+

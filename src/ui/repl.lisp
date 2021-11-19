@@ -86,20 +86,19 @@
 (defmethod prompt-and-do-completion ((equation-set equation-set) (name string))
   (%stdout "Detected that a set of equations has been inputted.")
   (when (yes-or-no-p "Do you want to execute completion algorithm? ")
-    (let ((completed
-            (multi-kb-completion
-              equation-set
-              15)))
-      (cond
-        (completed
-         (%stdout "~%The completion process was successful: ~%")
-         (loop
-           :for rule :in (rewrite-rule-set.rewrite-rules
-                           (rename-for-human-readable-printing completed))
-           :do (%stdout "~A~%" rule))
-         (update-axiomatic-system name completed))
-        (t 
-         (%stdout "The completion process failed~%"))))))
+    (multiple-value-bind (flag ordering completed)
+          (multi-kb-completion equation-set 15)
+        (cond
+          (flag
+           (%stdout "~%The completion process was successful: ~%")
+           (%stdout "function ordering : ~A~%~%" ordering)
+           (loop
+             :for rule :in (rewrite-rule-set.rewrite-rules
+                             (rename-for-human-readable-printing completed))
+             :do (%stdout "~A~%" rule))
+           (update-axiomatic-system name completed))
+          (t 
+           (%stdout "The completion process failed~%"))))))
 
 
 

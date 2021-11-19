@@ -308,7 +308,9 @@
                  (list 'g 'h)))
             (result
               (rename-for-human-readable-printing
-                (kb-completion target ordering 10)))
+                (multiple-value-bind (_1 _2 completed)
+                    (kb-completion target ordering 10)
+                  completed)))
             (expected
               (rewrite-rule-set
                 (list 
@@ -358,7 +360,9 @@
                     (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
                     (vterm 'x)))))
              (tmp 
-               (kb-completion target ordering 10))
+               (multiple-value-bind (_1 _2 completed)
+                   (kb-completion target ordering 10)
+                 completed))
              (result
                (when tmp
                  (rename-for-human-readable-printing tmp)))
@@ -414,7 +418,9 @@
                                        (vterm 'z)))))))
             (result
               (rename-for-human-readable-printing
-                (kb-completion target ordering 100)))
+                (multiple-value-bind (_1 _2 completed)
+                    (kb-completion target ordering 100)
+                  completed)))
             (expected
               (rewrite-rule-set
                 (list 

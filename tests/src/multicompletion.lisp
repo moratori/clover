@@ -147,7 +147,10 @@
                     (fterm 'g (list (vterm 'x)))))))
             (result
               (rename-for-human-readable-printing
-                (multi-kb-completion target 10)))
+                (multiple-value-bind (_1 _2 completed)
+                    (multi-kb-completion target 10)
+                  completed
+                  )))
             (expected1 ;; g < hの場合
               (rewrite-rule-set
                 (list 
@@ -201,7 +204,9 @@
                     (fterm 'reverse (list (fterm 'reverse (list (vterm 'x)))))
                     (vterm 'x)))))
              (tmp 
-               (multi-kb-completion target 10))
+               (multiple-value-bind (_1 _2 completed)
+                   (multi-kb-completion target 10)
+                 completed))
              (result
                (when tmp
                  (rename-for-human-readable-printing tmp)))
@@ -250,7 +255,10 @@
                                        (vterm 'z)))))))
             (result
               (rename-for-human-readable-printing
-                (multi-kb-completion target 100)))
+                (multiple-value-bind (_1 _2 completed)
+                    (multi-kb-completion target 100)
+                  completed
+                  )))
             (expected
               (rewrite-rule-set
                 (list 

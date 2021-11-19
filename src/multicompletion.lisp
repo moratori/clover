@@ -119,7 +119,8 @@
           (function-symbol-ordering constant-symbols)
           giveup-threshold)
         (let ((fun-sym-order-generator
-                (permutation function-symbols)))
+                (permutation function-symbols))
+              result)
           (loop
             :named exit
             :for function-order := (take *take-limit-from-permutation-generator*
@@ -131,20 +132,24 @@
                                        (append constant-symbols order)))
                                    function-order)
             :do
-            (let ((result
+            (let ((local-result
                     (lparallel.cognate:psome
                       (lambda (order)
                         (handler-case
-                            (kb-completion
-                              equation-set
-                              order
-                              giveup-threshold)
+                            (multiple-value-bind (flag ordering rrs)
+                                (kb-completion equation-set order giveup-threshold)
+                              (when flag
+                                (list flag ordering rrs)))
                           (clover-toplevel-condition (c) nil)
                           (condition (c)
                             (format *standard-output*
                                     "~%unexpected condition ~A occurred while completion" c)
                             nil)))
                       actual-order)))
-              (when result
-                (return-from exit result))))))))
+              (when local-result
+                (setf result local-result)
+                (return-from exit))))
+          (if result
+              (values-list result)
+              (values nil nil nil))))))
 

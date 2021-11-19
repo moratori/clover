@@ -42,13 +42,14 @@
 (defmethod %perform-command ((command (eql :COMPLETE)) args)
   (let* ((fname (first args))
          (content (alexandria:read-file-into-string fname))
-         (eqs (parse-mkbtt-expression content))
-         (completed (multi-kb-completion eqs 15)))
-    (when completed
-      (loop
-        :for rule :in (rewrite-rule-set.rewrite-rules
-                        (rename-for-human-readable-printing completed))
-        :do (%stdout "~A~%" rule)))))
+         (eqs (parse-mkbtt-expression content)))
+    (multiple-value-bind (flag ordering result)
+        (multi-kb-completion eqs 15)
+      (when flag
+        (loop
+          :for rule :in (rewrite-rule-set.rewrite-rules
+                          (rename-for-human-readable-printing result))
+          :do (%stdout "~A~%" rule))))))
 
 
 (defun main (args)
