@@ -27,6 +27,7 @@
                     ((:file "iddfs")
                      (:file "extractor")
                      (:file "dfs")))
+                   (:file "converter")
                    (:file "clover")
                    (:file "types")
                    (:file "unify")

@@ -29,6 +29,11 @@
            dst
            vterm)))))
 
+(defmethod apply-unifier ((constant constant) (unifier unifier))
+  (if (term= constant (unifier.src unifier))
+      (unifier.dst unifier)
+      constant))
+
 (defmethod apply-unifier ((fterm fterm) (unifier unifier))
   (fterm
     (fterm.fsymbol fterm)
