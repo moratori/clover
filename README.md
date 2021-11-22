@@ -5,12 +5,22 @@
 ## 概要
 
 一階述語論理式の証明を行うCommon Lisp実装のツールです。以下のアルゴリズムを実装しています。
-* 導出原理(Resolution Principle)
 * Knuth-Bendixの完備化アルゴリズム
+* 導出原理(Resolution Principle)
 
-なお、導出原理を用いて式の証明ができた場合は、導出反駁木としてGraphvizのコードを出力することが可能です。
+## インストール
 
-![sample proof figure](sample-refutation-tree.png)
+### バイナリ
+
+LinuxとWindows向けにビルドしたバイナリをダウンロード可能です。
+
+[Releases](https://github.com/moratori/clover/releases)
+
+### ソースから
+
+適当なCommon Lisp実行系とquicklispの環境をセットアップしている場合は、  
+このリポジトリをquicklispのlocal-projects配下にcloneして利用することも可能です。
+
 
 ## REPLの使い方
 
@@ -20,7 +30,7 @@
 ### 導出原理による証明例
 
 ```
-$ ./roswell/clover.ros
+$ ./clover-linux-x86_64_ver2.2.1
 Command help
     :help                    show this help
     :quit                    quit from REPL
@@ -66,7 +76,7 @@ PROVABLE under the human
  !love(y,x) | !love(x,y) | happy(y)
 ```
 
-### 完備化された項書き換え系の元での等式証明例
+### 等式証明例
 
 入力された式が等式である場合は、完備化を試みます。
 完備化が成功した場合は、項書き換え系の元で等式を証明することができます。
@@ -99,56 +109,26 @@ irreducible form under the group:
 plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
 ```
 
-## インストール
+## コマンドラインからのバッチ実行
 
-### バイナリ
-
-LinuxとWindows向けにビルドしたバイナリをダウンロード可能です。
-
-[Releases](https://github.com/moratori/clover/releases)
-
-### Quicklispから
-
-Common Lispの実行環境がある場合は、quicklispにてソースをロードして実行することも可能です。
-なお、quicklispのパブリックなリポジトリには存在しないため、手動でlocal-projects配下にcloneしてロードする必要があります。
+完備化処理については、コマンドラインからバッチ的に実行することができます。
 
 ```
-$ cd /path/to/quicklisp/local-projects/
-$ git clone https://github.com/moratori/clover.git
-
-> #+sbcl(ql:quickload :sb-cover)
-To load "sb-cover":
-  Load 1 ASDF system:
-    sb-cover
-; Loading "sb-cover"
-
-(:SB-COVER)
-
-> (ql:quickload :clover)
-To load "clover":
-  Load 1 ASDF system:
-    clover
-; Loading "clover"
-...
-(:CLOVER)
-
-> (clover.repl:main)
-Command help
-    :help                    show this help
-    :quit                    quit from REPL
-    :def-axiom    <name>     define an axiomatic system <name>
-    :show-axiom              enumerate all axiomatic system that are currently defined
-    :set-axiom    <name>     set current axiomatic system to <name>
-    :save-axiom   <path>     save curent axiomatic system to <path>
-    :load-axiom   <path>     restore axiomatic systems from <path>
-    :set-history             keep resolution history. this option automatically
-                             enabled if save-tree option on.
-    :unset-history           disable history
-    :set-profiler            enable statistical profiler
-    :unset-profiler          disable statistical profiler
-    :save-tree    <path>     save Graphviz code to <path>
-    :unsave-tree
-(NIL)>>> 
+$ cat input_file.txt
+(VAR x y z)
+(RULES
+c -> a
+g(x) -> x
+f(x, b) -> x
+f(x, g(y)) -> f(g(x), y)
+f(b, z) -> c
+)
+$ ./clover-linux-x86_64_ver2.2.1 complete input_file.txt
+f(x,A)=>x
+f(A,x)=>A
+B=>A
+g(x)=>x
+C=>A
 ```
 
 ## 式の入力形式
@@ -196,6 +176,11 @@ Command help
 
 ```
 
+### コマンドラインからのバッチ実行時のファイル形式
+
+```
+todo
+```
 
 ## Author
 
@@ -204,4 +189,3 @@ Command help
 ## Copyright
 
 Copyright (c) 2018 moratori
-
