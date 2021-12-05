@@ -394,5 +394,5 @@
                          (mkbtt-rules-form.value object))))
              (:conc-name mkbtt-rules-form.)
              (:constructor mkbtt-rules-form (value)))
-  (value "" :type equation-set :read-only t))
+  (value nil :type (or nil equation-set) :read-only t))
 
