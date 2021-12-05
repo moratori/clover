@@ -46,10 +46,26 @@
     (multiple-value-bind (flag ordering result)
         (multi-kb-completion eqs 15)
       (when flag
-        (loop
-          :for rule :in (rewrite-rule-set.rewrite-rules
-                          (rename-for-human-readable-printing result))
-          :do (%stdout "~A~%" rule))))))
+        (let* ((rules 
+                 (rewrite-rule-set.rewrite-rules
+                   (rename-for-human-readable-printing result)))
+               (variables                 
+                 (remove-duplicates
+                   (mapcan
+                     (lambda (x)
+                       (append
+                         (collect-variables
+                           (rewrite-rule.src x))
+                         (collect-variables
+                           (rewrite-rule.dst x))))
+                     rules)
+                   :test #'term=)))
+          (%stdout "YES~%")
+          (%stdout "(VAR ~{~A~^ ~})~%" variables)
+          (%stdout "(RULES~%~{ ~A~%~})~%" rules)
+          (%stdout "(COMMENT~% ~A~%)~%" ordering)))
+      (unless flag
+        (%stdout "MAYBE")))))
 
 
 (defun main (args)

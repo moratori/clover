@@ -332,7 +332,7 @@
 (defstruct (rewrite-rule
              (:print-object
                (lambda (object stream)
-                 (format stream "~A=>~A"
+                 (format stream "~A -> ~A"
                          (rewrite-rule.src object)
                          (rewrite-rule.dst object))))
              (:constructor rewrite-rule (src dst))
