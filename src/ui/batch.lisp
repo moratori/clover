@@ -60,7 +60,7 @@
                            (rewrite-rule.dst x))))
                      rules)
                    :test #'term=)))
-          (%stdout "YES~%")
+          (%stdout "YES~%~%")
           (%stdout "(VAR ~{~A~^ ~})~%" variables)
           (%stdout "(RULES~%~{ ~A~%~})~%" rules)
           (%stdout "(COMMENT~% ~A~%)~%" ordering)))
@@ -71,12 +71,16 @@
 (defun main (args)
   (let ((subcommand (first args))
         (subcommand-args (cdr args)))
-    (if (or (not (scan "[a-zA-Z]+" subcommand))
-            (> (length subcommand) 9))
-        (progn
-          (%stdout "malformed command: ~A~%" subcommand)
-          (help))
-        (handler-case
+    (cond
+      ((probe-file subcommand)
+       ; execute default command for a file
+       (%perform-command :COMPLETE (list subcommand)))
+      ((or (not (scan "[a-zA-Z]+" subcommand))
+           (> (length subcommand) 9))
+       (%stdout "malformed command: ~A~%" subcommand)
+       (help))
+      (t
+       (handler-case
             (let* ((command-name
                      (intern (string-upcase subcommand)
                              (find-package "KEYWORD")))
@@ -88,5 +92,5 @@
                   (%perform-command command-name subcommand-args)
                   (%stdout "unimplemented command: ~A~%" subcommand)))
           (condition (con)
-            (%stdout "unhandled condition occurred: ~A~%quit~%" con))))))
+            (%stdout "unhandled condition occurred: ~A~%quit~%" con)))))))
 
