@@ -75,6 +75,8 @@
   ("%)"        (values :rparen 'rparen))
   ("%["        (values :list-lparen 'list-lparen))
   ("%]"        (values :list-rparen 'list-rparen))
+  ;; 大文字アルファベットは定数として扱う。mkbttとの差異となる。 
+  ;; mkbttでは、何が変数であるかを明示できる為、大文字の変数も可能となる。
   ("[A-Z]+"    (values :constant $$))
   ("[a-z0-9_%+%*%.%-/@\\]+" (values :symbol $$)))
 
@@ -88,6 +90,8 @@
   ("%)"        (values :rparen 'rparen))
   ("%["        (values :list-lparen 'list-lparen))
   ("%]"        (values :list-rparen 'list-rparen))
+  ;; 大文字アルファベットは定数として扱う。mkbttとの差異となる。 
+  ;; mkbttでは、何が変数であるかを明示できる為、大文字の変数も可能となる。
   ("[A-Z]+"    (values :constant $$))
   ("[a-z0-9_%+%*%.%-/@\\]+" (values :symbol $$)))
 
