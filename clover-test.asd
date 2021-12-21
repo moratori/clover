@@ -27,6 +27,9 @@
                     ((:file "iddfs")
                      (:file "extractor")
                      (:file "dfs")))
+                   (:module "ui"
+                    :components 
+                    ((:file "batch")))
                    (:file "converter")
                    (:file "clover")
                    (:file "types")
