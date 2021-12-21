@@ -10,6 +10,7 @@
     :*available-term-order-algorithms*
     :*term-order-algorithm*
     :*take-limit-from-permutation-generator*
+    :*completion-giveup-threshold*
     )
   )
 (in-package :clover.property)
@@ -23,6 +24,8 @@
 
 (defparameter *resolution-search-depth* 40
   "depth for search algorithms")
+
+(defparameter *completion-giveup-threshold* 20)
 
 (defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
   "where to intern symbol ")
