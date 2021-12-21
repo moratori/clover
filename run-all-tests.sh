@@ -16,7 +16,7 @@ fi
 #### 各種変数定義
 lisp_implementation="`$roswell -e '(princ (string-downcase (lisp-implementation-type)))'`"
 lisp_implementation_version="`$roswell -e '(princ (lisp-implementation-version))'`"
-test_duration_time=70
+test_duration_time=180
 
 ##   プロジェクトルートを取得する(sbclの場合はsb-coverを読ませたいので呼び分ける)
 case "${lisp_implementation}" in 
