@@ -25,7 +25,7 @@
 (defparameter *resolution-search-depth* 40
   "depth for search algorithms")
 
-(defparameter *completion-giveup-threshold* 100)
+(defparameter *completion-giveup-threshold* 25)
 
 (defparameter *parsed-symbol-intern-package* "CLOVER.PARSER"
   "where to intern symbol ")
