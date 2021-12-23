@@ -492,3 +492,10 @@ cons(x, cons(W, cons(B, y))) -> cons(x, cons(S, y))
                     (fterm 'plus (list (fterm 'inv (list (vterm 'CLOVER.PARSER::x))) (fterm 'inv (list (vterm 'CLOVER.PARSER::y))))))))))
         (is (and result (rewrite-rule-set= result expected)))))
 
+
+(test clover.tests.multicompletion.get-number-of-processors.test1
+      (is (<= 1 (clover.multicompletion::get-number-of-processors)))
+      (is (<= 1 (clover.multicompletion::get-number-of-processors)))
+      )
+
+
