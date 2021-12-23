@@ -29,6 +29,8 @@
 
 
 (defun initialize-lparallel-kernel ()
+  (when lparallel:*kernel*
+    (lparallel:end-kernel :wait nil))
   (unless lparallel:*kernel*
     (let ((cpu-number
             (get-number-of-processors)))
