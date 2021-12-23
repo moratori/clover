@@ -11,6 +11,7 @@
                 :next
                 :stop-iteration)
   (:export
+    :toplevel-completion
     :multi-kb-completion
     :iterative-multi-kb-completion
     ))
@@ -183,3 +184,24 @@
         (values-list result)
         (values nil nil nil))))
 
+(defun fact (n &optional (result 1))
+  (if (zerop n)
+      result
+      (fact (1- n) (* n result))))
+
+(defmethod toplevel-completion ((equation-set equation-set))
+  (multiple-value-bind (constant-symbols function-symbols)
+      (collect-symbol equation-set)
+    (cond
+      ((null function-symbols)
+       (kb-completion
+         equation-set
+         (function-symbol-ordering constant-symbols)
+         giveup-threshold))
+      ((<= (fact (length function-symbols))
+           (1- (get-number-of-processors)))
+       (multi-kb-completion
+         equation-set
+         *completion-giveup-threshold*))
+      (t
+       (iterative-multi-kb-completion equation-set)))))
