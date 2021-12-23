@@ -12,7 +12,6 @@
                 :stop-iteration)
   (:export
     :toplevel-completion
-    :multi-kb-completion
     :iterative-multi-kb-completion
     ))
 (in-package :clover.multicompletion)

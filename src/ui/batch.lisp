@@ -15,6 +15,7 @@
   (:import-from :clover.rewrite
                 :rewrite-final)
   (:import-from :clover.multicompletion
+                :toplevel-completion
                 :multi-kb-completion)
   (:import-from :clover.rename
                 :rename-for-human-readable-printing)
@@ -108,7 +109,7 @@
          (content (alexandria:read-file-into-string fname))
          (eqs (parse-mkbtt-expression content)))
     (multiple-value-bind (flag ordering result)
-        (multi-kb-completion eqs *completion-giveup-threshold*)
+        (toplevel-completion eqs)
       (show-batch-completion-result flag ordering result)
       result)))
 

@@ -148,7 +148,7 @@
             (result
               (rename-for-human-readable-printing
                 (multiple-value-bind (_1 _2 completed)
-                    (multi-kb-completion target 10)
+                    (clover.multicompletion::multi-kb-completion target 10)
                   completed
                   )))
             (expected1 ;; g < hの場合
@@ -205,7 +205,7 @@
                     (vterm 'x)))))
              (tmp 
                (multiple-value-bind (_1 _2 completed)
-                   (multi-kb-completion target 10)
+                   (clover.multicompletion::multi-kb-completion target 10)
                  completed))
              (result
                (when tmp
@@ -256,7 +256,7 @@
             (result
               (rename-for-human-readable-printing
                 (multiple-value-bind (_1 _2 completed)
-                    (multi-kb-completion target 100)
+                    (clover.multicompletion::multi-kb-completion target 100)
                   completed
                   )))
             (expected
@@ -305,7 +305,7 @@
 (test clover.tests.multicompletion.multi-kb-completion.test4
       ;; コマンドラインから実行したときに発生した例外が表示されるか確認する
       (is
-        (multi-kb-completion
+        (clover.multicompletion::multi-kb-completion
           (parse-mkbtt-expression
 "(VAR x y)
 (RULES

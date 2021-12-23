@@ -12,7 +12,7 @@
         :ppcre
         )
   (:import-from :clover.multicompletion
-                :multi-kb-completion)
+                :toplevel-completion)
   (:import-from :clover.rename
                 :rename-for-human-readable-printing)
   (:export 
@@ -87,7 +87,7 @@
   (%stdout "Detected that a set of equations has been inputted.")
   (when (yes-or-no-p "Do you want to execute completion algorithm? ")
     (multiple-value-bind (flag ordering completed)
-          (multi-kb-completion equation-set *completion-giveup-threshold*)
+          (toplevel-completion equation-set)
         (cond
           (flag
            (%stdout "~%The completion process was successful: ~%")
