@@ -16,7 +16,7 @@ fi
 #### 各種変数定義
 lisp_implementation="`$roswell -e '(princ (string-downcase (lisp-implementation-type)))'`"
 lisp_implementation_version="`$roswell -e '(princ (lisp-implementation-version))'`"
-test_duration_time=180
+test_duration_time=60
 
 ##   プロジェクトルートを取得する(sbclの場合はsb-coverを読ませたいので呼び分ける)
 case "${lisp_implementation}" in 
@@ -47,13 +47,13 @@ fi
 #### 処理系ごとにテスト実行(sbclの場合はcoverageを出力したいため呼び分ける)
 test_result=0
 case "${lisp_implementation}" in 
-        "sbcl" ) $timeout -k 10 $test_duration_time \
+        "sbcl" ) $timeout -k 3 $test_duration_time \
                    $roswell -s sb-cover \
                             -s clover-test  \
                             -e '(1am:run)' \
                             -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))'
                  test_result=$?;;
-        *      ) $timeout -k 10 $test_duration_time \
+        *      ) $timeout -k 3 $test_duration_time \
                    $roswell -s clover-test \
                             -e '(1am:run)'
                  test_result=$?
