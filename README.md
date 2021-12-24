@@ -16,13 +16,40 @@ LinuxとWindows向けにビルドしたバイナリをダウンロード可能�
 
 [Releases](https://github.com/moratori/clover/releases)
 
-### ソースから
+## コマンドラインからのバッチ実行
 
-適当なCommon Lisp実行系とquicklispの環境をセットアップしている場合は、  
-このリポジトリをquicklispのlocal-projects配下にcloneして利用することも可能です。
+完備化処理については、コマンドラインからバッチ的に実行することができます。
 
+```
+$ cat input_file.txt
+(VAR x y z)
+(RULES
+c -> a
+g(x) -> x
+f(x, b) -> x
+f(x, g(y)) -> f(g(x), y)
+f(b, z) -> c
+)
+$ ./clover-linux-x86_64_ver2.4.0 input_file.txt
+YES
 
-## REPLの使い方
+(VAR x)
+(RULES
+ f(x,A) -> x
+ f(A,x) -> A
+ B -> A
+ g(x) -> x
+ C -> A
+)
+(COMMENT
+ A < B < C < F < G
+)
+$
+```
+
+## REPLの実行
+
+導出原理と完備化による証明を実行することができます。
 
 `:def-axiom`コマンドを用いて、証明したい式の前提となる式を定義します。
 その後、証明したい式を入力することで証明を試行します。
@@ -107,28 +134,6 @@ The equation can be PROVED under the axiom group
 
 irreducible form under the group:
 plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
-```
-
-## コマンドラインからのバッチ実行
-
-完備化処理については、コマンドラインからバッチ的に実行することができます。
-
-```
-$ cat input_file.txt
-(VAR x y z)
-(RULES
-c -> a
-g(x) -> x
-f(x, b) -> x
-f(x, g(y)) -> f(g(x), y)
-f(b, z) -> c
-)
-$ ./clover-linux-x86_64_ver2.2.1 complete input_file.txt
-f(x,A)=>x
-f(A,x)=>A
-B=>A
-g(x)=>x
-C=>A
 ```
 
 ## 式の入力形式
