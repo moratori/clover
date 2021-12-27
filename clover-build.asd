@@ -23,6 +23,7 @@
   :components ((:module "src"
                 :around-compile 
                  (lambda (thunk)
+                   #+sbcl(declaim (sb-ext:muffle-conditions cl:warning))
                    (declaim (optimize
                               (debug 0)
                               (safety 0)

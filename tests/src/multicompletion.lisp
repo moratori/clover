@@ -327,3 +327,39 @@ cons(x, cons(W, cons(B, y))) -> cons(x, cons(S, y))
       )
 
 
+(test clover.tests.multicompletion.toplevel-completion.test1
+
+      (let* ((target 
+              (equation-set
+                (list
+                  (equation 
+                    nil
+                    (fterm 'h (list (fterm 'h (list (vterm 'x)))))
+                    (fterm 'g (list (vterm 'x)))))))
+            (result
+              (rename-for-human-readable-printing
+                (multiple-value-bind (_1 _2 completed)
+                    (clover.multicompletion:toplevel-completion target 10)
+                  completed
+                  )))
+            (expected1 ;; g < hの場合
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'h (list (vterm 'CLOVER.PARSER::X)))))
+                    (fterm 'g (list (vterm 'CLOVER.PARSER::X))))
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'g (list (vterm 'CLOVER.PARSER::X)))))
+                    (fterm 'g (list (fterm 'h (list (vterm 'CLOVER.PARSER::X)))))
+                    )
+                  )))
+            (expected2 ;; h < gの場合
+              (rewrite-rule-set
+                (list 
+                  (rewrite-rule
+                    (fterm 'g (list (vterm 'CLOVER.PARSER::x)))
+                    (fterm 'h (list (fterm 'h (list (vterm 'CLOVER.PARSER::x))))))))))
+        (is 
+          (or
+            (rewrite-rule-set= result expected1)
+            (rewrite-rule-set= result expected2)))))

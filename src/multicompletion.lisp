@@ -12,6 +12,7 @@
                 :stop-iteration)
   (:export
     :multi-kb-completion
+    :toplevel-completion
     ))
 (in-package :clover.multicompletion)
 
@@ -154,7 +155,7 @@
                           (clover-toplevel-condition (c) nil)
                           (condition (c)
                             (format *standard-output*
-                                    "~%unexpected condition ~A occurred while completion" c)
+                                    "~%unexpected condition ~A occurred while single completion thread" c)
                             nil)))
                       actual-order)))
               (when local-result
@@ -163,4 +164,13 @@
           (if result
               (values-list result)
               (values nil nil nil))))))
+
+(defmethod toplevel-completion ((equation-set equation-set) giveup-threshold)
+  (let ((*error-output* (make-two-way-stream
+                          (make-concatenated-stream)
+                          (make-broadcast-stream))))
+    (handler-case
+        (multi-kb-completion equation-set giveup-threshold)
+      (condition (c)
+        (values nil nil nil)))))
 
