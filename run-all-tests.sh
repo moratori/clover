@@ -49,9 +49,13 @@ test_result=0
 case "${lisp_implementation}" in 
         "sbcl" ) $timeout -k 3 $test_duration_time \
                    $roswell -s sb-cover \
-                            -s clover-test  \
+                            -s clover-test \
+                            -e '(sb-sprof:start-profiling :mode :cpu)' \
                             -e '(1am:run)' \
-                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))'
+                            -e '(sb-sprof:stop-profiling) ' \
+                            -e '(sleep 2)' \
+                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))' \
+                            -e '(sb-sprof:report :type :flat :min-percent 3 :sort-order :descending)'
                  test_result=$?;;
         *      ) $timeout -k 3 $test_duration_time \
                    $roswell -s clover-test \
