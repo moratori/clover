@@ -1,0 +1,52 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  releaseapp:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lisp: [sbcl-bin]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Roswell
+        env:
+          LISP: ${{ matrix.lisp }}
+        run: |
+          curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
+      - name: Install libraries that cannot be installed with quicklisp
+        run: |
+          ros install massung/lexer
+      - name: Create Build
+        run: |
+          ros dump --delete-debug-info --remove-docstrings --disable-compression executable ./roswell/clover-build.ros
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Create asset name
+        id: assetname
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+          ASSETNAME=clover-linux-x86_64_${VERSION}
+          echo ::set-output name=assetname::$ASSETNAME
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./roswell/clover-build
+          asset_name: ${{ steps.assetname.outputs.assetname }}
+          asset_content_type: application/x-elf
+
