@@ -8,7 +8,7 @@
 |#
 
 (defsystem "clover"
-  :version "2.4.1"
+  :version "2.4.3"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
@@ -60,6 +60,9 @@
                  (:file "multicompletion")
                  (:file "clover")
                  (:file "rendertree")
+                 (:module "experimental"
+                  :components 
+                  ((:file "normalize")))
                  (:module "ui"
                   :components 
                   ((:file "util")
