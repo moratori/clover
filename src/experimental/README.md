@@ -11,10 +11,10 @@
 ### 以前の完備化結果を用いた完備化処理 
 
 * 以下を前提とする。
-***** 等式の集合`E`が、項書き換え規則の集合`R`に完備化できるとする。
-** 等式の集合`S`を、`E ∪ {equation-1, equation-2, ... equation-n}`とする。
+    * 等式の集合`E`が、項書き換え規則の集合`R`に完備化できるとする。
+    * 等式の集合`S`を、`E ∪ {equation-1, equation-2, ... equation-n}`とする。
 
 * 前提の元で以下が成り立つと考える。
-** `completion(S, {}) = completion({R↓equation-1, R↓equation-2, ..., R↓equation3}, R)`
+    * `completion(S, {}) = completion({R↓equation-1, R↓equation-2, ..., R↓equation3}, R)`
 
 * Rを流用できれば、以前の計算(Rを求める為に実施した計算)コストを削減することができる？
