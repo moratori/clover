@@ -3,6 +3,7 @@
         :clover.property
         :clover.search.common
         :clover.search.iddfs
+        :clover.search.astar
         :clover.search.extractor
         :clover.types
         :clover.resolution
@@ -36,6 +37,14 @@
 
 (defmethod node-same-class ((node1 clause-set) (node2 clause-set))
   (alphabet= node1 node2))
+
+(defmethod cost-to-goal ((node clause-set))
+  (loop
+    :for clause :in (clause-set.clauses node)
+    :minimize (length (clause.literals clause))))
+
+(defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
+  1)
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))
@@ -82,4 +91,27 @@
         (when cnt
           (return-from exit (values cnt value))))
       )))
+
+(defmethod astar-resolution ((clause-set clause-set))
+  (let ((clauses (clause-set.clauses clause-set)))
+    (loop
+      :named exit
+      :for raw :in (append (remove-if-not #'conseq-clause-p clauses)
+                           (remove-if #'conseq-clause-p clauses))
+      :for centerlized-clause := (clause 
+                                   (clause.literals raw)
+                                   (clause.parent1 raw)
+                                   (clause.parent2 raw)
+                                   (clause.unifier raw)
+                                   :center)
+      :for centerlized-clauses := (cons centerlized-clause 
+                                           (remove raw
+                                                   clauses 
+                                                   :test #'clause=))
+      :do 
+      (multiple-value-bind 
+          (foundp value) (astar (clause-set centerlized-clauses
+                                         :default))
+        (when foundp
+          (return-from exit (values foundp value)))))))
 
