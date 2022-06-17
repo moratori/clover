@@ -130,18 +130,17 @@
              (lambda (c) (eq (clause.clause-type c) :center))
              clauses))) 
     (when center-clause
-          (loop
-            :named exit
-            :for clause :in clauses
-            :for clause-type := (clause.clause-type clause)
-            :for ret := (comprehensive-resolvent
-                          clause-set
-                          center-clause
-                          clause
-                          resolution-mode
-                          (lambda (x) :center)
-                          (lambda (x) :resolvent)
-                          (lambda (x) clause-type))
-            :if (not (eq clause-type :center))
-            :append ret))))
+      (loop
+        :for clause :in clauses
+        :for clause-type := (clause.clause-type clause)
+        :unless (eq clause-type :center)
+        :append 
+        (comprehensive-resolvent
+          clause-set
+          center-clause
+          clause
+          resolution-mode
+          (lambda (x) :center)
+          (lambda (x) :resolvent)
+          (lambda (x) clause-type))))))
 

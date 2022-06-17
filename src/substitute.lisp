@@ -60,7 +60,8 @@
     (clause.parent1 clause)
     (clause.parent2 clause)
     (clause.unifier clause)
-    (clause.clause-type clause)))
+    (clause.clause-type clause)
+    (clause.used-cnt clause)))
 
 (defmethod apply-unifier ((equation equation) (unifier unifier))
   (equation
