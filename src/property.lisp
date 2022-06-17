@@ -3,7 +3,6 @@
   (:export
     :*save-resolution-history*
     :*vterm-gensym-prefix*
-    :*resolution-search-depth*
     :*opener-algorithm*
     :*parsed-symbol-intern-package*
     :*vterm-for-human-readable*
@@ -21,9 +20,6 @@
 
 (defparameter *vterm-gensym-prefix* "v"
   "prefix of generated symbol for rename process")
-
-(defparameter *resolution-search-depth* 40
-  "depth for search algorithms")
 
 (defparameter *completion-giveup-threshold* 15)
 

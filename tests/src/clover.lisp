@@ -298,23 +298,18 @@
             (progn
               (format t "~%default~%")
               (multiple-value-bind
-                  (cnt value) 
-                  (time (clover.clover::default-resolution target))
-                (is (> cnt 0)))
-              (format t "~%A star~%")
-              (multiple-value-bind
                   (foundp value) 
-                  (time (clover.clover::astar-resolution target))
-                (is foundp)))))
+                  (time (clover.clover::default-resolution target))
+                (is foundp))
+              )))
 
 (test clover.tests.clover.difficult
       (setf *save-resolution-history* nil)
       (loop :for target :in *difficult-test-clause-set*
             :do
             (progn
-              (format t "~%A star~%")
-              (force-output *standard-output*)
+              (format t "~%default~%")
               (multiple-value-bind
                   (foundp value) 
-                  (time (clover.clover::astar-resolution target))
+                  (time (clover.clover::default-resolution target))
                 (is foundp)))))
