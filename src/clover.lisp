@@ -3,11 +3,15 @@
         :clover.property
         :clover.search.common
         :clover.search.iddfs
+        :clover.search.astar
         :clover.search.extractor
         :clover.types
         :clover.resolution
         :clover.util
         )
+  (:import-from :alexandria
+                :median
+                :compose)
   (:import-from :clover.unify
                 :alphabet=)
   (:import-from :clover.rewrite
@@ -37,6 +41,22 @@
 (defmethod node-same-class ((node1 clause-set) (node2 clause-set))
   (alphabet= node1 node2))
 
+(defmethod cost-to-goal ((node clause-set))
+  (loop
+    :for clause :in (clause-set.clauses node)
+    :minimize (length (clause.literals clause))))
+
+(defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
+  (let ((clauses (clause-set.clauses node2)))
+    (if clauses
+        (*
+          (length clauses)
+          (median 
+            (mapcar 
+              (compose #'length #'clause.literals) 
+              clauses)))
+        1)))
+
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))
          (right (equation.right expr))
@@ -58,6 +78,7 @@
     (t 
      (default-resolution clause-set))))
 
+
 (defmethod default-resolution ((clause-set clause-set))
   (let ((clauses (clause-set.clauses clause-set)))
     (loop
@@ -76,10 +97,8 @@
                                                    :test #'clause=))
       :do 
       (multiple-value-bind 
-          (cnt value) (iddfs (clause-set centerlized-clauses
-                                         :default)
-                             *resolution-search-depth*)
-        (when cnt
-          (return-from exit (values cnt value))))
-      )))
+          (foundp value) (astar (clause-set centerlized-clauses
+                                         :default))
+        (when foundp
+          (return-from exit (values foundp value)))))))
 

@@ -31,18 +31,17 @@
         )
 
 
-(test clover.tests.clover.start_resolution.test1
-      (let ((linear-sucess
-             (list 
-               (clause-set (list  (clause (list (literal t 'P nil)))
+
+(defparameter *simple-test-clause-set* (list 
+(clause-set (list  (clause (list (literal t 'P nil)))
                                   (clause (list (literal nil 'P nil)))))
-               (clause-set (list  (clause (list (literal nil 'P nil) (literal nil 'P nil)))
+(clause-set (list  (clause (list (literal nil 'P nil) (literal nil 'P nil)))
                                   (clause (list (literal nil 'P nil) (literal t 'Q nil)))
                                   (clause (list (literal t 'P nil)))))
-               (clause-set (list  (clause (list (literal nil 'P nil)))
+(clause-set (list  (clause (list (literal nil 'P nil)))
                                   (clause (list (literal t 'P nil) (literal nil 'Q nil)))
                                   (clause (list (literal t 'Q nil)))))
-               (clause-set (list  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
+(clause-set (list  (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
                                                 (literal t 'R (list (vterm 'y) (vterm 'x)))
                                                 (literal nil 'P (list (vterm 'x)))))
                                   (clause (list (literal t 'R (list (vterm 'x) (vterm 'y)))
@@ -53,7 +52,7 @@
                                   (clause (list (literal nil 'R (list (constant 'B )
                                                                       (constant 'A )))))
                                   (clause (list (literal t 'P (list (vterm 'x)))))))
-               (clause-set (list  (clause (list (literal nil 'LEN (list (constant 'NIL )
+(clause-set (list  (clause (list (literal nil 'LEN (list (constant 'NIL )
                                                                         (constant 'ZERO )))))
                                   (clause (list (literal t 'LEN (list (vterm 'c)
                                                                       (vterm 'n)))
@@ -62,18 +61,8 @@
                                                                         (fterm 'SUCC (list (vterm 'n)))))))
                                   (clause (list (literal t 'LEN (list (fterm 'CONS (list (constant 'A) 
                                                                                          (fterm 'CONS (list (constant 'B) (constant 'NIL)))))
-                                                                      (vterm 'x))))))))))
-  (setf *save-resolution-history* nil)
-  (loop :for each :in linear-sucess
-        :do (is (start_resolution each)))))
-
-
-
-
-(test clover.tests.clover.start_resolution.test2
-      (setf *save-resolution-history* nil)
-      (is (start_resolution
-            (clause-set (list  (clause (list (literal nil 'P (list (vterm 'u)
+                                                                      (vterm 'x)))))))
+(clause-set (list  (clause (list (literal nil 'P (list (vterm 'u)
                                                                       (vterm 'z)
                                                                       (vterm 'w)))
                                                 (literal t   'P (list (vterm 'w)
@@ -84,12 +73,8 @@
                                                                       (constant 'B )))))
                                   (clause (list (literal t   'P (list (constant 'B )
                                                                       (constant 'A )
-                                                                      (constant 'C ))))))))))
-
-(test clover.tests.clover.start_resolution.test3
-      (setf *save-resolution-history* nil)
-      (is (start_resolution
-            (clause-set (list (clause (list (literal t   'P (list (constant 'B )
+                                                                      (constant 'C )))))))
+(clause-set (list (clause (list (literal t   'P (list (constant 'B )
                                                                   (constant 'A )
                                                                   (constant 'C )))))
                               (clause (list (literal nil 'P (list (vterm 'x)
@@ -113,14 +98,8 @@
                                             (literal t   'P (list (vterm 'w)
                                                                   (vterm 'z)
                                                                   (vterm 'u)))))
-                              ))))
-      )
-
-
-(test clover.tests.clover.start_resolution.test4
-      (setf *save-resolution-history* nil)
-      (is (start_resolution
-                  (clause-set 
+                              ))
+(clause-set 
                     (list (clause 
                             (list (literal nil 'LEN (list (constant 'NIL)
                                                           (constant 'ZERO ))))
@@ -135,14 +114,8 @@
                           (clause 
                             (list (literal t 'LEN (list (fterm 'CONS (list (constant 'A ) 
                                                                            (fterm 'CONS (list (constant 'B ) (constant 'NIL )))))
-                                                        (vterm 'x)))) nil nil nil))))))
-
-
-(test clover.tests.clover.start_resolution.test5
-      (setf *save-resolution-history* nil)
-      (multiple-value-bind
-          (cnt value) (start_resolution
-            (clause-set (list  (clause (list (literal t 'P (list (constant 'C )
+                                                        (vterm 'x)))) nil nil nil)))
+(clause-set (list  (clause (list (literal t 'P (list (constant 'C )
                                                                  (constant 'B )
                                                                  (constant 'A ))))) 
                                (clause (list (literal nil 'P (list (constant 'A )
@@ -165,14 +138,8 @@
                                                                    (vterm 'u)))
                                              (literal t   'P (list (vterm 'x)
                                                                    (vterm 'v)
-                                                                   (vterm 'w))))))))
-        (is (> cnt 0))))
-
-(test clover.tests.clover.start_resolution.test6
-      (setf *save-resolution-history* nil)
-      (multiple-value-bind
-          (cnt value) (start_resolution
-            (clause-set (list  (clause (list (literal nil 'P (list (vterm 'x)
+                                                                   (vterm 'w)))))))
+(clause-set (list  (clause (list (literal nil 'P (list (vterm 'x)
                                                                    (constant 'E )
                                                                    (vterm 'x)))))
                                (clause (list (literal t 'P (list (constant 'B )
@@ -195,15 +162,8 @@
                                                                    (vterm 'u)))
                                              (literal t   'P (list (vterm 'x)
                                                                    (vterm 'v)
-                                                                   (vterm 'w))))))))
-        (is (> cnt 0))))
-
-
-(test clover.tests.clover.start_resolution.test7
-      (setf *save-resolution-history* nil)
-      (multiple-value-bind
-          (cnt value) (start_resolution
-            (clause-set (list  (clause (list (literal nil 'P (list (constant 'E )
+                                                                   (vterm 'w)))))))
+(clause-set (list  (clause (list (literal nil 'P (list (constant 'E )
                                                                    (vterm 'x)
                                                                    (vterm 'x)))))
 
@@ -230,15 +190,66 @@
                                                                    (vterm 'u)))
                                              (literal t   'P (list (vterm 'u)
                                                                    (vterm 'z)
-                                                                   (vterm 'w))))))))
-        (is (> cnt 0))))
+                                                                   (vterm 'w)))))))
+))
 
 
-;(test clover.tests.clover.start_resolution.test8
-;      (setf *save-resolution-history* nil)
-;      (multiple-value-bind
-;          (cnt value) (start_resolution
-;            (clause-set (list  (clause (list (literal nil 'P (list (constant 'A )
+(defparameter *difficult-test-clause-set* (list
+
+(clause-set (list  
+              (clause (list (literal t 'P (list (constant 'C )
+                                                (constant 'A )
+                                                (constant 'B )))))
+
+              (clause (list (literal nil 'P (list (constant 'E )
+                                                  (vterm 'x)
+                                                  (vterm 'x)))))
+
+              (clause (list (literal nil 'P (list (vterm 'x )
+                                                  (vterm 'x )
+                                                  (constant 'E ))))) 
+
+              (clause (list (literal nil 'P (list (constant 'A)
+                                                  (constant 'B )
+                                                  (constant 'C)))))
+
+              (clause (list (literal nil 'P (list (vterm 'x )
+                                                  (constant 'E )
+                                                  (vterm 'x )))))
+
+              (clause (list (literal nil 'P (list (vterm 'x)
+                                                  (vterm 'v)
+                                                  (vterm 'w)))
+
+                            (literal t   'P (list (vterm 'y)
+                                                  (vterm 'z)
+                                                  (vterm 'v)))
+
+                            (literal t   'P (list (vterm 'x)
+                                                  (vterm 'y)
+                                                  (vterm 'u)))
+
+                            (literal t   'P (list (vterm 'u)
+                                                  (vterm 'z)
+                                                  (vterm 'w)))))
+
+              (clause (list (literal nil 'P (list (vterm 'u)
+                                                  (vterm 'z)
+                                                  (vterm 'w)))
+
+                            (literal t   'P (list (vterm 'y)
+                                                  (vterm 'z)
+                                                  (vterm 'v)))
+
+                            (literal t   'P (list (vterm 'x)
+                                                  (vterm 'y)
+                                                  (vterm 'u)))
+
+                            (literal t   'P (list (vterm 'x)
+                                                  (vterm 'v)
+                                                  (vterm 'w)))))))
+
+;(clause-set (list  (clause (list (literal nil 'P (list (constant 'A )
 ;                                                                   (constant 'B )
 ;                                                                   (constant 'C )))))
 ;                               (clause (list (literal t   'P (list (constant 'B )
@@ -276,6 +287,29 @@
 ;                                                                   (vterm 'u)))
 ;                                             (literal t   'P (list (vterm 'u)
 ;                                                                   (vterm 'z)
-;                                                                   (vterm 'w))))))))
-;        (is cnt)))
+;                                                                   (vterm 'w)))))))
+))
 
+
+(test clover.tests.clover.simple
+      (setf *save-resolution-history* nil)
+      (loop :for target :in *simple-test-clause-set*
+            :do
+            (progn
+              (format t "~%default~%")
+              (multiple-value-bind
+                  (foundp value) 
+                  (time (clover.clover::default-resolution target))
+                (is foundp))
+              )))
+
+(test clover.tests.clover.difficult
+      (setf *save-resolution-history* nil)
+      (loop :for target :in *difficult-test-clause-set*
+            :do
+            (progn
+              (format t "~%default~%")
+              (multiple-value-bind
+                  (foundp value) 
+                  (time (clover.clover::default-resolution target))
+                (is foundp)))))

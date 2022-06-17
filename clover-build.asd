@@ -8,10 +8,11 @@
 |#
 
 (defsystem "clover-build"
-  :version "2.4.3"
+  :version "2.5.0"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
+               :cl-heap
                :lparallel
                :yacc
                :lexer ;https://github.com/massung/lexer.git
@@ -37,6 +38,7 @@
                   ((:file "common")
                    (:file "iddfs")
                    (:file "extractor")
+                   (:file "astar")
                    (:file "dfs")))
                  (:file "property")
                  (:file "conditions")

@@ -9,6 +9,26 @@
 
 
 
+(test clover.tests.simplify.%include-law-of-exclude-middle-p
+
+      (is (clover.simplify::%include-law-of-exclude-middle-p
+            (clause (list (literal nil 'P (list (fterm 'g (list (vterm 'x)))))
+                          (literal t 'P   (list (fterm 'g (list (vterm 'x)))))))))
+
+      (is (not (clover.simplify::%include-law-of-exclude-middle-p
+                 (clause (list (literal nil 'P (list (fterm 'g (list (vterm 'x)))
+                                                     (fterm 'h (list (vterm 'x)))))
+                               (literal t 'P   (list (fterm 'g (list (vterm 'x))))))))))
+
+      (is (not (clover.simplify::%include-law-of-exclude-middle-p
+                 (clause (list 
+                           (literal nil 'P   (list (fterm 'g (list (vterm 'x)))))
+                           (literal t 'P (list (fterm 'g (list (vterm 'x)))
+                                                 (fterm 'h (list (vterm 'x))))))))))
+
+      )
+
+
 (test clover.tests.simplify.%remove-independent-clause
 
       (is 
