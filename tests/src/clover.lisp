@@ -195,6 +195,60 @@
 
 
 (defparameter *difficult-test-clause-set* (list
+
+;(clause-set (list  
+;              (clause (list (literal t 'P (list (constant 'C )
+;                                                (constant 'A )
+;                                                (constant 'B )))))
+;
+;              (clause (list (literal nil 'P (list (constant 'E )
+;                                                  (vterm 'x)
+;                                                  (vterm 'x)))))
+;
+;              (clause (list (literal nil 'P (list (vterm 'x )
+;                                                  (vterm 'x )
+;                                                  (constant 'E ))))) 
+;
+;              (clause (list (literal nil 'P (list (constant 'A)
+;                                                  (constant 'B )
+;                                                  (constant 'C)))))
+;
+;              (clause (list (literal nil 'P (list (vterm 'x )
+;                                                  (constant 'E )
+;                                                  (vterm 'x )))))
+;
+;              (clause (list (literal nil 'P (list (vterm 'x)
+;                                                  (vterm 'v)
+;                                                  (vterm 'w)))
+;
+;                            (literal t   'P (list (vterm 'y)
+;                                                  (vterm 'z)
+;                                                  (vterm 'v)))
+;
+;                            (literal t   'P (list (vterm 'x)
+;                                                  (vterm 'y)
+;                                                  (vterm 'u)))
+;
+;                            (literal t   'P (list (vterm 'u)
+;                                                  (vterm 'z)
+;                                                  (vterm 'w)))))
+;
+;              (clause (list (literal nil 'P (list (vterm 'u)
+;                                                  (vterm 'z)
+;                                                  (vterm 'w)))
+;
+;                            (literal t   'P (list (vterm 'y)
+;                                                  (vterm 'z)
+;                                                  (vterm 'v)))
+;
+;                            (literal t   'P (list (vterm 'x)
+;                                                  (vterm 'y)
+;                                                  (vterm 'u)))
+;
+;                            (literal t   'P (list (vterm 'x)
+;                                                  (vterm 'v)
+;                                                  (vterm 'w)))))))
+
 ;(clause-set (list  (clause (list (literal nil 'P (list (constant 'A )
 ;                                                                   (constant 'B )
 ;                                                                   (constant 'C )))))
@@ -242,12 +296,12 @@
       (loop :for target :in *simple-test-clause-set*
             :do
             (progn
-              (format t "default")
+              (format t "~%default~%")
               (multiple-value-bind
                   (cnt value) 
                   (time (clover.clover::default-resolution target))
                 (is (> cnt 0)))
-              (format t "A star")
+              (format t "~%A star~%")
               (multiple-value-bind
                   (foundp value) 
                   (time (clover.clover::astar-resolution target))
@@ -258,7 +312,7 @@
       (loop :for target :in *difficult-test-clause-set*
             :do
             (progn
-              (format t "A star")
+              (format t "~%A star~%")
               (force-output *standard-output*)
               (multiple-value-bind
                   (foundp value) 
