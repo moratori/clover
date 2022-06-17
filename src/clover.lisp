@@ -9,6 +9,9 @@
         :clover.resolution
         :clover.util
         )
+  (:import-from :alexandria
+                :median
+                :compose)
   (:import-from :clover.unify
                 :alphabet=)
   (:import-from :clover.rewrite
@@ -44,7 +47,15 @@
     :minimize (length (clause.literals clause))))
 
 (defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
-  1)
+  (let ((clauses (clause-set.clauses node2)))
+    (if clauses
+        (*
+          (length clauses)
+          (median 
+            (mapcar 
+              (compose #'length #'clause.literals) 
+              clauses)))
+        1)))
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))
