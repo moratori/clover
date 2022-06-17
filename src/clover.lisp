@@ -11,6 +11,7 @@
         )
   (:import-from :alexandria
                 :median
+                :variance
                 :compose)
   (:import-from :clover.unify
                 :alphabet=)
@@ -54,7 +55,9 @@
           (median 
             (mapcar 
               (compose #'length #'clause.literals) 
-              clauses)))
+              clauses))
+          (1+ (variance
+                (mapcar #'clause.used-cnt clauses))))
         1)))
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
