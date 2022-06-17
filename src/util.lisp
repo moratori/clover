@@ -156,6 +156,7 @@
     (and
       (not (eq negation1 negation2))
       (eq pred1 pred2)
+      (= (length args1) (length args2))
       (every #'term= args1 args2))))
 
 (defmethod null-clause-p ((clause clause))
