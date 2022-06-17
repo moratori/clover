@@ -121,10 +121,13 @@
     (multiple-value-bind (nodes edges) 
         (%collect-graphviz-node-and-edges target-clause 1)
 
-      (with-open-file (handle output :direction :output :if-exists :supersede)
-        (format handle "digraph refutation_tree {~%")
-        (format handle "~{  ~A~%~}~%" nodes)
-        (format handle "~{  ~A~%~}~%" edges)
-        (format handle "}")))))
-
+      (handler-case
+          (with-open-file (handle output :direction :output :if-exists :supersede)
+            (format handle "digraph refutation_tree {~%")
+            (format handle "~{  ~A~%~}~%" nodes)
+            (format handle "~{  ~A~%~}~%" edges)
+            (format handle "}"))
+        (condition (con)
+          (declare (ignore con))
+          (format *standard-output* "unable to write file: ~A~%" output))))))
 
