@@ -119,19 +119,17 @@
                          (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))))
       )
 
-(test clover.tests.util.horn-clause-p
+(test clover.tests.util.horn-p
 
-      (is (horn-clause-p (clause (list (literal nil 'P nil)))))
-      (is (horn-clause-p (clause (list (literal nil 'P nil)
+      (is (horn-p (clause (list (literal nil 'P nil)))))
+      (is (horn-p (clause (list (literal nil 'P nil)
                                        (literal t 'Q nil)
                                        (literal t 'R nil)))))
-      (is (not (horn-clause-p (clause (list (literal nil 'P nil)
+      (is (not (horn-p (clause (list (literal nil 'P nil)
                                             (literal nil 'Q nil)
                                             (literal t 'R nil))))))
-      )
-
-(test clover.tests.util.horn-clause-set-p
       (is (clause-set (list (clause (list (literal nil 'P nil))))))
       (is (clause-set (list (clause (list (literal nil 'P nil)))
-                            (clause (list (literal t 'Q nil))))))
+                            (clause (list (literal t 'Q nil)))))) 
       )
+
