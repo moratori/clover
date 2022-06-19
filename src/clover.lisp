@@ -2,25 +2,25 @@
   (:use :cl
         :clover.property
         :clover.search.common
-        :clover.search.iddfs
         :clover.search.astar
-        :clover.search.extractor
+        :clover.search.iddfs
+        :clover.search.dfs
         :clover.types
         :clover.resolution
         :clover.util
         )
   (:import-from :alexandria
                 :median
-                :variance
-                :compose)
+                :variance)
   (:import-from :clover.unify
                 :alphabet=)
   (:import-from :clover.rewrite
                 :rewrite-final)
+  (:import-from :clover.multiprocess
+                :initialize-lparallel-kernel)
   (:export
     :start_resolution
     :start_trs
-    :find-lemmas
     ))
 (in-package :clover.clover)
 
@@ -45,7 +45,7 @@
 (defmethod cost-to-goal ((node clause-set))
   (loop
     :for clause :in (clause-set.clauses node)
-    :minimize (length (clause.literals clause))))
+    :minimize (clause-length clause)))
 
 (defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
   (let ((clauses (clause-set.clauses node2)))
@@ -54,7 +54,7 @@
           (length clauses)
           (median 
             (mapcar 
-              (compose #'length #'clause.literals) 
+              #'clause-length
               clauses))
           (1+ (variance
                 (mapcar #'clause.used-cnt clauses))))
@@ -72,36 +72,62 @@
         (values (term= final-left final-right)
                 (equation negation final-left final-right)))))
 
+
+(defmethod prepare-resolution ((clause-set clause-set))
+  "頂節とresolution-modeを決定し、clause-setを返却する"
+  (let* ((clauses
+           (clause-set.clauses clause-set))
+         (conseq
+           (find-if (lambda (clause) 
+                      (eq :conseq (clause.clause-type clause)))
+                    clauses))
+         (base-clauses
+           (progn
+             (when (null conseq)
+               (error "consequent clause is required"))
+             (remove conseq clauses :test #'clause=)))
+         (centerlized-clause
+           (clause 
+             (clause.literals conseq)
+             (clause.parent1 conseq)
+             (clause.parent2 conseq)
+             (clause.unifier conseq)
+             :center)))
+    (clause-set
+      (cons centerlized-clause base-clauses)
+      (cond
+        ((and (horn-p clause-set) (goal-clause-p conseq))
+         :snl)
+        (t :default)))))
+
 (defmethod start_resolution ((clause-set clause-set))
+
   (when (some
           (lambda (c) (null (clause.clause-type c)))
           (clause-set.clauses clause-set))
     (error "clause type must not be null"))
-  (cond
-    (t 
-     (default-resolution clause-set))))
 
+  (when (< 1 
+           (count-if 
+             (lambda (clause)
+               (eq (clause.clause-type clause) :conseq))
+             (clause-set.clauses clause-set)))
+    (error "multiple consequence clause found"))
 
-(defmethod default-resolution ((clause-set clause-set))
-  (let ((clauses (clause-set.clauses clause-set)))
-    (loop
-      :named exit
-      :for raw :in (append (remove-if-not #'conseq-clause-p clauses)
-                           (remove-if #'conseq-clause-p clauses))
-      :for centerlized-clause := (clause 
-                                   (clause.literals raw)
-                                   (clause.parent1 raw)
-                                   (clause.parent2 raw)
-                                   (clause.unifier raw)
-                                   :center)
-      :for centerlized-clauses := (cons centerlized-clause 
-                                           (remove raw
-                                                   clauses 
-                                                   :test #'clause=))
-      :do 
-      (multiple-value-bind 
-          (foundp value) (astar (clause-set centerlized-clauses
-                                         :default))
-        (when foundp
-          (return-from exit (values foundp value)))))))
+  (let* ((target
+           (prepare-resolution clause-set))
+         (available-search 
+           (list 
+             #'astar))
+         (result
+           (some
+             (lambda (fn)
+               (multiple-value-bind (foundp node)
+                   (funcall fn target)
+                 (when foundp
+                   (list foundp node))))
+             available-search)))
+    (if result
+        (values-list result)
+        (values nil nil))))
 

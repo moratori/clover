@@ -12,20 +12,19 @@
   (:import-from :alexandria
                 :shuffle)
   (:export
-    :%collect-resolutable-literal
-    :%resolution
+    :resolution
+    :resolution-wrapper
     :opener_clause-set
-    :comprehensive-resolvent
     )
   )
 (in-package :clover.resolution)
 
 
 
-(defmethod %resolution ((parent1 clause) (parent2 clause) &optional 
-                                         (get-resolvent-type (lambda (c) :resolvent))
-                                         (get-parent1-type (lambda (c) :resolvent))
-                                         (get-parent2-type (lambda (c) :resolvent)))
+(defmethod resolution ((parent1 clause) (parent2 clause) (resolution-mode (eql :default)) &optional 
+                                        (get-resolvent-type (lambda (c) :resolvent))
+                                        (get-parent1-type (lambda (c) :resolvent))
+                                        (get-parent2-type (lambda (c) :resolvent)))
   (let ((literals1 (clause.literals parent1))
         (literals2 (clause.literals parent2)))
     (values
@@ -78,15 +77,70 @@
                             (funcall get-resolvent-type resolvent)))))))
 
 
-(defmethod comprehensive-resolvent ((clause-set clause-set) 
+(defmethod resolution ((parent1 clause) (parent2 clause) (resolution-mode (eql :snl)) &optional 
+                                        (get-resolvent-type (lambda (c) :resolvent))
+                                        (get-parent1-type (lambda (c) :resolvent))
+                                        (get-parent2-type (lambda (c) :resolvent)))
+
+  (assert (and (goal-clause-p parent1)
+               (or (rule-clause-p parent2)
+                   (fact-clause-p parent2))))
+
+  (let* ((literals1 (clause.literals parent1))
+         (literals2 (clause.literals parent2))
+         (last-literal (first (last literals1)))
+         (last-literal-negation (literal.negation last-literal))
+         ; last-literalと相補的な関係になるのは、literals2中に1つしかない
+         (opposite 
+           (find-if (lambda (x) (eq nil (literal.negation x))) 
+                    literals2))
+         (us
+           (handler-case 
+               (find-most-general-unifier-set
+                 last-literal opposite)
+             (ununifiable-error (e) nil)))
+         (result
+           (when us
+             (let* ((res-clause-left (apply-unifier-set parent1 us))
+                    (res-clause-left-literals (clause.literals res-clause-left))
+                    (res-clause-right (apply-unifier-set parent2 us))
+                    (res-clause-right-literals (clause.literals res-clause-right))
+                    (target-literal (apply-unifier-set last-literal us))
+                    (resolvent (append (remove target-literal res-clause-left-literals
+                                               :test #'literal=)
+                                       (remove target-literal res-clause-right-literals
+                                               :test #'complement-literal-p))))
+               (clause 
+                 resolvent
+                 (when *save-resolution-history* parent1)
+                 (when *save-resolution-history* parent2)
+                 (when *save-resolution-history* us)
+                 (funcall get-resolvent-type resolvent))))))
+    (values
+      (clause
+        (clause.literals parent1)
+        (clause.parent1 parent1)
+        (clause.parent2 parent1)
+        (clause.unifier parent1)
+        (funcall get-parent1-type parent1)
+        (1+ (clause.used-cnt parent1)))
+      (clause
+        (clause.literals parent2)
+        (clause.parent1 parent2)
+        (clause.parent2 parent2)
+        (clause.unifier parent2)
+        (funcall get-parent2-type parent2)
+        (1+ (clause.used-cnt parent2)))
+      (when result (list result)))))
+
+
+(defmethod resolution-wrapper ((clause-set clause-set) 
                                     (parent1 clause) 
                                     (parent2 clause)
                                     resolution-mode
                                     (resolvent-type function)
                                     (parent1-type function)
                                     (parent2-type function))
-  "節parent1,parent2の導出結果(resolvent)を網羅的に計算し、
-   各resolventをclause-setに追加して返却する"
   (let ((base-clauses 
           (remove-if 
             (lambda (clause)
@@ -95,12 +149,13 @@
             (clause-set.clauses clause-set)))) 
     (multiple-value-bind
         (new-parent1 new-parent2 resoluted-clauses)
-        (%resolution parent1 parent2 resolvent-type parent1-type parent2-type)
+        (resolution parent1 parent2 resolution-mode resolvent-type parent1-type parent2-type)
       (mapcar
         (lambda (clause)
           (clause-set
-            (append base-clauses
-                    (list clause new-parent1 new-parent2))
+            (append (list clause new-parent2)
+                    base-clauses
+                    (list new-parent1))
             resolution-mode))
         resoluted-clauses))))
 
@@ -112,8 +167,7 @@
     resolution-mode))
 
 
-
-(defmethod opener_clause-set :before ((clause-set clause-set) (resolution-mode (eql :default)))
+(defmethod opener_clause-set :before ((clause-set clause-set) resolution-mode)
   (when (< 1 (count-if 
                (lambda (c) 
                  (eq (clause.clause-type c) :center))
@@ -135,7 +189,7 @@
         :for clause-type := (clause.clause-type clause)
         :unless (eq clause-type :center)
         :append 
-        (comprehensive-resolvent
+        (resolution-wrapper
           clause-set
           center-clause
           clause
@@ -143,4 +197,27 @@
           (lambda (x) :center)
           (lambda (x) :resolvent)
           (lambda (x) clause-type))))))
+
+
+(defmethod opener_clause-set ((clause-set clause-set) (resolution-mode (eql :snl)))
+  (let* ((clauses 
+           (clause-set.clauses clause-set))
+         (center-clause
+           (find-if 
+             (lambda (c) (eq (clause.clause-type c) :center))
+             clauses))) 
+    (when center-clause
+      (loop
+        :for clause :in clauses
+        :for clause-type := (clause.clause-type clause)
+        :if (eq clause-type :premise)
+        :append
+        (resolution-wrapper
+          clause-set
+          center-clause
+          clause
+          resolution-mode
+          (lambda (x) :center)
+          (lambda (x) :resolvent)
+          (lambda (x) :premise))))))
 

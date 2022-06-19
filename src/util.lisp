@@ -10,6 +10,8 @@
     :consistent-unifier-set-p 
     :horn-p
     :goal-clause-p
+    :rule-clause-p
+    :fact-clause-p
     :clause-subset
     :term=
     :term/=
@@ -248,6 +250,23 @@
     (lambda (lit)
       (eq (literal.negation lit) t))
     (clause.literals clause)))
+
+(defmethod rule-clause-p ((clause clause))
+  (let ((len (clause-length clause)))
+    (and
+      (= 1 
+         (count-if
+           (lambda (x) (eq (literal.negation x) nil))
+           (clause.literals clause)))
+      (= (1- len)
+         (count-if
+           (lambda (x) (eq (literal.negation x) t))
+           (clause.literals clause))))))
+
+(defmethod fact-clause-p ((clause clause))
+  (and
+    (= 1 (clause-length clause))
+    (eq nil (literal.negation (first (clause.literals clause))))))
 
 (defmethod conseq-clause-p ((clause clause))
   (eq (clause.clause-type clause) :conseq))

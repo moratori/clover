@@ -51,7 +51,7 @@
                 (start_resolution
                   (clause-set (list (clause (list (literal nil 'P nil) (literal nil 'P nil)))
                                     (clause (list (literal nil 'P nil) (literal t 'Q nil)))
-                                    (clause (list (literal t 'P nil))))))
+                                    (clause (list (literal t 'P nil)) nil nil nil :conseq))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test1.dot"  *graphviz-output-dir*))
@@ -77,7 +77,7 @@
                           (clause 
                             (list (literal t 'LEN (list (fterm 'CONS (list (constant 'A ) 
                                                                            (fterm 'CONS (list (constant 'B ) (constant 'NIL )))))
-                                                        (vterm 'x)))) nil nil nil))))
+                                                        (vterm 'x)))) nil nil nil :conseq))))
 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test2.dot"  *graphviz-output-dir*))
@@ -101,7 +101,7 @@
                                                               (constant 'B )))))
                           (clause (list (literal nil 'R (list (constant 'B )
                                                               (constant 'A )))))
-                          (clause (list (literal t 'P (list (vterm 'x))))))))
+                          (clause (list (literal t 'P (list (vterm 'x)))) nil nil nil :conseq))))
                 
               (render-refutation-tree 
                 clause (merge-pathnames #P"test3.dot"  *graphviz-output-dir*))
@@ -113,7 +113,7 @@
             (multiple-value-bind (depth clause) 
                 (start_resolution
                   (clause-set 
-                    (list  (clause (list (literal t 'nephew (list (constant 'TARA ) (vterm 'x)))) nil nil nil)
+                    (list  (clause (list (literal t 'nephew (list (constant 'TARA ) (vterm 'x)))) nil nil nil :conseq)
                            (clause 
                              (list (literal nil 'parent (list (constant 'NAMIHEI )
                                                               (constant 'SAZAE )))))
