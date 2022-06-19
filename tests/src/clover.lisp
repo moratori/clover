@@ -205,6 +205,20 @@
                                                                    (vterm 'z)
                                                                    (vterm 'w)))))))
 
+(clause-set (list  (clause (list (literal t 'member (list (vterm 'x) (constant 'NIL)))))
+                   (clause (list (literal nil 'member (list (vterm 'x) (fterm 'cons (list (vterm 'x) (vterm 'y)))))))
+                   (clause (list (literal t 'member (list (vterm 'x) 
+                                                          (vterm 'y)))
+                                 (literal nil 'member (list (vterm 'x) 
+                                                            (fterm 'cons (list (vterm 'z) (vterm 'y)))))
+                                 ))
+                   (clause (list (literal t 'member (list (constant 'A)
+                                                          (fterm 'cons (list (constant 'C)
+                                                                             (fterm 'cons (list (constant 'B)
+                                                                                                (fterm 'cons (list (constant 'A) (constant 'NIL))))))))))
+                           nil nil nil :conseq
+                           )))
+
 ))
 
 
@@ -441,6 +455,20 @@
 					      (literal t   'M (list (vterm 'm)
                                                                     (fterm 's (list (vterm 'k)))
                                                                     (vterm 'r)))))))
+;default
+(clause-set (list  (clause (list (literal t 'member (list (vterm 'x) (constant 'NIL)))))
+                   (clause (list (literal nil 'member (list (vterm 'x) (fterm 'cons (list (vterm 'x) (vterm 'y)))))))
+                   (clause (list (literal t 'member (list (vterm 'x) 
+                                                          (vterm 'y)))
+                                 (literal nil 'member (list (vterm 'x) 
+                                                            (fterm 'cons (list (vterm 'z) (vterm 'y)))))
+                                 ))
+                   (clause (list (literal t 'member (list (constant 'A)
+                                                          (fterm 'cons (list (constant 'C)
+                                                                             (fterm 'cons (list (constant 'B)
+                                                                                                (fterm 'cons (list (constant 'A) (constant 'NIL))))))))))
+                           nil nil nil :conseq
+                           )))
 ))
 
 
@@ -469,7 +497,7 @@
 
 (test clover.tests.clover.prepare-resolution
       (loop :for target :in *prepare-resolution-test-data*
-            :for expected :in (list :snl :default :snl :snl :snl :default :snl)
+            :for expected :in (list :snl :default :snl :snl :snl :default :snl :default)
             :for converted := (clover.clover::prepare-resolution target)
             :do 
             (is (eq expected (clause-set.resolution-mode converted)))))
