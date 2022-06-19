@@ -16,10 +16,16 @@
 
 
 (defmethod %collect-graphviz-node-and-edges ((clause clause) seq)
-  (let ((unifier (clause.unifier clause))
-        (parent1 (clause.parent1 clause))
-        (parent2 (clause.parent2 clause))
-        (myself  (list (format nil "CLAUSE_~A[label = \"~A\"];" seq clause))))
+  (let* ((unifier (clause.unifier clause))
+         (parent1 (clause.parent1 clause))
+         (parent2 (clause.parent2 clause))
+         (clause-type (clause.clause-type clause))
+         (color
+           (cond
+             ((eq clause-type :premise)
+              ", style=filled, fillcolor=red")
+             (t "")))
+         (myself  (list (format nil "CLAUSE_~A[label = \"~A\"~A];" seq clause color))))
     (cond 
       ((or (null parent1)
            (null parent2))
