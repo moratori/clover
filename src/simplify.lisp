@@ -126,5 +126,7 @@
            (%remove-alphabet-equal-clause next-clauses))
          (next-clauses ;; 単一述語の除去
            (%remove-independent-clause next-clauses)))
-    (clause-set next-clauses)))
+    (clause-set
+      next-clauses
+      (clause-set.resolution-mode clause-set))))
 

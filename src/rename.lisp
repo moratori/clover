@@ -87,7 +87,8 @@
   (clause-set
     (mapcar 
       #'rename
-      (clause-set.clauses clause-set))))
+      (clause-set.clauses clause-set))
+    (clause-set.resolution-mode clause-set)))
 
 (defmethod rename ((equation-set equation-set))
   (equation-set

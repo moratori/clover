@@ -297,7 +297,7 @@
   "節集合を表現する構造体
    節のリストを保持する"
    (clauses nil :type %clause-set :read-only t)
-   (resolution-mode nil :type symbol :read-only t))
+   (resolution-mode :default :type symbol :read-only t))
 
 (defstruct (equation
              (:include literal)
