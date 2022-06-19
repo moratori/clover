@@ -10,6 +10,8 @@
                 :yield
                 :next
                 :stop-iteration)
+  (:import-from :clover.multiprocess
+                :initialize-lparallel-kernel)
   (:export
     :multi-kb-completion
     :toplevel-completion
@@ -17,25 +19,6 @@
 (in-package :clover.multicompletion)
 
 
-(let (cached)
-  (defun get-number-of-processors ()
-    (if cached cached
-        (let ((num
-                (handler-case
-                    (cpus:get-number-of-processors)
-                  (error (c) 1))))
-          (setf cached num)))))
-
-
-(defun initialize-lparallel-kernel ()
-  (when lparallel:*kernel*
-    (lparallel:end-kernel :wait nil))
-  (unless lparallel:*kernel*
-    (let ((cpu-number
-            (get-number-of-processors)))
-      (setf lparallel:*kernel* 
-            (lparallel:make-kernel
-              (if (>= 1 cpu-number) 1 (1- cpu-number)))))))
 
 (defmethod collect-constant-symbol ((term term))
   nil)

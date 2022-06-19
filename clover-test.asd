@@ -44,6 +44,7 @@
                    (:file "rewrite")
                    (:file "criticalpair")
                    (:file "completion")
+                   (:file "multiprocess")
                    (:file "multicompletion")
                    (:file "rendertree")
                    (:file "parser"))))))
