@@ -8,9 +8,10 @@
     :has-parent-p
     :null-clause-p
     :consistent-unifier-set-p 
-    :horn-clause-p
-    :horn-clause-set-p
+    :horn-p
     :goal-clause-p
+    :rule-clause-p
+    :fact-clause-p
     :clause-subset
     :term=
     :term/=
@@ -235,11 +236,14 @@
             (clause-set.clauses clause-set1)
             :test #'clause=))))
 
-(defmethod horn-clause-p ((clause clause))
+(defmethod horn-p ((clause clause))
   (<= (count-if 
         (lambda (lit)
           (eq (literal.negation lit) nil))
         (clause.literals clause)) 1))
+
+(defmethod horn-p ((clause-set clause-set))
+  (every #'horn-p (clause-set.clauses clause-set)))
 
 (defmethod goal-clause-p ((clause clause))
   (every
@@ -247,8 +251,22 @@
       (eq (literal.negation lit) t))
     (clause.literals clause)))
 
-(defmethod horn-clause-set-p ((clause-set clause-set))
-  (every #'horn-clause-p (clause-set.clauses clause-set)))
+(defmethod rule-clause-p ((clause clause))
+  (let ((len (clause-length clause)))
+    (and
+      (= 1 
+         (count-if
+           (lambda (x) (eq (literal.negation x) nil))
+           (clause.literals clause)))
+      (= (1- len)
+         (count-if
+           (lambda (x) (eq (literal.negation x) t))
+           (clause.literals clause))))))
+
+(defmethod fact-clause-p ((clause clause))
+  (and
+    (= 1 (clause-length clause))
+    (eq nil (literal.negation (first (clause.literals clause))))))
 
 (defmethod conseq-clause-p ((clause clause))
   (eq (clause.clause-type clause) :conseq))

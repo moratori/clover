@@ -321,12 +321,6 @@ cons(x, cons(W, cons(B, y))) -> cons(x, cons(S, y))
 
 
 
-(test clover.tests.multicompletion.get-number-of-processors.test1
-      (is (<= 1 (clover.multicompletion::get-number-of-processors)))
-      (is (<= 1 (clover.multicompletion::get-number-of-processors)))
-      )
-
-
 (test clover.tests.multicompletion.toplevel-completion.test1
 
       (let* ((target 

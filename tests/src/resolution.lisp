@@ -25,7 +25,7 @@
                  (res 
                    (multiple-value-bind 
                        (a b resoluted)
-                       (%resolution clause1 clause2)
+                       (resolution clause1 clause2 :default)
                      (declare (ignore a b))
                      resoluted))
                  (expected
@@ -74,13 +74,13 @@
                                                    (vterm 'w)))))
                )
              (cs
-               (clause-set (list clause1 clause2) :linear))
+               (clause-set (list clause1 clause2) :default))
              (ret
-               (comprehensive-resolvent
+               (clover.resolution::resolution-wrapper
                  cs
                  clause1
                  clause2
-                 :linear
+                 :default
                  (lambda (x) :center)
                  (lambda (x) :resolvent)
                  (lambda (x) :resolvent))))
