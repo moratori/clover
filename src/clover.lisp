@@ -96,7 +96,12 @@
     (clause-set
       (cons centerlized-clause base-clauses)
       (cond
-        ((and (horn-p clause-set) (goal-clause-p conseq))
+        ((and (every 
+                (lambda (c)
+                  (or (fact-clause-p c) 
+                      (rule-clause-p c)))
+                base-clauses)
+              (goal-clause-p conseq))
          :snl)
         (t :default)))))
 
