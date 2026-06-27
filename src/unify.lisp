@@ -51,7 +51,7 @@
          (args1    (fterm.args term1))
          (args2    (fterm.args term2))
          (length1  (length args1))
-         (length2  (length args1)))
+         (length2  (length args2)))
 
     (unless (and (eq fsymbol1 fsymbol2)
                  (=  length1  length2))

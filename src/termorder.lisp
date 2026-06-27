@@ -29,7 +29,7 @@
     (let ((head1 (car args1))
           (head2 (car args2)))
       (if (term< head1 head2 ordering :lpo)
-        (= (length args1) (length args2))
+        t ; claude によって誤りを指摘 (= (length args1) (length args2))
         (and (term= head1 head2)
              (lexicographic-order< (cdr args1) (cdr args2) ordering))))))
 

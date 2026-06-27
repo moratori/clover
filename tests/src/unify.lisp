@@ -83,6 +83,45 @@
       )
 
 
+(test clover.tests.unify.nested-arity-mismatch
+      ;; 不具合1: アリティ不一致が単一化検査をすり抜ける（健全性の問題）。
+      ;;
+      ;; src/unify.lisp の %%collect-disagreement-set の (fterm fterm) メソッドで、
+      ;; ローカル変数 length2 が (length args2) ではなく (length args1) で束縛されて
+      ;; いるため、length1 = length2 が常に真となり、引数個数（アリティ）の不一致
+      ;; 検査が機能しない。
+      ;;
+      ;; 低レベルテスト: %%collect-disagreement-set を直接呼ぶ。
+      ;; f/1 と f/2 はアリティが異なるため、本来 unmatching-fterm-error が送出される
+      ;; べき。現状はバグにより検査をすり抜け、mapcan が短い引数列 (x) で打ち切られて
+      ;; (x->A のみ収集し B を捨てて) エラーにならない。よってこのアサーションは FAIL。
+      (signals unmatching-fterm-error
+        (clover.unify::%%collect-disagreement-set
+          (fterm 'f (list (vterm 'x)))
+          (fterm 'f (list (constant 'A) (constant 'B)))))
+
+      ;; 高レベルテスト: 公開 API find-most-general-unifier-set 経由。
+      ;; トップレベル g/2 同士はアリティが一致するため上位の検査を通過するが、
+      ;; 内側の f/1 と f/2 はアリティが異なる。本来 ununifiable-error になるべき
+      ;; だが、現状は誤って単一化に成功する。よってこのアサーションは FAIL。
+      (signals ununifiable-error
+        (find-most-general-unifier-set
+          (fterm 'g (list (fterm 'f (list (vterm 'x))) (constant 'C)))
+          (fterm 'g (list (fterm 'f (list (constant 'A) (constant 'B))) (constant 'C)))))
+
+      ;; 対照群: 内側アリティが一致し、本当に単一化可能なケースは従来どおり成功する。
+      ;; 修正後も、上の2つの signals とこの is が同時に通る形になるべき。
+      (is
+        (let ((us
+                (find-most-general-unifier-set
+                  (fterm 'g (list (fterm 'f (list (vterm 'x))) (constant 'C)))
+                  (fterm 'g (list (fterm 'f (list (constant 'A))) (constant 'C))))))
+          (unifier-set=
+            us
+            (unifier-set
+              (list (unifier (vterm 'x) (constant 'A))))))))
+
+
 (test clover.tests.unify.find-most-general-unifier-set.test1
 
       (is 

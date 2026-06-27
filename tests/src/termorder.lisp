@@ -10,6 +10,32 @@
 (in-package :clover.tests.termorder)
 
 
+(test clover.tests.termorder.lexicographic-order<.arglen-mismatch
+      ;; 不具合2: LPO の辞書式比較 lexicographic-order< の戻り値が誤り。
+      ;;
+      ;; src/termorder.lisp の lexicographic-order< では、先頭引数で
+      ;; head1 < head2 が確定した分岐の戻り値が (= (length args1) (length args2))
+      ;; になっている。LPO の辞書式ケースの定義上、先頭で大小が確定した時点で
+      ;; args1 < args2 が確定するので、本来は t を返すべき。
+      ;;
+      ;; 通常の呼び出し経路では fsymbol1 = fsymbol2 が確定した後に呼ばれるため
+      ;; args1 と args2 は同長となり、(= ...) はたまたま t になって実害が出にくい。
+      ;; そこで lexicographic-order< を直接呼び、head1 < head2 が成り立ち、かつ
+      ;; args1 と args2 の長さが異なる入力を与えてバグを実証する。
+      ;;
+      ;; ここでは ZERO < plus(x)（function-symbol-order で zero < plus）。
+      ;; args1 は長さ2、args2 は長さ1。本来 t を返すべきだが、現状は
+      ;; (= 2 1) = nil を返すため、このアサーションは FAIL する。
+      (setf *term-order-algorithm* :lpo)
+      (let ((ordering
+              (function-symbol-ordering
+                (list 'zero 'plus 'inv))))
+        (is (clover.termorder::lexicographic-order<
+              (list (constant 'ZERO) (vterm 'y))
+              (list (fterm 'plus (list (vterm 'x))))
+              ordering))))
+
+
 (test clover.tests.termorder.term<.test2
 
       (setf *term-order-algorithm* :lpo)
