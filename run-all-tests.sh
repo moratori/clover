@@ -3,12 +3,17 @@
 #### 使用コマンド有無確認
 roswell="`/usr/bin/which ros`"
 timeout="`/usr/bin/which timeout`"
+remove="`/usr/bin/which rm`"
 dot="`/usr/bin/which dot`"
 if [ -z "$roswell" ] || [ -z "$timeout" ]; then
         echo "following command required"
         echo "* ros"
         echo "* timeout"
         exit 1
+fi
+if [ -z "$remove" ]; then
+    echo "rm command required"
+    exit 1
 fi
 
 
@@ -37,7 +42,7 @@ coverage_path="${project_root}/coverage/"
 
 #### テスト実行結果等を出力するためのディレクトリを作成
 if [ "${project_root}" != "" ];then
-      /usr/bin/rm -r "${coverage_path}"
+      $remove -r "${coverage_path}"
 fi
 /bin/mkdir -p "${dot_src_path}"
 /bin/mkdir -p "${coverage_path}"
