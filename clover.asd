@@ -7,6 +7,11 @@
   Author: moratori
 |#
 
+#+sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (require :sb-cover)
+  (require :sb-sprof))
+
 (defsystem "clover"
   :version "2.6.1"
   :author "moratori"
