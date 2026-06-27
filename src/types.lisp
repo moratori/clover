@@ -197,7 +197,7 @@
                      (format stream "~A" (string-upcase fsymbol-name))
                      (format stream "~A(~{~A~^,~})" (string-downcase fsymbol-name) args)))))
              (:include term)
-             (:constructor fterm (fsymbol args))
+             (:constructor %fterm (fsymbol args))
              (:conc-name fterm.))
   "関数項を表現する構造体
    関数項のシンボルと引数を保持する"
@@ -216,6 +216,11 @@
   "定数(引数なしのfterm)を表す構造体"
   (value fsymbol :type symbol)
   )
+
+(defun fterm (fsymbol args)
+  (if (null args)
+      (constant fsymbol)
+      (%fterm fsymbol args)))
 
 (defstruct (unifier
              (:print-object
