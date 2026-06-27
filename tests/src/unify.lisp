@@ -191,6 +191,39 @@
       )
 
 
+(test clover.tests.unify.subsumption-clause-p.reflexivity
+      ;; 横展開調査で判明した不具合: subsumption-clause-p が反射律を満たさない。
+      ;; 任意の節は恒等代入で自分自身を包摂するはずだが、{P(x),P(A)} 型
+      ;; （変数のみのリテラル＋別リテラル）は自分自身を包摂しない。
+      ;; 原因: %%collect-disagreement-set((vterm)(vterm)) が同一変数でも恒等
+      ;; 単一化子 x:=x を生成し、貪欲マッチで P(A) も先頭 P(x) に当たって x:=A を
+      ;; 要求 → consistent-unifier-set-p が x:=x と x:=A の衝突で偽 → NIL。
+      ;; → 下記は現実装では FAIL する。
+      (let ((c (clause (list (literal nil 'P (list (vterm 'x)))
+                             (literal nil 'P (list (constant 'A)))))))
+        (is (subsumption-clause-p c c)))
+      ;; 対照: 変数のみの節は反射律 OK（現状でも T）
+      (let ((c (clause (list (literal nil 'P (list (vterm 'x)))
+                             (literal nil 'P (list (vterm 'y)))))))
+        (is (subsumption-clause-p c c))))
+
+(test clover.tests.unify.subsumption-clause-p.sign-sensitivity
+      ;; 横展開調査で判明した不具合: subsumption-clause-p がリテラルの符号(negation)を
+      ;; 無視して貪欲マッチするため偽陰性になる。
+      ;; {P(x)} は P(x)->P(B) で {¬P(A), P(B)} を包摂する（本来 T）が、符号を無視して
+      ;; 先頭の ¬P(A) に当たり x:=A に確定 → 後段の符号厳密な clause-subset が満たせず
+      ;; NIL を返す。→ 下記は現実装では FAIL する。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))))
+            (clause (list (literal t 'P (list (constant 'A)))
+                          (literal nil 'P (list (constant 'B)))))))
+      ;; 対照: 同じ意味で並び順を入れ替える（P(B) を先頭に）と現状でも T。
+      ;; ＝結果が節の並び順に依存していることの実証。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (constant 'B)))
+                          (literal t 'P (list (constant 'A))))))))
+
 (test clover.tests.unify.subsumption-clause-p.test1
       (is (subsumption-clause-p
               (clause (list (literal nil 'P 

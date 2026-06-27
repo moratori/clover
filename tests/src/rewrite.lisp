@@ -333,3 +333,30 @@
         (is (term-set= result expected))))
 
 
+
+
+(test clover.tests.rewrite.rewrite-all-ways.constant-redex
+      ;; 横展開調査で判明した不具合: rewrite-all-ways の constant メソッド
+      ;; (src/rewrite.lisp の (term constant) メソッドが nil を返す) が
+      ;; (term fterm) メソッドを遮蔽し、定数が被書換項(redex)になる場合を取りこぼす。
+      ;; rewrite / rewrite-final は定数を正しく書き換えるのと非対称。
+      ;; → 下の2つは現実装では FAIL する（NIL が返る）。
+
+      ;; 定数そのもの A を A->B で書き換え
+      (is (term-set=
+            (rewrite-all-ways (constant 'A)
+                              (rewrite-rule (constant 'A) (constant 'B)))
+            (list (constant 'B))))
+
+      ;; fterm の引数位置にある定数 g(A,A) を A->B で（2つの書換位置）
+      (is (term-set=
+            (rewrite-all-ways (fterm 'g (list (constant 'A) (constant 'A)))
+                              (rewrite-rule (constant 'A) (constant 'B)))
+            (list (fterm 'g (list (constant 'B) (constant 'A)))
+                  (fterm 'g (list (constant 'A) (constant 'B))))))
+
+      ;; 対照: 非定数 redex は現状でも正しく列挙される
+      (is (term-set=
+            (rewrite-all-ways (fterm 'f (list (fterm 'g (list (vterm 'z)))))
+                              (rewrite-rule (fterm 'g (list (vterm 'w))) (constant 'C)))
+            (list (fterm 'f (list (constant 'C)))))))
