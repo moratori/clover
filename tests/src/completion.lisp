@@ -12,6 +12,50 @@
 
 
 
+(test clover.tests.completion.orient.unable-to-orient
+      ;; カバレッジ補強: %orient の「向き付け不能」パス（src/completion.lisp の
+      ;; cond の t 節, unable-to-orient-equation を送出する分岐）はこれまで
+      ;; どのテストからも到達していなかった（coverage で未実行=赤）。
+      ;;
+      ;; LPO で left < right も right < left も成り立たない等式を与えると、
+      ;; %orient はどちらの向きにも規則化できず unable-to-orient-equation を
+      ;; 送出するべき。これは完備化の停止性・健全性に関わるコア分岐。
+      (setf *term-order-algorithm* :lpo)
+      (let ((ordering
+              (function-symbol-ordering
+                (list 'zero 'plus 'inv 'f 'g))))
+
+        ;; ケース1: 両辺が相異なる変数 x = y。
+        ;; term< は (vterm vterm) で常に nil のため、どちら向きにも決まらない。
+        (signals clover.conditions:unable-to-orient-equation
+          (clover.completion::%orient
+            ordering
+            (equation nil (vterm 'x) (vterm 'y))))
+
+        ;; ケース2: f(x) = f(y)（同記号・同サイズ・変数のみで決着しない）。
+        (signals clover.conditions:unable-to-orient-equation
+          (clover.completion::%orient
+            ordering
+            (equation nil
+              (fterm 'f (list (vterm 'x)))
+              (fterm 'f (list (vterm 'y))))))
+
+        ;; 対照群: 向き付け可能な等式は規則化に成功し、rewrite-rule を返す。
+        ;; plus(zero,x) = x は右辺 x が左辺の真部分項なので left > right、
+        ;; よって left(plus 項) -> right(変数) の向きに規則化される。
+        ;; なお %orient は rename を通すため変数名は正規化される。ここでは
+        ;; 変数名に依存せず「向き付けの方向（src=plus項, dst=変数）」を確認する。
+        (let ((rule
+                (clover.completion::%orient
+                  ordering
+                  (equation nil
+                    (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
+                    (vterm 'x)))))
+          (is (typep rule 'rewrite-rule))
+          (is (typep (rewrite-rule.src rule) 'fterm))
+          (is (eq 'plus (fterm.fsymbol (rewrite-rule.src rule))))
+          (is (typep (rewrite-rule.dst rule) 'vterm)))))
+
 (test clover.tests.completion.collect-small-rules.test1
       (let* ((rule1
                (rewrite-rule
