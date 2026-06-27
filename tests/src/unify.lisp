@@ -480,6 +480,9 @@
       (is (not (alphabet= (vterm 'y) (fterm 'f (list (vterm 'x))))))
       (is (not (alphabet= (constant 'B) (vterm 'b))))
       (is (alphabet= (constant 'B) (constant 'B)))
+      ;; (fterm 'B nil) は現在 constant に正規化されるため、これは実質
+      ;; constant 同士の比較になる（ゼロ引数 fterm はもう生成されない）。
+      (is (typep (fterm 'B nil) 'constant))
       (is (alphabet= (constant 'B) (fterm 'B nil))))
 
 (test clover.tests.unify.alphabet=.test6
@@ -685,6 +688,93 @@
               (fterm 'plus (list (constant 'ZERO) (vterm 'u)))
               (vterm 'u)
               )))))
+
+
+(test clover.tests.unify.alphabet=.reflexivity
+      ;; あるべき仕様: alphabet= は「変数名の付け替えを除いた同値」を表す同値関係で
+      ;; あり、任意の規則/等式 r に対して反射律 (alphabet= r r) = 真 が成り立つべき。
+      ;;
+      ;; 事実: %alphabet=-for-rule-or-eq の vterm->fterm 分岐は、dst 同士の最汎
+      ;; 単一化子に (src1 -> src2) が含まれるかを member で検査する。src の変数が
+      ;; dst に出現しない場合、その単一化子集合に src 変数が現れず member 検査が
+      ;; 失敗するため、自己比較でも NIL を返す。よって下の「違反」群は現実装で
+      ;; FAIL する（反射律が破れている）。
+
+      ;; --- 反射律が成立する形状（対照群・現実装でも真）---
+      (let ((r-ff   (rewrite-rule (fterm 'f (list (vterm 'x) (vterm 'y)))
+                                  (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y)))))))
+            (r-fv   (rewrite-rule (fterm 'f (list (vterm 'x))) (vterm 'x)))
+            (r-vv   (rewrite-rule (vterm 'x) (vterm 'y)))
+            (r-cf   (rewrite-rule (constant 'A) (fterm 'f (list (vterm 'x)))))
+            (e-ff   (equation nil (fterm 'f (list (vterm 'x) (vterm 'y)))
+                                  (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y)))))))
+            (e-comm (equation nil (fterm 'plus (list (vterm 'x) (vterm 'y)))
+                                  (fterm 'plus (list (vterm 'y) (vterm 'x))))))
+        (is (alphabet= r-ff   r-ff))
+        (is (alphabet= r-fv   r-fv))
+        (is (alphabet= r-vv   r-vv))
+        (is (alphabet= r-cf   r-cf))
+        (is (alphabet= e-ff   e-ff))
+        (is (alphabet= e-comm e-comm)))
+
+      ;; --- 反射律が破れている形状（変数 <-> その変数を含まない項）---
+      ;; いずれも自分自身との比較。本来 真 であるべきだが現実装は NIL を返し FAIL する。
+      (let ((r-vf-nofree (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y)))))  ; x -> f(y)
+            (r-vc        (rewrite-rule (vterm 'x) (constant 'A)))                 ; x -> A
+            (e-vc        (equation nil (vterm 'x) (constant 'A)))                 ; x = A
+            (e-vf-nofree (equation nil (vterm 'x) (fterm 'f (list (vterm 'y)))))) ; x = f(y)
+        (is (alphabet= r-vf-nofree r-vf-nofree))
+        (is (alphabet= r-vc        r-vc))
+        (is (alphabet= e-vc        e-vc))
+        (is (alphabet= e-vf-nofree e-vf-nofree))))
+
+
+(test clover.tests.unify.alphabet=.constant-dst
+      ;; %alphabet=-for-rule-or-eq の「定数を含む規則/等式」のあるべき挙動。
+      ;;
+      ;; 事実: constant は types.lisp で (:include fterm)。%alphabet=-for-rule-or-eq
+      ;; の typecase は (fterm ...) が (constant ...) より先にあるため、定数値は
+      ;; (fterm ...) 節に吸い込まれ (constant ...) 節へは到達しない。その結果、
+      ;; src=変数・dst=定数の規則/等式は vterm->fterm 経路を通り、mgu(定数,定数) が
+      ;; 空集合になるため member 検査が空集合に対して失敗し、本来 T であるべき
+      ;; ところ NIL を返す（＝下の [A][B] は現実装では FAIL する）。
+      ;;
+      ;; あるべき仕様（推測・確度高、要設計確認）: 定数は変数を含まないため
+      ;; src<->dst の変数対応制約が無く、各辺が個別に alphabet= であれば規則/等式
+      ;; としてもアルファ同値（T）とすべき。
+
+      ;; --- 現実装では FAIL する（本来 T であるべき）---
+      ;; [A] x -> A と z -> A は変数 x/z を付け替えれば一致する同一規則。
+      (is (alphabet=
+            (rewrite-rule (vterm 'x) (constant 'A))
+            (rewrite-rule (vterm 'z) (constant 'A))))
+      ;; [B] 等式版 x = A と z = A も同様に同値であるべき。
+      (is (alphabet=
+            (equation nil (vterm 'x) (constant 'A))
+            (equation nil (vterm 'z) (constant 'A))))
+
+      ;; --- 対照群（現実装でも T。修正後も維持されるべき）---
+      ;; [C] fterm-src + 定数-dst。
+      (is (alphabet=
+            (rewrite-rule (fterm 'f (list (vterm 'x))) (constant 'A))
+            (rewrite-rule (fterm 'f (list (vterm 'z))) (constant 'A))))
+      ;; [E] 定数-src + fterm-dst。
+      (is (alphabet=
+            (rewrite-rule (constant 'A) (fterm 'f (list (vterm 'x))))
+            (rewrite-rule (constant 'A) (fterm 'f (list (vterm 'y))))))
+
+      ;; --- 過剰許容の防止（修正後も NIL を維持すべき負のケース）---
+      ;; 定数が異なれば不一致。
+      (is (not (alphabet=
+                 (rewrite-rule (vterm 'x) (constant 'A))
+                 (rewrite-rule (vterm 'z) (constant 'B)))))
+      (is (not (alphabet=
+                 (equation nil (vterm 'x) (constant 'A))
+                 (equation nil (vterm 'z) (constant 'B)))))
+      ;; src の変数構造が異なれば、dst が定数でも src を無視して T にしてはいけない。
+      (is (not (alphabet=
+                 (rewrite-rule (fterm 'f (list (vterm 'x) (vterm 'x))) (constant 'A))
+                 (rewrite-rule (fterm 'f (list (vterm 'u) (vterm 'v))) (constant 'A))))))
 
 
 (test clover.tests.unify.find-most-general-unifier-set.test2
