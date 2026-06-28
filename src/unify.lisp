@@ -214,48 +214,52 @@
 (defmethod find-most-general-unifier-set ((term1 term) (term2 term))
   (%find-most-general-unifier-set term1 term2))
 
+
 (defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
-  ;; clause1がclause2を包摂するかを判定する
-  ;; clause1がclause2を包摂する <=>
-  ;; len(clause1) <= len(clause2) 且つ
-  ;; ある代入S が存在して、clause1・S subset-of clause2
+  ;; {P(x), Q(x)}
+  ;; {P(A), P(B), Q(B)}
+  ;; ((unifier unifier) (unifier))
   (when (<= (clause-length clause1)
             (clause-length clause2))
-    (let ((unifier-set-list nil) 
+    (let ((renamed-clause1 (rename clause1))
+          (renamed-clause2 (rename clause2))
           (found-isolated-literal nil)
-          (clause1 (rename clause1)))
+          (mgu-list-for-each-literal nil))
       (loop
-        :named exit2
-        :for lit1 :in (clause.literals clause1)
-        :for first-found-mgu := 
-        (loop
-          :named exit1
-          :for lit2 :in (clause.literals clause2)
-          :for mgu := (when  (eq (literal.negation lit1)
-                                 (literal.negation lit2))
-                        (handler-case
-                            (find-most-general-unifier-set lit1 lit2)
-                          (ununifiable-error (e) nil)))
-          :if mgu
-          :do (return-from exit1 mgu))
-        :if first-found-mgu
-        :do (push first-found-mgu unifier-set-list)
-        :if (not first-found-mgu)
-        :do (progn
-              (setf found-isolated-literal t)
-              (return-from exit2)))
+        :named exit
+        :for literal1 :in (clause.literals renamed-clause1)
+        :for mgu-list := 
+          (loop
+            :for literal2 :in (clause.literals renamed-clause2)
+            :for mgu := (when  (eq (literal.negation literal1)
+                                   (literal.negation literal2))
+                          (handler-case
+                              (find-most-general-unifier-set literal1 literal2)
+                            (ununifiable-error (e) nil)))
+            :if mgu
+            :collect mgu)
+        :do
+        (cond
+          ((null mgu-list)
+           (setf found-isolated-literal t)
+           (return-from exit) )
+          (t
+           (push mgu-list mgu-list-for-each-literal))))
       (unless found-isolated-literal
-        (let ((theta 
-                (unifier-set
-                  (mapcan 
-                    (lambda (us)
-                      (unifier-set.unifiers us))
-                    unifier-set-list))))
-          (and 
-            (consistent-unifier-set-p theta)
-            (clause-subset 
-              (apply-unifier-set clause1 theta)
-              clause2)))))))
+        (find-in-cartesian 
+          (lambda (tuple)
+            (let ((theta
+                    (unifier-set
+                      (loop
+                        :for us :in tuple
+                        :append (unifier-set.unifiers us)))))
+              (and 
+                (consistent-unifier-set-p theta)
+                (clause-subset
+                  (apply-unifier-set renamed-clause1 theta)
+                  renamed-clause2))))
+          mgu-list-for-each-literal)))))
+
 
 (defmethod alphabet= ((term1 term) (term2 term))
   (let* ((dummy-pred

@@ -224,6 +224,34 @@
             (clause (list (literal nil 'P (list (constant 'B)))
                           (literal t 'P (list (constant 'A))))))))
 
+(test clover.tests.unify.subsumption-clause-p.greedy-incompleteness
+      ;; 横展開調査で判明した不具合: subsumption-clause-p の内側ループが
+      ;; 「先頭に出会った単一化可能な lit2 へ確定」する貪欲マッチで、選択に
+      ;; バックトラックが無いため、包摂判定として不完全（偽陰性を返し得る）。
+      ;;
+      ;;   C = {P(x), Q(x)}        （x を共有）
+      ;;   D = {P(A), P(B), Q(B)}
+      ;;
+      ;; 真の包摂: θ = {x:=B} で Cθ = {P(B), Q(B)} ⊆ D。よって C は D を包摂する（本来 T）。
+      ;; 貪欲マッチの挙動: P(x) を D 先頭の P(A) に当てて x:=A を確定 →
+      ;;   Q(x) は Q(B) で x:=B を要求 → consistent-unifier-set-p が矛盾で偽 → NIL。
+      ;;   正解は P(x) を 2 番目の P(B) に当てることだが、先頭確定のため到達できない。
+      ;; → 下記は（恒等単一化子・符号の修正後も）依然 FAIL する。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (constant 'A)))
+                          (literal nil 'P (list (constant 'B)))
+                          (literal nil 'Q (list (constant 'B)))))))
+      ;; 対照: D を並べ替えて P(B) を先頭にすると、貪欲マッチでも P(x)->P(B) を
+      ;; 先に確定でき、現状でも T になる。＝結果が D の並び順に依存することの実証。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (constant 'B)))
+                          (literal nil 'P (list (constant 'A)))
+                          (literal nil 'Q (list (constant 'B))))))))
+
 (test clover.tests.unify.subsumption-clause-p.test1
       (is (subsumption-clause-p
               (clause (list (literal nil 'P 
