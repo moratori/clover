@@ -46,6 +46,7 @@
                    (:file "completion")
                    (:file "multiprocess")
                    (:file "multicompletion")
+                   (:file "completion-corpus")
                    (:file "rendertree")
                    (:file "parser"))))))
   :description "Test system for clover")

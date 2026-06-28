@@ -2,23 +2,122 @@
 
 [![Build Status](https://travis-ci.org/moratori/clover.svg?branch=master)](https://travis-ci.org/moratori/clover)
 
-## 概要
+## Overview
 
-一階述語論理式の証明を行うCommon Lisp実装のツールです。以下のアルゴリズムを実装しています。
-* Knuth-Bendixの完備化アルゴリズム
-* 導出原理(Resolution Principle)
+Clover is an experimental automated theorem prover for first-order predicate
+logic, implemented in Common Lisp. It implements the following algorithms:
 
-## インストール
+* The Knuth-Bendix completion algorithm
+* The resolution principle
 
-### バイナリ
+## Installation
 
-LinuxとWindows向けにビルドしたバイナリをダウンロード可能です。
+### Binary
+
+Prebuilt binaries for Linux and Windows are available for download.
 
 [Releases](https://github.com/moratori/clover/releases)
 
-## コマンドラインからのバッチ実行
+### From source
 
-完備化処理については、コマンドラインからバッチ的に実行することができます。
+Clover is **not** registered in the public Quicklisp distribution, so it cannot
+be installed with `ql:quickload` out of the box. You need to place the source
+where ASDF can find it and load it manually.
+
+1. Put the `clover` repository in a location that ASDF searches, such as your
+   local-projects directory (for Roswell this is typically
+   `~/.roswell/local-projects/`, for a standard Quicklisp setup
+   `~/quicklisp/local-projects/`):
+
+   ```sh
+   cd ~/.roswell/local-projects/   # or ~/quicklisp/local-projects/
+   git clone https://github.com/moratori/clover.git
+   ```
+
+2. Clover depends on the `lexer` library, which is **also not available in
+   Quicklisp**. Clone it into the same local-projects directory so that ASDF can
+   resolve the dependency:
+
+   ```sh
+   cd ~/.roswell/local-projects/   # or ~/quicklisp/local-projects/
+   git clone https://github.com/massung/lexer.git
+   ```
+
+   All other dependencies are available from Quicklisp and will be downloaded
+   automatically.
+
+3. Load Clover from the REPL:
+
+   ```lisp
+   (ql:quickload :clover)
+   ```
+
+   To load the test system instead, use `(ql:quickload :clover-test)`.
+
+## Running the tests
+
+Clover uses the [1am](https://github.com/lmj/1am) test framework. The test suite
+lives under `tests/` and is defined by the `clover-test` ASDF system.
+
+### Running the full suite
+
+The simplest way is the helper script at the repository root:
+
+```sh
+./run-all-tests.sh
+```
+
+This requires Roswell and the `timeout` command. On SBCL it additionally
+generates `sb-cover` coverage (written under `coverage/`) and an `sb-sprof`
+profile; if Graphviz (`dot`) is installed, refutation trees are rendered as PNG
+images. The whole run is bounded by a wall-clock timeout (`test_duration_time`
+in the script).
+
+### Running from the REPL
+
+Load the test system and run every registered test:
+
+```lisp
+(ql:quickload :clover-test)
+(1am:run)
+```
+
+Each test is an ordinary function, so a single test can be run by calling its
+symbol directly:
+
+```lisp
+(clover.tests.unify::clover.tests.unify.subsumption-clause-p.boundary)
+```
+
+To run only the tests belonging to a particular package, filter `1am:*tests*`
+by `symbol-package` and pass the result to `1am:run`:
+
+```lisp
+(1am:run
+  (remove-if-not
+    (lambda (test)
+      (string= "CLOVER.TESTS.SIMPLIFY"
+               (package-name (symbol-package test))))
+    1am:*tests*))
+```
+
+### Completion benchmark corpus
+
+The package `clover.tests.completion.corpus` contains regression tests built from
+the equational-system benchmarks published on the JAIST Maximal Completion
+experiments page:
+
+* <https://www.jaist.ac.jp/project/maxcomp/experiments/experiments.html>
+
+The corresponding `.trs` files (originating from TPDB and the literature) are
+bundled under `tests/resources/eq_systems/`. Each test simply asserts that the
+current build of Clover completes the system. Only the subset that completes
+quickly and reliably is included; harder instances are intentionally omitted to
+keep the suite fast and non-flaky.
+
+## Running batch completion from the command line
+
+The completion procedure can be executed in batch mode from the command line.
 
 ```
 $ cat input_file.txt
@@ -47,14 +146,14 @@ YES
 $
 ```
 
-## REPLの実行
+## Running the REPL
 
-導出原理と完備化による証明を実行することができます。
+You can run proofs using either the resolution principle or completion.
 
-`:def-axiom`コマンドを用いて、証明したい式の前提となる式を定義します。
-その後、証明したい式を入力することで証明を試行します。
+Use the `:def-axiom` command to define the premises of the formula you want to
+prove. After that, entering the formula to be proved starts the proof attempt.
 
-### 導出原理による証明例
+### Example: proof by the resolution principle
 
 ```
 $ ./clover-linux-x86_64_ver2.2.1
@@ -103,10 +202,11 @@ PROVABLE under the human
  !love(y,x) | !love(x,y) | happy(y)
 ```
 
-### 等式証明例
+### Example: equational proof
 
-入力された式が等式である場合は、完備化を試みます。
-完備化が成功した場合は、項書き換え系の元で等式を証明することができます。
+When the entered formula is an equation, Clover attempts completion.
+If completion succeeds, the equation can be proved under the resulting term
+rewriting system.
 
 ```
 (NIL)>>> :def-axiom group
@@ -136,16 +236,15 @@ irreducible form under the group:
 plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
 ```
 
-## 式の入力形式
+## Input format
 
 ### REPL
 
-前提となる式を定義する際には、`<premise expression>`の形式で入力します。
-それ以外の場合は、`<consequence expression>`の形式で入力します。
-
+When defining a premise, the input follows the `<premise expression>` form.
+Otherwise, the input follows the `<consequence expression>` form.
 
 ```
-<premise expression> ::= <equation> 
+<premise expression> ::= <equation>
                        | <premise logical expression>
 
 <consequence expression> ::= <equation>
@@ -153,7 +252,7 @@ plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
 ```
 
 ```
-<equation> ::= <term> "=" <term> 
+<equation> ::= <term> "=" <term>
              | <term> "!=" <term>
 
 <premise logical expression> ::= <symbol> <argument>
@@ -181,7 +280,7 @@ plus(x,plus(y,plus(z,w))) = plus(x,plus(y,plus(z,w)))
 
 ```
 
-### コマンドラインからのバッチ実行時のファイル形式
+### File format for command-line batch execution
 
 ```
 todo
