@@ -838,6 +838,63 @@
                  (rewrite-rule (fterm 'f (list (vterm 'u) (vterm 'v))) (constant 'A))))))
 
 
+(test clover.tests.unify.alphabet=.rule-vterm-symmetry
+      ;; vterm->vterm 規則の「同変数 vs 別変数」は、alphabet= が対称な同値関係である以上、
+      ;; どちらを第1引数に置いても結果は同じ（NIL）であるべき。
+      ;;
+      ;; 事実: 既存 test6(633-640行) は (同変数, 別変数) の向きだけを検査しており、
+      ;; 逆向き (別変数, 同変数) が未カバー。%alphabet=-for-rule-or-eq の vterm->vterm 分岐は
+      ;;   (if (term= rule1-src rule1-dst) (term= rule2-src rule2-dst) t)
+      ;; と rule1 が別変数のとき rule2 を見ずに t を返すため、向きに依存して偽陽性になる。
+
+      ;; --- 対称性を保証する両向き（本来どちらも NIL）---
+      ;; [A] 別変数 x->y vs 同変数 z->z : 現実装は T を返し FAIL する。
+      (is (not (alphabet= (rewrite-rule (vterm 'x) (vterm 'y))
+                          (rewrite-rule (vterm 'z) (vterm 'z)))))
+      ;; [B] 逆向き 同変数 z->z vs 別変数 x->y : こちらは現実装でも NIL（対称性の対照）。
+      (is (not (alphabet= (rewrite-rule (vterm 'z) (vterm 'z))
+                          (rewrite-rule (vterm 'x) (vterm 'y)))))
+
+      ;; --- 正例（両向きとも T。修正後も維持されるべき）---
+      ;; 別変数同士・同変数同士はアルファ同値。
+      (is (alphabet= (rewrite-rule (vterm 'x) (vterm 'y))
+                     (rewrite-rule (vterm 'z) (vterm 'w))))
+      (is (alphabet= (rewrite-rule (vterm 'x) (vterm 'x))
+                     (rewrite-rule (vterm 'z) (vterm 'z)))))
+
+
+(test clover.tests.unify.alphabet=.rule-free-variable
+      ;; src 変数が dst に出現しない形（自由変数を持つ）規則/等式の、
+      ;; 自己比較ではない「別変数同士のアルファ同値」。
+      ;;
+      ;; 事実: vterm->fterm 分岐は dst 同士の mgu に src 対応 (rule1-src -> rule2-src) が
+      ;; 含まれるかを member で検査する。src 変数が dst に出現しない場合、その mgu に
+      ;; src 変数が現れないため member 検査が失敗し、本来 T であるべきところ NIL を返す。
+      ;; fterm->vterm・等式版も同型の理由で取りこぼす。→ 下記 [A]-[D] は現実装で FAIL する。
+
+      ;; --- 本来 T であるべき（別変数でのアルファ同値）---
+      ;; [A] x->f(y) と z->f(w) は {x:=z, y:=w} で一致する同一規則。
+      (is (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
+                     (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w))))))
+      ;; [B] 対称性: 逆順も T であるべき。
+      (is (alphabet= (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w))))
+                     (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))))
+      ;; [C] fterm->vterm 版 f(y)->x と f(w)->z。
+      (is (alphabet= (rewrite-rule (fterm 'f (list (vterm 'y))) (vterm 'x))
+                     (rewrite-rule (fterm 'f (list (vterm 'w))) (vterm 'z))))
+      ;; [D] 等式版 x=f(y) と z=f(w)。
+      (is (alphabet= (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))
+                     (equation nil (vterm 'z) (fterm 'f (list (vterm 'w))))))
+
+      ;; --- 過剰許容を防ぐ負ケース（現実装でも NIL。修正後も NIL を維持すべき）---
+      ;; [E] x->f(x) は src 変数が dst に出現する形。z->f(w)（出現しない形）とは非同値。
+      (is (not (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'x))))
+                          (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w)))))))
+      ;; [F] dst の関数構造が異なれば非同値。
+      (is (not (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
+                          (rewrite-rule (vterm 'z) (fterm 'g (list (vterm 'w) (vterm 'w))))))))
+
+
 (test clover.tests.unify.find-most-general-unifier-set.test2
 
       (is 
