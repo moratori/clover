@@ -10,3 +10,4 @@ quicklisp/
 coverage/
 qlfile.lock
 tests/test-output-files/
+scratch.lisp
