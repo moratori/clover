@@ -290,71 +290,16 @@
             :test #'alphabet=))))
 
 (defun %alphabet=-for-rule-or-eq (rule1-src rule1-dst rule2-src rule2-dst)
-  (and 
-    (alphabet= rule1-src rule2-src)
-    (alphabet= rule1-dst rule2-dst)
-    (typecase rule1-src
-      (vterm
-        (typecase rule1-dst
-          (vterm 
-            ;; vterm -> vterm
-            (if (term= rule1-src rule1-dst)
-                (term= rule2-src rule2-dst)
-                t))
-          (fterm
-            ;; vterm -> fterm
-            (let* ((unifset
-                     (handler-case
-                         (find-most-general-unifier-set rule1-dst rule2-dst)
-                       (ununifiable-error (c) nil)))
-                   (unifiers 
-                     (when unifset
-                       (unifier-set.unifiers unifset))))
-              (when unifset
-                (or
-                  (member (unifier rule1-src rule2-src)
-                          unifiers
-                          :test #'unifier=)
-                  (member (unifier rule2-src rule1-src)
-                          unifiers
-                          :test #'unifier=)))))
-          (constant t)))
-      (fterm
-        (typecase rule1-dst
-          (vterm
-            ;; fterm -> vterm
-            (let ((unifset
-                    (handler-case
-                        (find-most-general-unifier-set rule1-src rule2-src)
-                      (ununifiable-error (c) nil))))
-              (when unifset
-                (some
-                  (lambda (u)
-                    (let ((src (unifier.src u))
-                          (dst (unifier.dst u)))
-                      (or
-                        (and (term= rule1-dst src) 
-                             (term= rule2-dst dst))
-                        (and (term= rule2-dst src) 
-                             (term= rule1-dst dst)))))
-                  (unifier-set.unifiers unifset)))))
-          (fterm
-            ;; fterm -> fterm
-            (let* ((unifset1
-                     (handler-case
-                         (find-most-general-unifier-set rule1-src rule2-src)
-                       (ununifiable-error (c) nil)))
-                   (unifset2
-                     (handler-case
-                         (find-most-general-unifier-set rule1-dst rule2-dst)
-                       (ununifiable-error (c) nil))))
-              (when (and unifset1 unifset2)
-                (consistent-unifier-set-p
-                  (unifier-set
-                    (append (unifier-set.unifiers unifset1)
-                            (unifier-set.unifiers unifset2)))))))
-          (constant t)))
-      (constant t))))
+  ;; 規則/等式 (src -> dst) のアルファ同値判定。
+  ;; src と dst を1つの結合項 §(src, dst) にまとめ、その項レベル alphabet= に帰着する。
+  ;; こうすると src と dst をまたぐ変数対応（自由変数・共有変数・同変数/別変数の区別）が、
+  ;; 単一の変数全単射として一括かつ正確に扱われる。
+  ;; § には衝突を避けるためのダミー関数記号を用い、両辺で同一の記号を使う。
+  (let ((pair-symbol
+          (%intern-symbol-to-specified-package "DUMMYRULEOREQPAIR")))
+    (alphabet=
+      (fterm pair-symbol (list rule1-src rule1-dst))
+      (fterm pair-symbol (list rule2-src rule2-dst)))))
 
 
 (defmethod alphabet= ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
