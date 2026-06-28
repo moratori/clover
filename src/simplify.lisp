@@ -80,22 +80,27 @@
       :initial-value clauses)))
 
 (defun %remove-subsumption (clauses)
-  (loop 
-    :for target-clause :in clauses
-    :for i :from 0
-    :for subsumptioned := 
-    (loop
-      :named exit
-      :for clause :in clauses
-      :for j :from 0
-      :if (and (/= j i)
-               (subsumption-clause-p clause target-clause)
-               (or 
-                 (not (subsumption-clause-p target-clause clause))
-                 (< j i)))
-      :do (return-from exit t))
-    :if (not subsumptioned)
-    :collect target-clause))
+  ;; 各ペア (i<j) を1回だけ調べる。
+  ;; - i が j を包摂（strict でも相互でも）→ 後ろの j を削除し、前の i を代表として残す。
+  ;; - 前向きが不成立のときだけ逆向きを確認し、j が i を包摂すれば i を削除する。
+  ;; これにより前向き呼び出しは各ペア1回（旧 (/= j i) 版の約半分）に減り、逆向き呼び出しは
+  ;; 前向きが外れたペアのみとなる。removed フラグで既に削除済みの節を含むペアはスキップする。
+  ;; 振る舞いは従来と同値: strict subsumption は順序非依存に削除し、相互包摂（変種・重複節）は
+  ;; 最前の1つを代表として残す。
+  (let* ((vec (coerce clauses 'vector))
+         (n (length vec))
+         (removed (make-array n :initial-element nil)))
+    (loop :for i :below n :do
+      (loop :for j :from (1+ i) :below n :do
+        (unless (or (aref removed i) (aref removed j))
+          (cond
+            ((subsumption-clause-p (aref vec i) (aref vec j))
+             (setf (aref removed j) t))
+            ((subsumption-clause-p (aref vec j) (aref vec i))
+             (setf (aref removed i) t))))))
+    (loop :for i :below n
+          :unless (aref removed i)
+          :collect (aref vec i))))
 
 (defun %remove-alphabet-equal-clause (clauses)
   (loop 
