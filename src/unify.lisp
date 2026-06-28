@@ -246,19 +246,31 @@
           (t
            (push mgu-list mgu-list-for-each-literal))))
       (unless found-isolated-literal
-        (find-in-cartesian 
-          (lambda (tuple)
-            (let ((theta
-                    (unifier-set
-                      (loop
-                        :for us :in tuple
-                        :append (unifier-set.unifiers us)))))
-              (and 
-                (consistent-unifier-set-p theta)
-                (clause-subset
-                  (apply-unifier-set renamed-clause1 theta)
-                  renamed-clause2))))
-          mgu-list-for-each-literal)))))
+        ;; 各 literal1 に candidate mgu を1つ割り当てる組合せを探索する。
+        ;; 全タプルを列挙してから整合性を見る(find-in-cartesian)のではなく、
+        ;; 累積 unifier acc を持ち回り、割り当てるたびに consistent-unifier-set-p で
+        ;; 部分割り当ての整合性を確認し、矛盾した時点でその枝を枝刈りする。
+        ;; （整合的な集合の部分集合は必ず整合的なので、矛盾した部分割り当てを
+        ;;   含む完全タプルは必ず矛盾する＝枝刈りで解を取りこぼさない。）
+        ;; これにより同一述語の長い節で発生する m^n のデカルト積爆発を抑える。
+        (labels ((search-assignment (remaining-mgu-lists acc)
+                   (if (null remaining-mgu-lists)
+                       ;; 全 literal1 に割り当て済み。acc は整合的なので、
+                       ;; 実体に適用して clause2 の部分集合かを最終検証する。
+                       (clause-subset
+                         (apply-unifier-set renamed-clause1 (unifier-set acc))
+                         renamed-clause2)
+                       ;; 次の literal1 の候補 mgu を順に試す。
+                       (some
+                         (lambda (mgu)
+                           (let ((next-acc
+                                   (append acc (unifier-set.unifiers mgu))))
+                             (and
+                               (consistent-unifier-set-p (unifier-set next-acc))
+                               (search-assignment (cdr remaining-mgu-lists)
+                                                  next-acc))))
+                         (car remaining-mgu-lists)))))
+          (search-assignment mgu-list-for-each-literal nil))))))
 
 
 (defmethod alphabet= ((term1 term) (term2 term))

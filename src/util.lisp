@@ -30,7 +30,6 @@
     :prohibited-unifier-set-p
     :occurrence-check
     :collect-variables
-    :find-in-cartesian
     ))
 (in-package :clover.util)
 
@@ -286,10 +285,3 @@
     #'collect-variables
     (literal.args literal))) 
 
-(defun find-in-cartesian (predicate lists &optional (acc nil))
-  (if (null lists)
-      (let ((tuple (reverse acc)))
-        (when (funcall predicate tuple) tuple))
-      (dolist (x (car lists))
-        (let ((found (find-in-cartesian predicate (cdr lists) (cons x acc))))
-          (when found (return found))))))
