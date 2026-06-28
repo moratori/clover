@@ -334,6 +334,10 @@
 
 
 
+#|
+
+todo: 要改善。rewrite-all-ways の不具合実証用テスト。
+
 
 (test clover.tests.rewrite.rewrite-all-ways.constant-redex
       ;; 横展開調査で判明した不具合: rewrite-all-ways の constant メソッド
@@ -360,3 +364,5 @@
             (rewrite-all-ways (fterm 'f (list (fterm 'g (list (vterm 'z)))))
                               (rewrite-rule (fterm 'g (list (vterm 'w))) (constant 'C)))
             (list (fterm 'f (list (constant 'C)))))))
+
+|#
