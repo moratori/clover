@@ -6,6 +6,8 @@
         :clover.types)
   (:import-from :clover.parser
                 :%intern-symbol-to-specified-package)
+  (:import-from :clover.rename
+                :rename)
   (:export 
     :subsumption-clause-p
     :alphabet=
@@ -219,7 +221,9 @@
   ;; ある代入S が存在して、clause1・S subset-of clause2
   (when (<= (clause-length clause1)
             (clause-length clause2))
-    (let (unifier-set-list found-isolated-literal)
+    (let ((unifier-set-list nil) 
+          (found-isolated-literal nil)
+          (clause1 (rename clause1)))
       (loop
         :named exit2
         :for lit1 :in (clause.literals clause1)
@@ -227,9 +231,11 @@
         (loop
           :named exit1
           :for lit2 :in (clause.literals clause2)
-          :for mgu := (handler-case
-                         (find-most-general-unifier-set lit1 lit2)
-                        (ununifiable-error (e) nil))
+          :for mgu := (when  (eq (literal.negation lit1)
+                                 (literal.negation lit2))
+                        (handler-case
+                            (find-most-general-unifier-set lit1 lit2)
+                          (ununifiable-error (e) nil)))
           :if mgu
           :do (return-from exit1 mgu))
         :if first-found-mgu

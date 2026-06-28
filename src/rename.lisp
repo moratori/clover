@@ -4,7 +4,6 @@
         :clover.conditions
         :clover.types 
         :clover.util
-        :clover.unify
         :clover.substitute
         )
   (:import-from :clover.parser
