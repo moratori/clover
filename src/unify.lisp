@@ -215,15 +215,37 @@
   (%find-most-general-unifier-set term1 term2))
 
 
-(defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
-  ;; {P(x), Q(x)}
-  ;; {P(A), P(B), Q(B)}
-  ;; ((unifier unifier) (unifier))
-  (when (<= (clause-length clause1)
-            (clause-length clause2))
-    (let ((renamed-clause1 (rename clause1))
-          (renamed-clause2 (rename clause2))
-          (found-isolated-literal nil)
+(defun %unifier-consistent-with-p (unifier others)
+  ;; unifier が others(unifier のリスト)の全要素と整合するか。
+  ;; 整合 = src が一致するなら dst も一致する
+  ;; (consistent-unifier-set-p の対ごとの判定条件と同一)。
+  (let ((src (unifier.src unifier))
+        (dst (unifier.dst unifier)))
+    (every
+      (lambda (target)
+        (or (term/= src (unifier.src target))
+            (term= dst (unifier.dst target))))
+      others)))
+
+(defun %consistent-extension-p (consistent-acc new-unifiers)
+  ;; 整合済みと仮定する consistent-acc(unifier のリスト)に new-unifiers を加えても
+  ;; 整合かを増分的に判定する。acc 同士は整合済みなので再検査せず、
+  ;; (1) new 同士 と (2) new × acc のみを確認する。
+  ;; 結果は consistent-unifier-set-p(acc ∪ new) と同値(整合条件は対称)だが、
+  ;; O(|acc∪new|^2) ではなく O(|new| * (|new| + |acc|)) で済む。
+  (loop :for (u . rest) :on new-unifiers
+        :always (and (%unifier-consistent-with-p u rest)
+                     (%unifier-consistent-with-p u consistent-acc))))
+
+(defun %subsumption-clause-p-renamed (renamed-clause1 renamed-clause2)
+  ;; subsumption-clause-p の判定本体。呼び出し側で renamed-clause1 と renamed-clause2 が
+  ;; 既に standardize-apart 済み(互いに変数素)であることを前提とし、内部でのリネームを行わない。
+  ;; これにより %remove-subsumption のような O(n^2) のペア走査で、各節のリネームを
+  ;; ループ前に1度だけ行い、ペア毎の二重リネームを省くことができる。
+  ;; subsumption の真偽はリネーム不変なので、結果は従来の subsumption-clause-p と同値。
+  (when (<= (clause-length renamed-clause1)
+            (clause-length renamed-clause2))
+    (let ((found-isolated-literal nil)
           (mgu-list-for-each-literal nil))
       (loop
         :named exit
@@ -248,11 +270,13 @@
       (unless found-isolated-literal
         ;; 各 literal1 に candidate mgu を1つ割り当てる組合せを探索する。
         ;; 全タプルを列挙してから整合性を見る(find-in-cartesian)のではなく、
-        ;; 累積 unifier acc を持ち回り、割り当てるたびに consistent-unifier-set-p で
-        ;; 部分割り当ての整合性を確認し、矛盾した時点でその枝を枝刈りする。
+        ;; 累積 unifier acc を持ち回り、割り当てるたびに部分割り当ての整合性を
+        ;; 確認して、矛盾した時点でその枝を枝刈りする。
         ;; （整合的な集合の部分集合は必ず整合的なので、矛盾した部分割り当てを
         ;;   含む完全タプルは必ず矛盾する＝枝刈りで解を取りこぼさない。）
         ;; これにより同一述語の長い節で発生する m^n のデカルト積爆発を抑える。
+        ;; acc は常に整合済みなので、整合性確認は新規 unifier を acc に対して照合する
+        ;; 増分判定(%consistent-extension-p)で行い、毎回 acc 全体を再検査しない。
         (labels ((search-assignment (remaining-mgu-lists acc)
                    (if (null remaining-mgu-lists)
                        ;; 全 literal1 に割り当て済み。acc は整合的なので、
@@ -263,14 +287,20 @@
                        ;; 次の literal1 の候補 mgu を順に試す。
                        (some
                          (lambda (mgu)
-                           (let ((next-acc
-                                   (append acc (unifier-set.unifiers mgu))))
+                           (let ((new-unifiers (unifier-set.unifiers mgu)))
                              (and
-                               (consistent-unifier-set-p (unifier-set next-acc))
+                               (%consistent-extension-p acc new-unifiers)
                                (search-assignment (cdr remaining-mgu-lists)
-                                                  next-acc))))
+                                                  (append acc new-unifiers)))))
                          (car remaining-mgu-lists)))))
           (search-assignment mgu-list-for-each-literal nil))))))
+
+(defmethod subsumption-clause-p ((clause1 clause) (clause2 clause))
+  ;; {P(x), Q(x)}
+  ;; {P(A), P(B), Q(B)}
+  ;; ((unifier unifier) (unifier))
+  ;; clause1 と clause2 を standardize-apart(互いに変数素化)してから判定本体へ委譲する。
+  (%subsumption-clause-p-renamed (rename clause1) (rename clause2)))
 
 
 (defmethod alphabet= ((term1 term) (term2 term))

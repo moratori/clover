@@ -89,14 +89,19 @@
   ;; 最前の1つを代表として残す。
   (let* ((vec (coerce clauses 'vector))
          (n (length vec))
+         ;; 各節をループ前に1度だけ standardize-apart(gensym リネーム)しておく。
+         ;; これで全節が互いに変数素となり、ペア毎に subsumption-clause-p 内部で行っていた
+         ;; clause1/clause2 の二重リネーム(O(n^2)回)をリネーム判定本体直呼びで省ける。
+         ;; 戻り値は元の節を返す必要があるため、判定用 renamed と出力用 vec を分離する。
+         (renamed (map 'vector #'clover.rename:rename vec))
          (removed (make-array n :initial-element nil)))
     (loop :for i :below n :do
       (loop :for j :from (1+ i) :below n :do
         (unless (or (aref removed i) (aref removed j))
           (cond
-            ((subsumption-clause-p (aref vec i) (aref vec j))
+            ((clover.unify::%subsumption-clause-p-renamed (aref renamed i) (aref renamed j))
              (setf (aref removed j) t))
-            ((subsumption-clause-p (aref vec j) (aref vec i))
+            ((clover.unify::%subsumption-clause-p-renamed (aref renamed j) (aref renamed i))
              (setf (aref removed i) t))))))
     (loop :for i :below n
           :unless (aref removed i)
