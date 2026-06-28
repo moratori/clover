@@ -97,7 +97,8 @@
 
 
 (defmethod rename-for-human-readable-printing ((clause clause))
-  (let* ((unifier-set (make-rename-binds clause))
+  (let* ((target (rename clause))
+         (unifier-set (make-rename-binds target))
          (unif (unifier-set.unifiers unifier-set)))
     (cond 
       ((> (length unif) (length *vterm-for-human-readable*))
@@ -113,11 +114,12 @@
                          (unifier.src u)
                          (vterm (%intern-symbol-to-specified-package sym)))))))
          (apply-unifier-set
-           clause
+           target
            readable-bind))))))
 
 (defmethod rename-for-human-readable-printing ((equation equation))
-  (let* ((unifier-set (make-rename-binds equation))
+  (let* ((target (rename equation))
+         (unifier-set (make-rename-binds target))
          (unif (unifier-set.unifiers unifier-set)))
     (cond 
       ((> (length unif) (length *vterm-for-human-readable*))
@@ -133,19 +135,16 @@
                          (unifier.src u)
                          (vterm (%intern-symbol-to-specified-package sym)))))))
          (equation
-           (equation.negation equation)
+           (equation.negation target)
            (apply-unifier-set 
-             (equation.left equation) readable-bind)
+             (equation.left target) readable-bind)
            (apply-unifier-set
-             (equation.right equation) readable-bind)))))))
+             (equation.right target) readable-bind)))))))
 
-(defmethod rename-for-human-readable-printing ((equation-set equation-set))
-  (equation-set
-    (mapcar #'rename-for-human-readable-printing 
-            (equation-set.equations equation-set))))
 
 (defmethod rename-for-human-readable-printing ((rewrite-rule rewrite-rule))
-  (let* ((unifier-set (make-rename-binds rewrite-rule))
+  (let* ((target (rename rewrite-rule))
+         (unifier-set (make-rename-binds target))
          (unif (unifier-set.unifiers unifier-set)))
     (cond 
       ((> (length unif) (length *vterm-for-human-readable*))
@@ -162,9 +161,14 @@
                          (vterm (%intern-symbol-to-specified-package sym)))))))
          (rewrite-rule
            (apply-unifier-set 
-             (rewrite-rule.src rewrite-rule) readable-bind)
+             (rewrite-rule.src target) readable-bind)
            (apply-unifier-set
-             (rewrite-rule.dst rewrite-rule) readable-bind)))))))
+             (rewrite-rule.dst target) readable-bind)))))))
+
+(defmethod rename-for-human-readable-printing ((equation-set equation-set))
+  (equation-set
+    (mapcar #'rename-for-human-readable-printing 
+            (equation-set.equations equation-set)))) 
 
 (defmethod rename-for-human-readable-printing ((rewrite-rule-set rewrite-rule-set))
   (rewrite-rule-set
