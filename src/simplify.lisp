@@ -88,8 +88,11 @@
       :named exit
       :for clause :in clauses
       :for j :from 0
-      :if (and (> j i)
-               (subsumption-clause-p clause target-clause))
+      :if (and (/= j i)
+               (subsumption-clause-p clause target-clause)
+               (or 
+                 (not (subsumption-clause-p target-clause clause))
+                 (< j i)))
       :do (return-from exit t))
     :if (not subsumptioned)
     :collect target-clause))

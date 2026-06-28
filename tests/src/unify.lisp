@@ -919,3 +919,59 @@
                     (unifier (vterm 'u) (constant 'ZERO)))))))
       )
 
+
+(test clover.tests.unify.alphabet=.equation-set
+      ;; clause-set 版(test3/test4)と対になる equation-set 版。これまで未カバーだった。
+      ;; alphabet= の equation-set メソッドは set-difference を両方向に :test #'alphabet= で取る。
+      ;; 変数リネームのみ異なる等式集合 → T。
+      (is (alphabet=
+            (equation-set (list (equation nil (vterm 'x) (constant 'A))
+                                (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))))
+            (equation-set (list (equation nil (vterm 'z) (constant 'A))
+                                (equation nil (vterm 'z) (fterm 'f (list (vterm 'w))))))))
+      ;; 片方の等式が非同値（A vs B）→ NIL。
+      (is (not (alphabet=
+                 (equation-set (list (equation nil (vterm 'x) (constant 'A))))
+                 (equation-set (list (equation nil (vterm 'z) (constant 'B)))))))
+      ;; 要素数が違えば → NIL。
+      (is (not (alphabet=
+                 (equation-set (list (equation nil (vterm 'x) (constant 'A))
+                                     (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))))
+                 (equation-set (list (equation nil (vterm 'z) (constant 'A)))))))
+      ;; 空集合同士 → T。
+      (is (alphabet= (equation-set nil) (equation-set nil))))
+
+
+(test clover.tests.unify.subsumption-clause-p.boundary
+      ;; 部分割り当ての早期枝刈り版 subsumption-clause-p の境界・退化ケース。
+      ;; 空節(リテラル0個)の clause1 は任意の節を包摂する。
+      ;; （長さ0で長さガードを通過し、割り当て対象が無いので空節に対する clause-subset が T。）
+      (is (subsumption-clause-p
+            (clause nil)
+            (clause (list (literal nil 'P (list (constant 'A)))))))
+      ;; 空節 vs 空節 も T。
+      (is (subsumption-clause-p (clause nil) (clause nil)))
+      ;; clause1 が clause2 より長ければ長さガードで NIL。
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P (list (vterm 'x)))
+                               (literal nil 'Q (list (vterm 'y)))))
+                 (clause (list (literal nil 'P (list (constant 'A))))))))
+      ;; 重複リテラル {P(x),P(x)} は {P(A),P(B)} を包摂する（x:=A で {P(A),P(A)} ⊆ {P(A),P(B)}）。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'P (list (vterm 'x)))))
+            (clause (list (literal nil 'P (list (constant 'A)))
+                          (literal nil 'P (list (constant 'B)))))))
+      ;; 同長で順列を要する包摂 {P(x),Q(y)} vs {Q(B),P(A)} → T（探索が節の並び順を跨ぐ）。
+      (is (subsumption-clause-p
+            (clause (list (literal nil 'P (list (vterm 'x)))
+                          (literal nil 'Q (list (vterm 'y)))))
+            (clause (list (literal nil 'Q (list (constant 'B)))
+                          (literal nil 'P (list (constant 'A)))))))
+      ;; 変数共有が壊れる {P(x),Q(x)} vs {P(A),Q(B)} → NIL（x が A と B で矛盾）。
+      (is (not (subsumption-clause-p
+                 (clause (list (literal nil 'P (list (vterm 'x)))
+                               (literal nil 'Q (list (vterm 'x)))))
+                 (clause (list (literal nil 'P (list (constant 'A)))
+                               (literal nil 'Q (list (constant 'B)))))))))
+

@@ -66,3 +66,29 @@
                        (equation nil (vterm 'x) (fterm 'g (list (vterm 'x))))
                        (unifier-set (list (unifier (vterm 'x) (constant 'A)))))
                      (equation nil (constant 'A) (fterm 'g (list (constant 'A)))))))
+
+(test clover.tests.substitute.apply-unifier-set.sequential-chaining
+      ;; apply-unifier-set は unifier を「左から逐次」適用する（実装は reduce #'apply-unifier）。
+      ;; このため {x:=y, y:=A} を x に適用すると x→y→A と連鎖し、結果は A になる。
+      ;; ＝適用順に依存し、同時代入とは異なる挙動。健全性に関わるので固定する。
+      ;; （注記: mgu は通常 %flatten で冪等化され y:=A のような連鎖は起きにくいが、
+      ;;   apply-unifier-set は任意の unifier-set を受け取るため挙動を pin しておく。
+      ;;   同時代入を意図する場合は順序依存が問題になり得る＝要・仕様確認。）
+      (is (term= (apply-unifier-set
+                   (vterm 'x)
+                   (unifier-set (list (unifier (vterm 'x) (vterm 'y))
+                                      (unifier (vterm 'y) (constant 'A)))))
+                 (constant 'A)))
+      ;; ネストした出現位置にも連鎖が及ぶ。
+      (is (term= (apply-unifier-set
+                   (fterm 'f (list (vterm 'x)))
+                   (unifier-set (list (unifier (vterm 'x) (vterm 'y))
+                                      (unifier (vterm 'y) (constant 'A)))))
+                 (fterm 'f (list (constant 'A)))))
+      ;; 逆順 {y:=A, x:=y} では x→y で止まり（先に y:=A が適用されて x に効かない）、
+      ;; 結果は y。＝結果が unifier の並び順に依存することの実証。
+      (is (term= (apply-unifier-set
+                   (vterm 'x)
+                   (unifier-set (list (unifier (vterm 'y) (constant 'A))
+                                      (unifier (vterm 'x) (vterm 'y)))))
+                 (vterm 'y))))
