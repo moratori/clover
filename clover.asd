@@ -13,7 +13,7 @@
   (require :sb-sprof))
 
 (defsystem "clover"
-  :version "2.6.2"
+  :version "2.6.3"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus

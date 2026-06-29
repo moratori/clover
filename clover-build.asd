@@ -8,7 +8,7 @@
 |#
 
 (defsystem "clover-build"
-  :version "2.6.2"
+  :version "2.6.3"
   :author "moratori"
   :license "LLGPL"
   :depends-on (:cl-cpus
@@ -45,8 +45,8 @@
                  (:file "substitute")
                  (:file "converter")
                  (:file "parser")
-                 (:file "unify")
                  (:file "rename")
+                 (:file "unify")
                  (:file "termorder")
                  (:file "simplify")
                  (:file "resolution")
