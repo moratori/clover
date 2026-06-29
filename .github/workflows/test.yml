@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # タイマー外(install/warm-up)のハング用バックストップ。テスト本体は
+    # run-all-tests.sh 内の TEST_DURATION_TIME で別途制限する。
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Install Roswell
@@ -28,5 +31,9 @@ jobs:
         run: |
           ros -s sb-cover -s clover-test -e '(format t "warmed up on ~A ~A~%" (lisp-implementation-type) (lisp-implementation-version))'
       - name: Run tests
+        env:
+          # CI はカバレッジ計装込み＋低コア数で遅いため、内部タイムアウトを延長する
+          # (ローカルは run-all-tests.sh 既定の 300 秒のまま)。
+          TEST_DURATION_TIME: "1800"
         run: |
           bash run-all-tests.sh
