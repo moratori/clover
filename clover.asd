@@ -24,7 +24,6 @@
                :generators
                :alexandria
                :cl-ppcre
-               :cl-custom-hash-table
                #+sbcl :sb-cover
                #+sbcl :sb-sprof
                )

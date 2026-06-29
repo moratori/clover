@@ -19,7 +19,6 @@
                :generators
                :alexandria
                :cl-ppcre
-               :cl-custom-hash-table
                )
   :components ((:module "src"
                 :around-compile 

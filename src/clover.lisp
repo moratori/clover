@@ -33,13 +33,6 @@
   (some  #'null-clause-p
         (clause-set.clauses clause-set)))
 
-(defmethod node-hash ((node clause-set))
-  (sxhash (format nil "~A" node)))
-
-(defmethod node-equality ((node1 clause-set) (node2 clause-set))
-  (clause-set= node1 node2))
-
-
 (defun %canonical-term-string (term var-index counter-cell out)
   "term を out へ直列化する。変数は var-index(変数シンボル->番号) に従い初出順で番号付け。
    constant は fterm のサブタイプのため fterm より先に分岐する。"
