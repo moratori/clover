@@ -17,6 +17,26 @@
           (setf cached num)))))
 
 
+(defparameter +lost-worker-warning-substring+ "Replacing lost or dead worker"
+  "lparallel が破棄されたワーカーを補充する際に出す警告メッセージ
+   (src/kernel/core.lisp の `(warn \"lparallel: Replacing lost or dead worker.\")`) の判定用部分文字列。")
+
+(defun %muffle-lost-worker-warning (condition)
+  "上記の『ワーカー補充』警告だけを抑制する。`psome/kill' は kill-tasks で非勝者ワーカーを
+   故意に破棄するため、その補充に伴う本警告は想定内のノイズである。メッセージが一致しない
+   警告には何もせず通過させる(=他の警告や『Worker replacement failed』等は従来どおり出る)。"
+  (when (search +lost-worker-warning-substring+ (princ-to-string condition))
+    (muffle-warning condition)))
+
+(defun %worker-context (worker-loop)
+  "make-kernel の :context フック。各ワーカースレッドのループ実行を handler-bind で包む。
+   問題の warn は『ワーカースレッド側』で signal されるため、メインスレッドの handler-bind
+   では捕捉できない。本フックはワーカーループの動的環境内(その :abort 後始末も含む)で
+   ハンドラを張るため、当該スレッドで発生する警告を捕捉・抑制できる。
+   worker-loop はワーカーが終了するまで戻らない関数で、必ず funcall する必要がある。"
+  (handler-bind ((warning #'%muffle-lost-worker-warning))
+    (funcall worker-loop)))
+
 (defun initialize-lparallel-kernel ()
   ;; カーネルは「生成が高価, プロセス存続中に1個」という lparallel 推奨の使い方に従い、
   ;; 既に在ればそれを再利用する(冪等)。以前は毎回 end-kernel :wait nil → make-kernel で
@@ -27,7 +47,9 @@
             (get-number-of-processors)))
       (setf lparallel:*kernel*
             (lparallel:make-kernel
-              (if (>= 1 cpu-number) 1 (1- cpu-number)))))))
+              (if (>= 1 cpu-number) 1 (1- cpu-number))
+              ;; kill-tasks による非勝者ワーカー破棄→補充時の警告を抑制する(後述フック)。
+              :context #'%worker-context)))))
 
 
 (defun psome/kill (predicate &rest sequences)
