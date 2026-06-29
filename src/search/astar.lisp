@@ -29,33 +29,39 @@
 
 (defmethod astar ((initial-node abstract-node))
   (let ((gScore (make-hash-table))
+        ;; closed 集合: 各ノードの正準キー(node-canonical-key)を equal ハッシュで保持し、
+        ;; 既出と同一視できる状態の再エンキューを抑制する。キーの同値性は node-canonical-key の
+        ;; 実装に委ねる(デフォルトはノード自身=実質重複排除なし)。
+        (seen (make-hash-table :test #'equal))
         (queue (make-instance 'priority-queue))
         foundp result)
 
     (setf (gethash initial-node gScore) 0)
+    (setf (gethash (node-canonical-key initial-node) seen) t)
     (enqueue queue initial-node (cost-to-goal initial-node))
 
-    (loop 
+    (loop
       :named exit
       :while (> (queue-size queue) 0)
       :for current := (dequeue queue)
       :if (finish current)
-      :do 
+      :do
       (progn
         (setf foundp t
               result current)
         (return-from exit))
-      :else 
+      :else
       :do
-      (loop 
+      (loop
         :for neighbor :in (open-nodes current)
-        :for tentative-gscore := (+ (cost-to-neighbor current neighbor) 
-                                    (gethash current gScore +POSITIVE-INFINITY+))
-        :if (< tentative-gscore 
-               (gethash neighbor gScore +POSITIVE-INFINITY+))
+        :for key := (node-canonical-key neighbor)
+        :unless (gethash key seen)
         :do
-        (progn
-          (setf (gethash neighbor gScore) tentative-gscore)
+        (let ((tentative-gscore
+                (+ (cost-to-neighbor current neighbor)
+                   (gethash current gScore +POSITIVE-INFINITY+))))
+          (setf (gethash key seen) t
+                (gethash neighbor gScore) tentative-gscore)
           (enqueue queue neighbor (+ tentative-gscore (cost-to-goal neighbor))))))
 
     (values foundp result)))

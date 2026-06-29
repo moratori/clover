@@ -25,7 +25,6 @@
                   ((:module "search"
                     :components 
                     ((:file "iddfs")
-                     (:file "extractor")
                      (:file "astar")
                      (:file "dfs")))
                    (:module "ui"
