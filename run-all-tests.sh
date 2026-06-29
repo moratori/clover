@@ -42,7 +42,7 @@ coverage_path="${project_root}/coverage/"
 
 #### テスト実行結果等を出力するためのディレクトリを作成
 if [ "${project_root}" != "" ];then
-      $remove -r "${coverage_path}"
+      $remove -rf "${coverage_path}"
 fi
 /bin/mkdir -p "${dot_src_path}"
 /bin/mkdir -p "${coverage_path}"
@@ -55,6 +55,7 @@ case "${lisp_implementation}" in
         "sbcl" ) $timeout -k 3 $test_duration_time \
                    $roswell -s sb-cover \
                             -s clover-test \
+                            -e '(sb-ext:disable-debugger)' \
                             -e '(sb-sprof:start-profiling :mode :cpu)' \
                             -e '(1am:run)' \
                             -e '(sb-sprof:stop-profiling) ' \
@@ -64,7 +65,7 @@ case "${lisp_implementation}" in
                  test_result=$?;;
         *      ) $timeout -k 3 $test_duration_time \
                    $roswell -s clover-test \
-                            -e '(1am:run)'
+                            -e '(handler-case (1am:run) (error (e) (format *error-output* "~&TEST FAILED: ~A~%" e) (uiop:quit 1)))'
                  test_result=$?
 esac
 

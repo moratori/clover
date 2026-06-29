@@ -1,7 +1,5 @@
 # Clover
 
-[![Build Status](https://travis-ci.org/moratori/clover.svg?branch=master)](https://travis-ci.org/moratori/clover)
-
 ## Overview
 
 Clover is an experimental automated theorem prover for first-order predicate

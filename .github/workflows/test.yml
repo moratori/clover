@@ -1,0 +1,32 @@
+name: test
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Roswell
+        env:
+          LISP: sbcl-bin
+        run: |
+          curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
+      - name: Sanity check toolchain
+        run: |
+          which ros
+          ros --version
+      - name: Install libraries that cannot be installed with quicklisp
+        run: |
+          ros install massung/lexer
+      - name: Install Graphviz (for refutation tree rendering)
+        run: |
+          sudo apt-get update && sudo apt-get install -y graphviz
+      - name: Warm up dependencies (compile outside the test timeout)
+        run: |
+          ros -s sb-cover -s clover-test -e '(format t "warmed up on ~A ~A~%" (lisp-implementation-type) (lisp-implementation-version))'
+      - name: Run tests
+        run: |
+          bash run-all-tests.sh
