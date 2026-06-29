@@ -11,7 +11,8 @@
                 :next
                 :stop-iteration)
   (:import-from :clover.multiprocess
-                :initialize-lparallel-kernel)
+                :initialize-lparallel-kernel
+                :psome/kill)
   (:export
     :multi-kb-completion
     :toplevel-completion
@@ -128,7 +129,7 @@
                                    function-order)
             :do
             (let ((local-result
-                    (lparallel.cognate:psome
+                    (psome/kill
                       (lambda (order)
                         (handler-case
                             (multiple-value-bind (flag ordering rrs)
