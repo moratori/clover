@@ -31,38 +31,10 @@
                               (space 0)
                               (compilation-speed 0)))
                    (funcall thunk))
+                ;; ソースファイル一覧は clover.asd と共通のため src-components.lisp に括り出している。
                 :components
-                ((:module "search"
-                  :components 
-                  ((:file "common")
-                   (:file "iddfs")
-                   (:file "astar")
-                   (:file "dfs")))
-                 (:file "property")
-                 (:file "conditions")
-                 (:file "types")
-                 (:file "util")
-                 (:file "substitute")
-                 (:file "converter")
-                 (:file "parser")
-                 (:file "rename")
-                 (:file "unify")
-                 (:file "termorder")
-                 (:file "simplify")
-                 (:file "resolution")
-                 (:file "rewrite")
-                 (:file "criticalpair")
-                 (:file "completion")
-                 (:file "multiprocess")
-                 (:file "multicompletion")
-                 (:file "clover")
-                 (:file "rendertree")
-                 (:module "ui"
-                  :components 
-                  ((:file "util")
-                   (:file "batch")
-                   (:file "repl")
-                   (:file "main"))))))
+                #.(read-file-form
+                   (subpathname *load-pathname* "src-components.lisp"))))
   :description "Simple Automated Theorem Prover"
   :long-description
   #.(read-file-string
