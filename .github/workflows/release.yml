@@ -19,8 +19,17 @@ jobs:
         run: |
           ros install massung/lexer
       - name: Create Build
+        # NOTE: --delete-debug-info は一時的に外している。
+        #   このフラグでデバッグ情報を剥いだ実行ファイルは、新しめの SBCL ランタイム
+        #   (手元検証では 2.4.11〜2.6.5 で再現) において、consing を伴う処理＋GC のタイミングで
+        #   `maximum interrupt nesting depth (8) exceeded` / `Bad frame pointer` の fatal error で
+        #   クラッシュする (例: :set-history 有効時の反駁木描画)。
+        #   ビルドフラグ自体は v2.6.0(2022, SBCL 2.2.x) から不変で、当時のバイナリは正常動作する
+        #   ことから、SBCL 側の挙動変化(回帰)が原因と判断している。フラグを外すと全テスト版で解消する。
+        #   将来 SBCL 側が修正された / 再有効化しても再現しないことを確認できたら、リリースビルドの
+        #   バイナリ縮小のため --delete-debug-info を戻したい。
         run: |
-          ros dump --delete-debug-info --remove-docstrings --purify --disable-compression executable ./roswell/clover-build.ros
+          ros dump --remove-docstrings --purify --disable-compression executable ./roswell/clover-build.ros
       - name: Create release and upload asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
