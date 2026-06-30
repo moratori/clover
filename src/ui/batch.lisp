@@ -27,11 +27,11 @@
 
 (defun help ()
   (%stdout
-    "Command help
-     complete <file name>                        execute completion process
-     rewrite  <file name> <term-1> ... <term-n>  execute completion and get irreducible term
-                                                 lowercase alphabet appeared in term is treated as a variable
-                                                 uppercase alphabet is treated as a constant~%")
+    "Available commands:
+     complete <file name>                        run the completion process
+     rewrite  <file name> <term-1> ... <term-n>  run completion and reduce each term to its irreducible form
+                                                 lowercase letters in a term are treated as variables
+                                                 uppercase letters are treated as constants~%")
   )
 
 
@@ -43,7 +43,7 @@
           (probe-file (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 (defmethod %perform-command :around ((command (eql :REWRITE)) args)
   (cond 
@@ -52,7 +52,7 @@
           (probe-file (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 
 (defmethod %perform-command ((command (eql :HELP)) args)
@@ -123,7 +123,7 @@
            (%perform-command :COMPLETE (list subcommand)))
           ((or (not (scan "[a-zA-Z]+" subcommand))
                (> (length subcommand) 9))
-           (%stdout "malformed command: ~A~%" subcommand)
+           (%stdout "Malformed command: ~A~%" subcommand)
            (help))
           (t
            (let* ((command-name
@@ -135,7 +135,7 @@
                       (list command-name subcommand-args))))
              (if available-command
                  (%perform-command command-name subcommand-args)
-                 (%stdout "unimplemented command: ~A~%" subcommand)))))
+                 (%stdout "Unimplemented command: ~A~%" subcommand)))))
       (condition (con)
-        (%stdout "unhandled condition occurred: ~A~%quit~%" con)))))
+        (%stdout "An unhandled condition occurred: ~A~%Quitting.~%" con)))))
 

@@ -44,19 +44,19 @@
 
 (defmethod %perform-command ((command (eql :HELP)) args)
   (%stdout
-   "Command help
-    :help                    show this help
-    :quit                    quit from REPL
-    :def-axiom    <name>     define an axiomatic system <name>
-    :show-axiom              enumerate all axiomatic system that are currently defined
-    :set-axiom    <name>     set current axiomatic system to <name>
-    :save-axiom   <path>     save curent axiomatic system to <path>
-    :load-axiom   <path>     restore axiomatic systems from <path>
-    :set-history             keep resolution history. this option automatically 
-                             enabled if save-tree option on.
-    :unset-history           disable history
-    :save-tree    <path>     save Graphviz code to <path>
-    :unsave-tree~%"))
+   "Available commands:
+    :help                    show this help message
+    :quit                    exit the REPL
+    :def-axiom    <name>     define an axiomatic system named <name>
+    :show-axiom              list all currently defined axiomatic systems
+    :set-axiom    <name>     switch the current axiomatic system to <name>
+    :save-axiom   <path>     save the current axiomatic system to <path>
+    :load-axiom   <path>     load axiomatic systems from <path>
+    :set-history             keep the resolution history; automatically
+                             enabled while the save-tree option is on
+    :unset-history           stop keeping the resolution history
+    :save-tree    <path>     save the refutation tree as Graphviz code to <path>
+    :unsave-tree             stop saving the refutation tree~%"))
 
 (defmethod update-axiomatic-system ((name string) (clause-set clause-set))
   (setf *axiomatic-system-list*
@@ -84,21 +84,21 @@
 
 
 (defmethod prompt-and-do-completion ((equation-set equation-set) (name string))
-  (%stdout "Detected that a set of equations has been inputted.")
-  (when (yes-or-no-p "Do you want to execute completion algorithm? ")
+  (%stdout "The input was recognized as a set of equations.")
+  (when (yes-or-no-p "Do you want to run the completion algorithm? ")
     (multiple-value-bind (flag ordering completed)
           (toplevel-completion equation-set *completion-giveup-threshold*)
         (cond
           (flag
-           (%stdout "~%The completion process was successful: ~%")
-           (%stdout "function ordering : ~A~%~%" ordering)
+           (%stdout "~%The completion process succeeded:~%")
+           (%stdout "Function ordering: ~A~%~%" ordering)
            (loop
              :for rule :in (rewrite-rule-set.rewrite-rules
                              (rename-for-human-readable-printing completed))
              :do (%stdout "~A~%" rule))
            (update-axiomatic-system name completed))
           (t 
-           (%stdout "The completion process failed~%"))))))
+           (%stdout "The completion process failed.~%"))))))
 
 
 
@@ -110,7 +110,7 @@
     (progn
       (%stdout "=====Axiom: ~A=====~%~A~%" name ax)
       (when completed
-        (%stdout "completed axiom:~%")
+        (%stdout "Completed axiom:~%")
         (loop
           :for each :in (rewrite-rule-set.rewrite-rules 
                           (rename-for-human-readable-printing
@@ -128,7 +128,7 @@
           (scan "[a-zA-Z0-9\.]+" (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 (defmethod %perform-command ((command (eql :DEF-AXIOM)) args)
 
@@ -136,7 +136,7 @@
          (cnt 1) 
          clauses)
 
-    (%stdout "input . to finish definition~%")
+    (%stdout "Enter a single '.' to finish the definition.~%")
     (%prompt-def cnt)
     
     (loop
@@ -146,7 +146,7 @@
       :for parsed = (handler-case 
                         (parse-premise-logical-expression line)
                       (expr-parse-error (con)
-                        (%stdout "parser error: ~A~%" con)))
+                        (%stdout "Parser error: ~A~%" con)))
       :do
       (when parsed
         (setf cnt (1+ cnt)
@@ -169,7 +169,7 @@
           (scan "[a-zA-Z0-9\.]+" (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 (defmethod %perform-command ((command (eql :SET-AXIOM)) args)
   (let ((name (first args)))
@@ -186,7 +186,7 @@
           (stringp (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 
 (defmethod do-resolution ((clause-set clause-set))
@@ -194,11 +194,11 @@
       (handler-case
           (time (start_resolution clause-set))
         (clover-toplevel-condition (con)
-          (%stdout "unexpected error occurred: ~A~%" con)
+          (%stdout "An unexpected error occurred: ~A~%" con)
           (throw 'exit nil))
         (condition (con)
-          (%stdout "caught an signal : ~A~%" con)
-          (%stdout "process canceled~%~%")
+          (%stdout "Caught a signal: ~A~%" con)
+          (%stdout "Process canceled.~%~%")
           (values nil nil)))
     (cond 
       (depth
@@ -210,7 +210,7 @@
        (when *save-resolution-history*
          (render-refutation-tree clause-set *standard-output*)))
       (t
-       (%stdout "unknown provability under the ~A~%~%"
+       (%stdout "Provability is unknown under the ~A~%~%"
                 *current-axiomatic-system*)))))
 
 (defmethod do-trs ((clause clause) (rewrite-rule-set rewrite-rule-set))
@@ -233,13 +233,13 @@
           (%stdout "The equation can be ~A under the axiom ~A~%"
                    (make-bold-string "PROVED")
                    *current-axiomatic-system*)
-          (%stdout "~%irreducible form under the ~A:~%"
+          (%stdout "~%Irreducible form under the ~A:~%"
                    *current-axiomatic-system*)
           (loop
             :for each :in irreducibles
             :do
             (%stdout "~A~%" each)))
-        (%stdout "The equation cannot be proved under axioms ~A~%"
+        (%stdout "The equation cannot be proved under the axioms ~A~%"
                  *current-axiomatic-system*))))
 
 
@@ -281,13 +281,13 @@
           (scan "[a-zA-Z0-9\.]+" (pathname-name (pathname (first args)))))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 (defmethod %perform-command ((command (eql :SAVE-AXIOM)) args)
   (let ((output
           (pathname (first args))))
     (unless *current-axiomatic-system*
-      (%stdout "current axiomatic system is null"))
+      (%stdout "The current axiomatic system is not set."))
     (when *current-axiomatic-system*
       (with-open-file (handle output :direction :output :if-exists :supersede)
         (let ((axiomatic-system
@@ -295,7 +295,7 @@
                   (assoc *current-axiomatic-system*
                          *axiomatic-system-list* :test #'string=))))
           (format handle "~A" axiomatic-system)))
-      (%stdout "save completed~%"))))
+      (%stdout "Save completed.~%"))))
 
 
 (defmethod %perform-command :around ((command (eql :LOAD-AXIOM)) args)
@@ -307,7 +307,7 @@
           (scan "[a-zA-Z0-9\.]+" (pathname-name (pathname (first args)))))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 (defmethod %perform-command ((command (eql :LOAD-AXIOM)) args)
   (let* ((input-fname
@@ -318,7 +318,7 @@
       'exit
       (with-open-file (handle input-fname :direction :input :if-does-not-exist nil)
         (unless handle
-          (%stdout "file not found: ~A~%" input-fname)
+          (%stdout "File not found: ~A~%" input-fname)
           (throw 'exit nil))
         (when handle
           (let ((clauses
@@ -332,11 +332,11 @@
                   (handler-case 
                       (parse-premise-logical-expression trimmed)
                     (expr-parse-error (con)
-                      (%stdout "parser error: ~A~%~A~%" con trimmed)
+                      (%stdout "Parser error: ~A~%~A~%" con trimmed)
                       (throw 'exit nil))))))
 
             (update-axiomatic-system fname (clause-set clauses))
-            (%stdout "load completed~%")
+            (%stdout "Load completed.~%")
 
             (let* ((cs (clause-set clauses))
                    (es (convert-to-equation-set cs)))
@@ -351,7 +351,7 @@
           (stringp (first args)))
      (call-next-method))
     (t 
-     (%stdout "invalid command argument: ~A~%" args))))
+     (%stdout "Invalid command argument: ~A~%" args))))
 
 
 (defmethod %perform-command ((command (eql :SAVE-TREE)) args)
@@ -385,10 +385,10 @@
                       (next-method
                        (%perform-command command args))
                       (t 
-                       (%stdout "command not found: ~A~%" command))))
+                       (%stdout "Command not found: ~A~%" command))))
                 (clover-toplevel-condition (con)
                   (%stdout "~A~%" con)))
               (%prompt-toplevel *current-axiomatic-system*))
           (condition (con)
-            (%stdout "unhandled condition occurred: ~A~%quit~%" con)))))
+            (%stdout "An unhandled condition occurred: ~A~%Quitting.~%" con)))))
 
