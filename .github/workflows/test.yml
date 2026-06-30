@@ -10,6 +10,13 @@ jobs:
     # タイマー外(install/warm-up)のハング用バックストップ。テスト本体は
     # run-all-tests.sh 内の TEST_DURATION_TIME で別途制限する。
     timeout-minutes: 30
+    env:
+      # CI は非力なため、カバレッジ計装とプロファイリングを無効化してタイムアウトを回避する。
+      # この変数は warm-up ステップの fasl コンパイル時点で効かせる必要があるため、
+      # ステップ単位ではなく job 単位で設定する(計装済み fasl が再利用されるのを防ぐ)。
+      CLOVER_DISABLE_COVERAGE: "1"
+      # 内部タイムアウト(ローカルは run-all-tests.sh 既定の 300 秒のまま)。
+      TEST_DURATION_TIME: "1800"
     steps:
       - uses: actions/checkout@v4
       - name: Install Roswell
@@ -28,12 +35,9 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y graphviz
       - name: Warm up dependencies (compile outside the test timeout)
+        # CLOVER_DISABLE_COVERAGE 有効時は計装しないので sb-cover のロードは不要。
         run: |
-          ros -s sb-cover -s clover-test -e '(format t "warmed up on ~A ~A~%" (lisp-implementation-type) (lisp-implementation-version))'
+          ros -s clover-test -e '(format t "warmed up on ~A ~A~%" (lisp-implementation-type) (lisp-implementation-version))'
       - name: Run tests
-        env:
-          # CI はカバレッジ計装込み＋低コア数で遅いため、内部タイムアウトを延長する
-          # (ローカルは run-all-tests.sh 既定の 300 秒のまま)。
-          TEST_DURATION_TIME: "1800"
         run: |
           bash run-all-tests.sh

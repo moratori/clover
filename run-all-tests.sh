@@ -50,19 +50,31 @@ fi
 
 
 #### 処理系ごとにテスト実行(sbclの場合はcoverageを出力したいため呼び分ける)
+##   CLOVER_DISABLE_COVERAGE が設定されている場合は、カバレッジ計装とプロファイリングを
+##   無効化して実行する(非力な CI 環境でのタイムアウト回避のため)。
 test_result=0
-case "${lisp_implementation}" in 
-        "sbcl" ) $timeout -k 3 $test_duration_time \
-                   $roswell -s sb-cover \
-                            -s clover-test \
-                            -e '(sb-ext:disable-debugger)' \
-                            -e '(sb-sprof:start-profiling :mode :cpu)' \
-                            -e '(1am:run)' \
-                            -e '(sb-sprof:stop-profiling) ' \
-                            -e '(sleep 2)' \
-                            -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))' \
-                            -e '(sb-sprof:report :type :flat :min-percent 3 :sort-order :descending)'
-                 test_result=$?;;
+case "${lisp_implementation}" in
+        "sbcl" )
+                 if [ -n "${CLOVER_DISABLE_COVERAGE}" ]; then
+                       $timeout -k 3 $test_duration_time \
+                         $roswell -s clover-test \
+                                  -e '(sb-ext:disable-debugger)' \
+                                  -e '(handler-case (1am:run) (error (e) (format *error-output* "~&TEST FAILED: ~A~%" e) (uiop:quit 1)))'
+                       test_result=$?
+                 else
+                       $timeout -k 3 $test_duration_time \
+                         $roswell -s sb-cover \
+                                  -s clover-test \
+                                  -e '(sb-ext:disable-debugger)' \
+                                  -e '(sb-sprof:start-profiling :mode :cpu)' \
+                                  -e '(1am:run)' \
+                                  -e '(sb-sprof:stop-profiling) ' \
+                                  -e '(sleep 2)' \
+                                  -e '(sb-cover:report (merge-pathnames #P"coverage/" (asdf:system-source-directory :clover)) :if-matches (lambda (f) (search "clover/src/" f)))' \
+                                  -e '(sb-sprof:report :type :flat :min-percent 3 :sort-order :descending)'
+                       test_result=$?
+                 fi
+                 ;;
         *      ) $timeout -k 3 $test_duration_time \
                    $roswell -s clover-test \
                             -e '(handler-case (1am:run) (error (e) (format *error-output* "~&TEST FAILED: ~A~%" e) (uiop:quit 1)))'

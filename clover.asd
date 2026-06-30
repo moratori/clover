@@ -36,9 +36,13 @@
                               (speed 0)
                               (space 0)
                               (compilation-speed 0)))
+                   ;; CLOVER_DISABLE_COVERAGE が設定されている場合は計装を行わない。
+                   ;; 計装済み fasl は実行が大幅に遅くなるため、非力な CI 環境では
+                   ;; これを外してテスト全体の実行時間を短縮する。
                    #+sbcl
-                   (declaim (optimize 
-                              (sb-cover:store-coverage-data 3)))
+                   (unless (uiop:getenvp "CLOVER_DISABLE_COVERAGE")
+                     (declaim (optimize
+                                (sb-cover:store-coverage-data 3))))
                    (funcall thunk))
                 :components
                 ((:module "search"
