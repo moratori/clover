@@ -14,6 +14,11 @@ exec ros -Q -- $0 "$@"
 
 
 (defun main (&rest args)
+  ;; psome/kill の kill-tasks(terminate-thread) 後に lparallel ワーカーが wedge すると、
+  ;; 正常終了がそのスレッドの終了を *exit-timeout*(既定60秒) まで待ってハングする。
+  ;; バッチも REPL も「1回起動=1回終了」のため、待ち上限を短縮して即座に終了させる。
+  ;; orderly shutdown 自体は維持されるので、ストリームの flush は通常どおり行われる。
+  #+sbcl (setf sb-ext:*exit-timeout* 1)
   (when (find-package "CLOVER.UI.MAIN")
     (clover.ui.main:main args)))
 
