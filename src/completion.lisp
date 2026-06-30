@@ -11,6 +11,9 @@
         )
   (:import-from :clover.criticalpair
                 :all-critical-pair)
+  (:import-from :clover.canonicalization
+                :canonical-equation-key
+                :canonical-rewrite-rule-key)
   (:export
     :kb-completion
     )
@@ -49,21 +52,23 @@
 (defmethod delete-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (values
     (equation-set
-      (remove-duplicates
+      (remove-duplicates-by-key
         (remove-if
           #'tautology-p
           (equation-set.equations equation-set))
-        :test (lambda (x y)
-                (or (equation= x y)
-                    (alphabet= x y)))))
+        #'canonical-equation-key
+        (lambda (x y)
+          (or (equation= x y)
+              (alphabet= x y)))))
     (rewrite-rule-set
-      (remove-duplicates
+      (remove-duplicates-by-key
         (remove-if
           #'tautology-p
           (rewrite-rule-set.rewrite-rules rewrite-rule-set))
-        :test (lambda (x y)
-                (or (rewrite-rule= x y)
-                    (alphabet= x y)))))))
+        #'canonical-rewrite-rule-key
+        (lambda (x y)
+          (or (rewrite-rule= x y)
+              (alphabet= x y)))))))
 
 (defmethod simplify-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (values

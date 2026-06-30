@@ -10,6 +10,8 @@
         )
   (:import-from :clover.termorder
                 :term<)
+  (:import-from :clover.canonicalization
+                :canonical-equation-key)
   (:export
     :critical-pair
     :all-critical-pair
@@ -108,11 +110,12 @@
              :for x :in tmp
              :append (equation-set.equations x))))
     (equation-set
-      (remove-duplicates
+      (remove-duplicates-by-key
         (remove-if
           #'tautology-p
           result)
-        :test (lambda (x y)
-                (or (equation= x y)
-                    (alphabet= x y)))))))
+        #'canonical-equation-key
+        (lambda (x y)
+          (or (equation= x y)
+              (alphabet= x y)))))))
 

@@ -25,6 +25,7 @@
  (:file "property")
  (:file "conditions")
  (:file "types")
+ (:file "canonicalization")
  (:file "util")
  (:file "substitute")
  (:file "converter")

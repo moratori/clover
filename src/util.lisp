@@ -30,6 +30,7 @@
     :prohibited-unifier-set-p
     :occurrence-check
     :collect-variables
+    :remove-duplicates-by-key
     ))
 (in-package :clover.util)
 
@@ -112,10 +113,35 @@
             (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
             (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
             :test #'rewrite-rule=))
-    (null (set-difference 
+    (null (set-difference
             (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
             (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
             :test #'rewrite-rule=))))
+
+
+;;;; --- 正準キーによる重複排除の高速化 -------------------------------------
+;;;; remove-duplicates + alphabet= は O(m^2) 比較で、alphabet= 内部の subsumption が
+;;;; 都度 rename を呼ぶため非常に重い(プロファイル上の支配項の一つ)。各要素を「変数リネーム
+;;;; 不変」な正準キー文字列(clover.canonicalization)でバケツ分けし、同一バケツ内のみ従来述語で
+;;;; 確認することで、比較回数を O(m^2) から O(Σ bucket^2) に削減する。
+;;;; 正準キーそのものの生成は clover.canonicalization に分離している。
+
+(defun remove-duplicates-by-key (items key-fn eq-fn)
+  "(remove-duplicates items :test eq-fn) と同一の結果(原順序・後優先)を返す。
+   key-fn で各要素をバケツ分けし、同一キーのバケツ内だけ eq-fn で比較する。
+   前提: eq-fn が真なら key-fn の結果が equal(=同一バケツ)であること(over-approximation)。
+   この前提の下で、結果は従来の remove-duplicates と完全に一致しつつ比較回数を削減する。"
+  (let* ((keyed (mapcar (lambda (x) (cons (funcall key-fn x) x)) items))
+         (buckets (make-hash-table :test #'equal)))
+    (loop :for kc :in keyed :for i :from 0
+          :do (push (cons i (cdr kc)) (gethash (car kc) buckets)))
+    (loop :for kc :in keyed :for i :from 0
+          :unless (some (lambda (p)
+                          (and (> (car p) i)
+                               (funcall eq-fn (cdr kc) (cdr p))))
+                        (gethash (car kc) buckets))
+          :collect (cdr kc))))
+
 
 (defmethod tautology-p ((equation equation))
   (term= (equation.left equation)
