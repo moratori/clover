@@ -104,10 +104,9 @@
                :collect
                (critical-pair renamed-rule1 renamed-rule2))))
          (result
-           (mapcan
-             (lambda (x) 
-               (equation-set.equations x))
-             tmp)))
+           (loop
+             :for x :in tmp
+             :append (equation-set.equations x))))
     (equation-set
       (remove-duplicates
         (remove-if
