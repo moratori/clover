@@ -1,4 +1,4 @@
-(defpackage clover.tests.util
+(defpackage clover.tests.logical-predicates
   (:use :cl
         :clover.types
         :clover.logical-predicates
@@ -7,11 +7,11 @@
                 :term=
                 :term/=
                 :literal=))
-(in-package :clover.tests.util)
+(in-package :clover.tests.logical-predicates)
 
 
 
-(test clover.tests.util.term=
+(test clover.tests.logical-predicates.term=
       (is (term= (vterm 'x) (vterm 'x)))
       (is (term/= (vterm 'x) (vterm 'y)))
       (is (term= (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y))))) 
@@ -21,7 +21,7 @@
       )
 
 
-(test clover.tests.util.clause-subset.test1
+(test clover.tests.logical-predicates.clause-subset.test1
       (is (clause-subset
             (clause 
               (list
@@ -64,7 +64,7 @@
                 (literal nil 'R (list (vterm 'x)))))))
       )
 
-(test clover.tests.util.clause-subset.test2
+(test clover.tests.logical-predicates.clause-subset.test2
       (is (not (clause-subset
             (clause 
               (list
@@ -108,7 +108,7 @@
       )
 
 
-(test clover.tests.util.literal=
+(test clover.tests.logical-predicates.literal=
 
       (is (literal= (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
                     (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))))
@@ -123,7 +123,7 @@
                          (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z))))))
       )
 
-(test clover.tests.util.horn-p
+(test clover.tests.logical-predicates.horn-p
 
       (is (horn-p (clause (list (literal nil 'P nil)))))
       (is (horn-p (clause (list (literal nil 'P nil)

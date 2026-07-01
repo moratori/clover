@@ -34,7 +34,7 @@
                    (:file "clover")
                    (:file "types")
                    (:file "unify")
-                   (:file "util")
+                   (:file "logical-predicates")
                    (:file "termorder")
                    (:file "rename")
                    (:file "simplify")
