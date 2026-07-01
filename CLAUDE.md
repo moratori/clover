@@ -93,10 +93,11 @@ REPL・コマンドラインバッチ・ビルド済みバイナリの3形態で
   - 等式:     `(equation negation left right)`
   - 書き換え規則: `(rewrite-rule src dst)`
 - 等価判定には専用述語を使う: `term=` `literal=` `clause=` `unifier-set=`
-  `equation=` `rewrite-rule=` `alphabet=` など（`equal` ではなく）。
+  `equation=` `rewrite-rule=`（以上 `clover.equality`）・`alphabet-equivalent-p`
+  （`clover.unify`）など（`equal` ではなく）。
 - パッケージ外に export されていない内部関数は `clover.<pkg>::<name>`（二重コロン）で参照する。
   例: `(clover.unify::%collect-disagreement-set ...)`。
-- LPO を使うテストでは `clover.property:*term-order-algorithm*` を `:lpo` に設定し、
+- LPO を使うテストでは `clover.parameters:*term-order-algorithm*` を `:lpo` に設定し、
   `function-symbol-ordering` で記号順序を与える。
 - アサーションは `(is <form>)`、例外を期待する場合は `(signals <condition> <form>)`。
 
@@ -104,7 +105,10 @@ REPL・コマンドラインバッチ・ビルド済みバイナリの3形態で
 
 - `types.lisp` — 全データ構造（term/vterm/fterm/constant, literal, clause, equation,
   rewrite-rule, unifier 等）の defstruct 定義。
-- `util.lisp` — 等価判定・出現検査 (`occurrence-check`)・各種述語などのユーティリティ。
+- `equality.lisp` — 構文的等価判定述語（`term=` `literal=` `clause=` `equation=` 等）。
+- `logical-predicates.lisp` — 出現検査 (`occurrence-check`)・節/リテラル/項に関する各種述語。
+- `canonicalization.lisp` — 変数リネーム不変な正準キー生成と `remove-duplicates-by-key`。
+- `parameters.lisp` — 全域の設定・チューニング値（`defparameter` 群）。
 - `substitute.lisp` — 単一化子の適用 (`apply-unifier` / `apply-unifier-set`)。
 - `unify.lisp` — 最汎単一化子の計算 (`find-most-general-unifier-set`)、包摂判定。
 - `resolution.lisp` — 導出原理（`:default` / `:snl` モード）。

@@ -2,8 +2,10 @@
   (:use :cl
         :clover.conditions
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         )
+  (:import-from :clover.equality
+                :term=)
   (:export
     :apply-unifier
     :apply-unifier-set

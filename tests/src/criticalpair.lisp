@@ -1,12 +1,15 @@
 (defpackage clover.tests.criticalpair
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.rewrite
         :clover.rename
         :clover.criticalpair
         :1am)
+  (:import-from :clover.equality
+                :unifier-set=
+                :equation-set=)
   (:import-from :clover.parser
                 :parse-premise-logical-expression)
   )
@@ -358,4 +361,4 @@
                      "plus(ZERO,plus(x,y)) = plus(x,y)")))))
              (result
                (rename-for-human-readable-printing (all-critical-pair target))))
-        (is (alphabet= expected result))))
+        (is (alphabet-equivalent-p expected result))))

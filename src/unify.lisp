@@ -1,16 +1,20 @@
 (defpackage clover.unify
   (:use :cl
         :clover.conditions
-        :clover.util
+        :clover.logical-predicates
         :clover.substitute
         :clover.types)
+  (:import-from :clover.equality
+                :term=
+                :term/=
+                :unifier=)
   (:import-from :clover.parser
                 :%intern-symbol-to-specified-package)
   (:import-from :clover.rename
                 :rename)
   (:export 
     :subsumption-clause-p
-    :alphabet=
+    :alphabet-equivalent-p
     :find-most-general-unifier-set)
   )
 (in-package :clover.unify)
@@ -303,7 +307,7 @@
   (%subsumption-clause-p-renamed (rename clause1) (rename clause2)))
 
 
-(defmethod alphabet= ((term1 term) (term2 term))
+(defmethod alphabet-equivalent-p ((term1 term) (term2 term))
   (let* ((dummy-pred
            (%intern-symbol-to-specified-package
              "DUMMYPRED"))
@@ -316,42 +320,42 @@
     (and (subsumption-clause-p dummy-clause2 dummy-clause1)
          (subsumption-clause-p dummy-clause1 dummy-clause2))))
 
-(defmethod alphabet= ((clause1 clause) (clause2 clause))
+(defmethod alphabet-equivalent-p ((clause1 clause) (clause2 clause))
   (and (subsumption-clause-p clause2 clause1)
        (subsumption-clause-p clause1 clause2)))
 
-(defmethod alphabet= ((clause-set1 clause-set) (clause-set2 clause-set))
+(defmethod alphabet-equivalent-p ((clause-set1 clause-set) (clause-set2 clause-set))
   (and 
     (null (set-difference 
             (clause-set.clauses clause-set1)
             (clause-set.clauses clause-set2)
-            :test #'alphabet=))
+            :test #'alphabet-equivalent-p))
     (null (set-difference 
             (clause-set.clauses clause-set2)
             (clause-set.clauses clause-set1)
-            :test #'alphabet=))))
+            :test #'alphabet-equivalent-p))))
 
-(defun %alphabet=-for-rule-or-eq (rule1-src rule1-dst rule2-src rule2-dst)
+(defun %alphabet-equivalent-p-for-rule-or-eq (rule1-src rule1-dst rule2-src rule2-dst)
   ;; 規則/等式 (src -> dst) のアルファ同値判定。
-  ;; src と dst を1つの結合項 §(src, dst) にまとめ、その項レベル alphabet= に帰着する。
+  ;; src と dst を1つの結合項 §(src, dst) にまとめ、その項レベル alphabet-equivalent-p に帰着する。
   ;; こうすると src と dst をまたぐ変数対応（自由変数・共有変数・同変数/別変数の区別）が、
   ;; 単一の変数全単射として一括かつ正確に扱われる。
   ;; § には衝突を避けるためのダミー関数記号を用い、両辺で同一の記号を使う。
   (let ((pair-symbol
           (%intern-symbol-to-specified-package "DUMMYRULEOREQPAIR")))
-    (alphabet=
+    (alphabet-equivalent-p
       (fterm pair-symbol (list rule1-src rule1-dst))
       (fterm pair-symbol (list rule2-src rule2-dst)))))
 
 
-(defmethod alphabet= ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
+(defmethod alphabet-equivalent-p ((rewrite-rule1 rewrite-rule) (rewrite-rule2 rewrite-rule))
   (let* ((rule1-src (rewrite-rule.src rewrite-rule1))
          (rule1-dst (rewrite-rule.dst rewrite-rule1))
          (rule2-src (rewrite-rule.src rewrite-rule2))
          (rule2-dst (rewrite-rule.dst rewrite-rule2)))
-    (%alphabet=-for-rule-or-eq rule1-src rule1-dst rule2-src rule2-dst)))
+    (%alphabet-equivalent-p-for-rule-or-eq rule1-src rule1-dst rule2-src rule2-dst)))
 
-(defmethod alphabet= ((equation1 equation) (equation2 equation))
+(defmethod alphabet-equivalent-p ((equation1 equation) (equation2 equation))
   (let* ((eq1-left (equation.left equation1))
          (eq1-right (equation.right equation1))
          (eq2-left (equation.left equation2))
@@ -360,18 +364,18 @@
       (eq (equation.negation equation1)
           (equation.negation equation2))
       (or
-        (%alphabet=-for-rule-or-eq
+        (%alphabet-equivalent-p-for-rule-or-eq
           eq1-left eq1-right eq2-left eq2-right)
-        (%alphabet=-for-rule-or-eq
+        (%alphabet-equivalent-p-for-rule-or-eq
           eq1-left eq1-right eq2-right eq2-left)))))
 
-(defmethod alphabet= ((equation-set1 equation-set) (equation-set2 equation-set))
+(defmethod alphabet-equivalent-p ((equation-set1 equation-set) (equation-set2 equation-set))
   (and 
     (null (set-difference 
             (equation-set.equations equation-set1)
             (equation-set.equations equation-set2)
-            :test #'alphabet=))
+            :test #'alphabet-equivalent-p))
     (null (set-difference 
             (equation-set.equations equation-set2)
             (equation-set.equations equation-set1)
-            :test #'alphabet=))))
+            :test #'alphabet-equivalent-p))))

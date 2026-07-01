@@ -1,11 +1,11 @@
 (defpackage clover.ui.repl
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.rendertree
         :clover.types
         :clover.parser
-        :clover.util
+        :clover.logical-predicates
         :clover.clover
         :clover.converter
         :clover.ui.util

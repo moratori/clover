@@ -20,7 +20,7 @@
                 :parse-mkbtt-expression)
   (:import-from :clover.multicompletion
                 :toplevel-completion)
-  (:import-from :clover.property
+  (:import-from :clover.parameters
                 :*completion-giveup-threshold*))
 (in-package :clover.tests.completion.corpus)
 

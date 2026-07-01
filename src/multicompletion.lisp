@@ -1,6 +1,6 @@
 (defpackage clover.multicompletion
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types
         :clover.completion

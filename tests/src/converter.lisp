@@ -1,7 +1,7 @@
 (defpackage clover.tests.converter
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.parser
         :clover.converter
         :1am)

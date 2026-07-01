@@ -1,9 +1,9 @@
 (defpackage clover.tests.rendertree
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.clover
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.rendertree
         :1am))

@@ -1,10 +1,13 @@
 (defpackage clover.tests.simplify
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.simplify
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :clause=
+                :clause-set=))
 (in-package :clover.tests.simplify)
 
 
@@ -132,7 +135,7 @@
 
 
 (test clover.tests.simplify.%remove-alphabet-equal-clause
-      ;; 変数名のみ異なる同値節の重複除去。alphabet= は対称なので、各重複は必ず後続に
+      ;; 変数名のみ異なる同値節の重複除去。alphabet-equivalent-p は対称なので、各重複は必ず後続に
       ;; 同値節を持って削除され、最後の1つだけが残る（%remove-subsumption と違い順序非依存）。
       (let ((c1 (clause (list (literal nil 'P (list (vterm 'x))))))
             (c2 (clause (list (literal nil 'P (list (vterm 'y))))))

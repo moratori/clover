@@ -1,10 +1,13 @@
 (defpackage clover.tests.resolution
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.resolution
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :clause=
+                :clause-set=))
 (in-package :clover.tests.resolution)
 
 

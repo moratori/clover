@@ -1,13 +1,15 @@
 (defpackage clover.rewrite
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.substitute
         :clover.rename
         )
+  (:import-from :clover.equality
+                :term=)
   (:import-from :clover.termorder
                 :term<)
   (:export

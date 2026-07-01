@@ -1,10 +1,10 @@
 (defpackage clover.tests.termorder
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.termorder
         :1am)
-  (:import-from :clover.property
+  (:import-from :clover.parameters
                 :*term-order-algorithm*)
   )
 (in-package :clover.tests.termorder)

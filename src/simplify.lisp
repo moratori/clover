@@ -1,12 +1,14 @@
 (defpackage clover.simplify
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.substitute
         )
+  (:import-from :clover.equality
+                :literal=)
   (:export
     :simplify
     )
@@ -117,7 +119,7 @@
       :for clause :in clauses
       :for j :from 0
       :if (and (> j i)
-               (alphabet= clause target-clause))
+               (alphabet-equivalent-p clause target-clause))
       :do (return-from exit t))
     :if (not alphabet-clause)
     :collect target-clause))

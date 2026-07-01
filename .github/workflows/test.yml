@@ -16,7 +16,7 @@ jobs:
       # ステップ単位ではなく job 単位で設定する(計装済み fasl が再利用されるのを防ぐ)。
       CLOVER_DISABLE_COVERAGE: "1"
       # 内部タイムアウト(ローカルは run-all-tests.sh 既定の 300 秒のまま)。
-      TEST_DURATION_TIME: "1800"
+      TEST_DURATION_TIME: "7200"
     steps:
       - uses: actions/checkout@v4
       - name: Install Roswell

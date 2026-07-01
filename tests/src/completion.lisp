@@ -1,11 +1,14 @@
 (defpackage clover.tests.completion
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.completion
         :clover.rename
         :1am)
-  (:import-from :clover.property
+  (:import-from :clover.equality
+                :equation-set=
+                :rewrite-rule-set=)
+  (:import-from :clover.parameters
                 :*term-order-algorithm*)
   )
 (in-package :clover.tests.completion)

@@ -1,19 +1,23 @@
 (defpackage clover.clover
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.search.common
         :clover.search.astar
         :clover.search.iddfs
         :clover.search.dfs
         :clover.types
         :clover.resolution
-        :clover.util
+        :clover.logical-predicates
         )
+  (:import-from :clover.equality
+                :term=
+                :term/=
+                :clause=)
   (:import-from :alexandria
                 :median
                 :variance)
   (:import-from :clover.unify
-                :alphabet=)
+                :alphabet-equivalent-p)
   (:import-from :clover.canonicalization
                 :canonical-clause-string)
   (:import-from :clover.rewrite
@@ -38,7 +42,7 @@
 (defmethod node-canonical-key ((node clause-set))
   ;; α同値(厳密な変種)な clause-set を同一キー化する正準キー文字列。
   ;; 各節を変数初出順で1パス直列化し、節文字列をソートして連結(clause-set は節順非依存のため)。
-  ;; これは alphabet= の過小近似(リテラル内順序や condensation は畳まない)であり、非等価な状態を
+  ;; これは alphabet-equivalent-p の過小近似(リテラル内順序や condensation は畳まない)であり、非等価な状態を
   ;; 誤って同一視しない=closed集合による枝刈りは健全。畳み損ねたぶんは重複排除が減るだけ。
   ;; 節の直列化は clover.canonicalization:canonical-clause-string に分離している。
   (format nil "~{~A~^/~}"

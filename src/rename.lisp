@@ -1,11 +1,13 @@
 (defpackage clover.rename
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.substitute
         )
+  (:import-from :clover.equality
+                :term=)
   (:import-from :clover.parser
                 :%intern-symbol-to-specified-package)
   (:export

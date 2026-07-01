@@ -1,17 +1,22 @@
 (defpackage clover.criticalpair
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.substitute
         :clover.rename
         )
+  (:import-from :clover.equality
+                :term=
+                :unifier-set=
+                :equation=)
   (:import-from :clover.termorder
                 :term<)
   (:import-from :clover.canonicalization
-                :canonical-equation-key)
+                :canonical-equation-key
+                :remove-duplicates-by-key)
   (:export
     :critical-pair
     :all-critical-pair
@@ -117,5 +122,5 @@
         #'canonical-equation-key
         (lambda (x y)
           (or (equation= x y)
-              (alphabet= x y)))))))
+              (alphabet-equivalent-p x y)))))))
 

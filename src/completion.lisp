@@ -1,19 +1,24 @@
 (defpackage clover.completion
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.rename
         :clover.rewrite
         :clover.termorder
         )
+  (:import-from :clover.equality
+                :term/=
+                :equation=
+                :rewrite-rule=)
   (:import-from :clover.criticalpair
                 :all-critical-pair)
   (:import-from :clover.canonicalization
                 :canonical-equation-key
-                :canonical-rewrite-rule-key)
+                :canonical-rewrite-rule-key
+                :remove-duplicates-by-key)
   (:export
     :kb-completion
     )
@@ -59,7 +64,7 @@
         #'canonical-equation-key
         (lambda (x y)
           (or (equation= x y)
-              (alphabet= x y)))))
+              (alphabet-equivalent-p x y)))))
     (rewrite-rule-set
       (remove-duplicates-by-key
         (remove-if
@@ -68,7 +73,7 @@
         #'canonical-rewrite-rule-key
         (lambda (x y)
           (or (rewrite-rule= x y)
-              (alphabet= x y)))))))
+              (alphabet-equivalent-p x y)))))))
 
 (defmethod simplify-rule ((equation-set equation-set) (rewrite-rule-set rewrite-rule-set))
   (values

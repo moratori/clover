@@ -3,7 +3,7 @@
         :clover.search.common
         :clover.conditions
         )
-  (:import-from :clover.property
+  (:import-from :clover.parameters
                 :*parsed-symbol-intern-package*)
   (:export
         :logical-expression

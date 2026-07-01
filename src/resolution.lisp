@@ -1,14 +1,17 @@
 (defpackage clover.resolution
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.simplify
         :clover.rename
         :clover.substitute
         )
+  (:import-from :clover.equality
+                :literal=
+                :clause=)
   (:import-from :alexandria
                 :shuffle)
   (:export

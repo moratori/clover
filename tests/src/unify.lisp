@@ -3,8 +3,12 @@
         :clover.conditions
         :clover.unify
         :clover.types
-        :clover.util
-        :1am))
+        :clover.logical-predicates
+        :1am)
+  (:import-from :clover.equality
+                :term=
+                :unifier-set=
+                :clause=))
 (in-package :clover.tests.unify)
 
 
@@ -346,8 +350,8 @@
       )
 
 
-(test clover.tests.unify.alphabet=.test1
-      (is (alphabet=
+(test clover.tests.unify.alphabet-equivalent-p.test1
+      (is (alphabet-equivalent-p
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'y)))
@@ -356,7 +360,7 @@
                                                 (vterm 'u)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'u)))
                                               (fterm 'g (list (vterm 'v)))))))))
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))
                                                 (vterm 'y)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'y)))
@@ -365,49 +369,49 @@
                                                 (vterm 'u)))
                           (literal t 'Q (list (fterm 'g (list (vterm 'u)))
                                               (fterm 'g (list (constant 'A )))))))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (vterm 'v)))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u)))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (vterm 'x)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'v))))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'g (list (vterm 'v)))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (fterm 'f (list (vterm 'x)))))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (fterm 'f (list (constant'A )))))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (vterm 'v)))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (vterm 'x)))))
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'P (list (constant 'A )))
                           (literal nil 'Q (list (vterm 'w) (vterm 'u))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (clause (list (literal nil 'P (list (vterm 'x)))
                           (literal nil 'Q (list (vterm 'y) (vterm 'z)))))
             (clause (list (literal nil 'Q (list (vterm 'v)))
@@ -415,8 +419,8 @@
 )
 
 
-(test clover.tests.unify.alphabet=.test2
-      (is (not (alphabet= 
+(test clover.tests.unify.alphabet-equivalent-p.test2
+      (is (not (alphabet-equivalent-p 
                  (clause (list (literal nil 'P (list (vterm 'x)
                                                      (vterm 'v)
                                                      (vterm 'w)))
@@ -444,7 +448,7 @@
       )
 
 
-(test clover.tests.unify.alphabet=.test3
+(test clover.tests.unify.alphabet-equivalent-p.test3
       (let* ((clause1
               (clause
                 (list 
@@ -471,9 +475,9 @@
             (clause-set2
               (clause-set 
                 (list clause4 clause3))))
-        (is (alphabet= clause-set2 clause-set1))))
+        (is (alphabet-equivalent-p clause-set2 clause-set1))))
 
-(test clover.tests.unify.alphabet=.test4
+(test clover.tests.unify.alphabet-equivalent-p.test4
       (let* ((clause1
               (clause
                 (list 
@@ -500,88 +504,88 @@
             (clause-set2
               (clause-set 
                 (list clause4 clause3))))
-        (is (not (alphabet= clause-set2 clause-set1)))))
+        (is (not (alphabet-equivalent-p clause-set2 clause-set1)))))
 
-(test clover.tests.unify.alphabet=.test5
-      (is (not (alphabet= 
+(test clover.tests.unify.alphabet-equivalent-p.test5
+      (is (not (alphabet-equivalent-p 
                  (fterm 'f (list (vterm 'x) (vterm 'y)))
                  (fterm 'f (list (vterm 'w) (vterm 'w))))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (vterm 'y)))
             (fterm 'f (list (vterm 'u) (vterm 'v)))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
             (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'w)))))))
-      (is (alphabet= 
+      (is (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y) (fterm 'h (list (vterm 'z) (fterm 'i (list (vterm 'p)))))))))
             (fterm 'f (list (vterm 'u) (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'w) (fterm 'i (list (vterm 'k)))))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y) (fterm 'h (list (vterm 'z) (fterm 'i (list (vterm 'p)))))))))
             (fterm 'f (list (vterm 'u) (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'w) (vterm 'u))))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
             (fterm 'f (list (vterm 'z) (vterm 'u))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (fterm 'f (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
             (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'z))))))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (fterm 'f (list (fterm 'g (list (vterm 'y))) (vterm 'x) ))
             (fterm 'f (list (fterm 'g (list (vterm 'z))) (vterm 'z) )))))
-      (is (not (alphabet= 
+      (is (not (alphabet-equivalent-p 
             (fterm 'f (list (fterm 'g (list (vterm 'y))) (vterm 'x) ))
             (fterm 'f (list (vterm 'z) (fterm 'g (list (vterm 'z))) )))))
-      (is (alphabet= (constant 'A) (constant 'A)))
-      (is (alphabet= (vterm 'x) (vterm 'y)))
+      (is (alphabet-equivalent-p (constant 'A) (constant 'A)))
+      (is (alphabet-equivalent-p (vterm 'x) (vterm 'y)))
 
-      (is (not (alphabet= (constant 'B) (constant 'A))))
-      (is (alphabet= (vterm 'x) (vterm 'x)))
+      (is (not (alphabet-equivalent-p (constant 'B) (constant 'A))))
+      (is (alphabet-equivalent-p (vterm 'x) (vterm 'x)))
 
-      (is (not (alphabet= (constant 'B) (fterm 'f (list (vterm 'x))))))
-      (is (not (alphabet= (vterm 'x) (fterm 'f (list (vterm 'x))))))
-      (is (not (alphabet= (vterm 'y) (fterm 'f (list (vterm 'x))))))
-      (is (not (alphabet= (constant 'B) (vterm 'b))))
-      (is (alphabet= (constant 'B) (constant 'B)))
+      (is (not (alphabet-equivalent-p (constant 'B) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet-equivalent-p (vterm 'x) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet-equivalent-p (vterm 'y) (fterm 'f (list (vterm 'x))))))
+      (is (not (alphabet-equivalent-p (constant 'B) (vterm 'b))))
+      (is (alphabet-equivalent-p (constant 'B) (constant 'B)))
       ;; (fterm 'B nil) は現在 constant に正規化されるため、これは実質
       ;; constant 同士の比較になる（ゼロ引数 fterm はもう生成されない）。
       (is (typep (fterm 'B nil) 'constant))
-      (is (alphabet= (constant 'B) (fterm 'B nil))))
+      (is (alphabet-equivalent-p (constant 'B) (fterm 'B nil))))
 
-(test clover.tests.unify.alphabet=.test6
+(test clover.tests.unify.alphabet-equivalent-p.test6
       (let ((criteria1
               (rewrite-rule
                 (fterm 'f (list (vterm 'x) (vterm 'y)))
                 (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
         (is 
-          (alphabet= criteria1
+          (alphabet-equivalent-p criteria1
                      (rewrite-rule
                        (fterm 'f (list (vterm 'u) (vterm 'v)))
                        (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (rewrite-rule
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'z)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (rewrite-rule
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (rewrite-rule
                          (fterm 'f (list (vterm 'w) (vterm 'w)))
                          (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'y)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (rewrite-rule
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (rewrite-rule
               (fterm 'f (list (vterm 'x)))
               (vterm 'x))
@@ -589,7 +593,7 @@
               (fterm 'f (list (vterm 'z)))
               (vterm 'z))))
         (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (rewrite-rule
               (fterm 'f (list (vterm 'x)))
               (vterm 'x))
@@ -597,7 +601,7 @@
               (fterm 'f (list (vterm 'y)))
               (vterm 'z)))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (rewrite-rule
               (vterm 'x)
               (fterm 'f (list (vterm 'x)))
@@ -606,7 +610,7 @@
               (vterm 'z)
               (fterm 'f (list (vterm 'z))))))
         (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (rewrite-rule
               (vterm 'x)
               (fterm 'f (list (vterm 'x)))
@@ -615,7 +619,7 @@
               (vterm 'z)
               (fterm 'f (list (vterm 'w)))))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (rewrite-rule
               (vterm 'x)
               (vterm 'x))
@@ -623,7 +627,7 @@
               (vterm 'z)
               (vterm 'z))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (rewrite-rule
               (vterm 'y)
               (vterm 'z))
@@ -631,7 +635,7 @@
               (vterm 'w)
               (vterm 't))))
         (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (rewrite-rule
               (vterm 'x)
               (vterm 'x))
@@ -639,47 +643,47 @@
               (vterm 'y)
               (vterm 'z)))))))
 
-(test clover.tests.unify.alphabet=.test7
+(test clover.tests.unify.alphabet-equivalent-p.test7
       (let ((criteria1
               (equation nil
                 (fterm 'f (list (vterm 'x) (vterm 'y)))
                 (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y))))))))
         (is 
-          (alphabet= criteria1
+          (alphabet-equivalent-p criteria1
                      (equation nil
                        (fterm 'f (list (vterm 'u) (vterm 'v)))
                        (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v))))))))
         (is 
-          (alphabet= criteria1
+          (alphabet-equivalent-p criteria1
                      (equation nil
                        (fterm 'g (list (vterm 'u) (fterm 'h (list (vterm 'v)))))
                        (fterm 'f (list (vterm 'u) (vterm 'v))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (equation nil
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'z)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (equation nil
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (equation nil
                          (fterm 'f (list (vterm 'w) (vterm 'w)))
                          (fterm 'g (list (vterm 'w) (fterm 'h (list (vterm 'y)))))))))
         (is 
           (not 
-            (alphabet= criteria1
+            (alphabet-equivalent-p criteria1
                        (equation nil
                          (fterm 'f (list (vterm 'u) (vterm 'v)))
                          (fterm 'g (list (vterm 'v) (fterm 'h (list (vterm 'u)))))))))
         (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (equation nil
               (vterm 'x)
               (fterm 'f (list (vterm 'x)))
@@ -688,7 +692,7 @@
               (vterm 'z)
               (fterm 'f (list (vterm 'z)))))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (equation nil
               (vterm 'x)
               (fterm 'f (list (vterm 'x)))
@@ -697,7 +701,7 @@
               (vterm 'z)
               (fterm 'f (list (vterm 'z))))))
         (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (equation nil
               (vterm 'x)
               (fterm 'f (list (vterm 'x)))
@@ -706,7 +710,7 @@
               (vterm 'z)
               (fterm 'f (list (vterm 'w)))))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (equation nil
               (vterm 'x)
               (vterm 'x))
@@ -714,7 +718,7 @@
               (vterm 'z)
               (vterm 'z))))
         (is 
-          (alphabet=
+          (alphabet-equivalent-p
             (equation nil
               (vterm 'y)
               (vterm 'z))
@@ -722,9 +726,9 @@
               (vterm 'w)
               (vterm 't))))))
 
-(test clover.tests.unify.alphabet=.test8
+(test clover.tests.unify.alphabet-equivalent-p.test8
       (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (equation nil
               (fterm 'plus (list (vterm 'x) (vterm 'y)))
               (fterm 'plus (list (fterm 'plus (list (vterm 'x) 
@@ -738,9 +742,9 @@
               ))))
       )
 
-(test clover.tests.unify.alphabet=.test9
+(test clover.tests.unify.alphabet-equivalent-p.test9
       (is 
-          (not (alphabet=
+          (not (alphabet-equivalent-p
             (equation nil
               (fterm 'plus (list (constant 'ZERO) (vterm 'x)))
               (fterm 'plus (list (fterm 'inv (list (fterm 'inv (list (vterm 'x)))))
@@ -751,11 +755,11 @@
               )))))
 
 
-(test clover.tests.unify.alphabet=.reflexivity
-      ;; あるべき仕様: alphabet= は「変数名の付け替えを除いた同値」を表す同値関係で
-      ;; あり、任意の規則/等式 r に対して反射律 (alphabet= r r) = 真 が成り立つべき。
+(test clover.tests.unify.alphabet-equivalent-p.reflexivity
+      ;; あるべき仕様: alphabet-equivalent-p は「変数名の付け替えを除いた同値」を表す同値関係で
+      ;; あり、任意の規則/等式 r に対して反射律 (alphabet-equivalent-p r r) = 真 が成り立つべき。
       ;;
-      ;; 事実: %alphabet=-for-rule-or-eq の vterm->fterm 分岐は、dst 同士の最汎
+      ;; 事実: %alphabet-equivalent-p-for-rule-or-eq の vterm->fterm 分岐は、dst 同士の最汎
       ;; 単一化子に (src1 -> src2) が含まれるかを member で検査する。src の変数が
       ;; dst に出現しない場合、その単一化子集合に src 変数が現れず member 検査が
       ;; 失敗するため、自己比較でも NIL を返す。よって下の「違反」群は現実装で
@@ -771,12 +775,12 @@
                                   (fterm 'g (list (vterm 'x) (fterm 'h (list (vterm 'y)))))))
             (e-comm (equation nil (fterm 'plus (list (vterm 'x) (vterm 'y)))
                                   (fterm 'plus (list (vterm 'y) (vterm 'x))))))
-        (is (alphabet= r-ff   r-ff))
-        (is (alphabet= r-fv   r-fv))
-        (is (alphabet= r-vv   r-vv))
-        (is (alphabet= r-cf   r-cf))
-        (is (alphabet= e-ff   e-ff))
-        (is (alphabet= e-comm e-comm)))
+        (is (alphabet-equivalent-p r-ff   r-ff))
+        (is (alphabet-equivalent-p r-fv   r-fv))
+        (is (alphabet-equivalent-p r-vv   r-vv))
+        (is (alphabet-equivalent-p r-cf   r-cf))
+        (is (alphabet-equivalent-p e-ff   e-ff))
+        (is (alphabet-equivalent-p e-comm e-comm)))
 
       ;; --- 反射律が破れている形状（変数 <-> その変数を含まない項）---
       ;; いずれも自分自身との比較。本来 真 であるべきだが現実装は NIL を返し FAIL する。
@@ -784,16 +788,16 @@
             (r-vc        (rewrite-rule (vterm 'x) (constant 'A)))                 ; x -> A
             (e-vc        (equation nil (vterm 'x) (constant 'A)))                 ; x = A
             (e-vf-nofree (equation nil (vterm 'x) (fterm 'f (list (vterm 'y)))))) ; x = f(y)
-        (is (alphabet= r-vf-nofree r-vf-nofree))
-        (is (alphabet= r-vc        r-vc))
-        (is (alphabet= e-vc        e-vc))
-        (is (alphabet= e-vf-nofree e-vf-nofree))))
+        (is (alphabet-equivalent-p r-vf-nofree r-vf-nofree))
+        (is (alphabet-equivalent-p r-vc        r-vc))
+        (is (alphabet-equivalent-p e-vc        e-vc))
+        (is (alphabet-equivalent-p e-vf-nofree e-vf-nofree))))
 
 
-(test clover.tests.unify.alphabet=.constant-dst
-      ;; %alphabet=-for-rule-or-eq の「定数を含む規則/等式」のあるべき挙動。
+(test clover.tests.unify.alphabet-equivalent-p.constant-dst
+      ;; %alphabet-equivalent-p-for-rule-or-eq の「定数を含む規則/等式」のあるべき挙動。
       ;;
-      ;; 事実: constant は types.lisp で (:include fterm)。%alphabet=-for-rule-or-eq
+      ;; 事実: constant は types.lisp で (:include fterm)。%alphabet-equivalent-p-for-rule-or-eq
       ;; の typecase は (fterm ...) が (constant ...) より先にあるため、定数値は
       ;; (fterm ...) 節に吸い込まれ (constant ...) 節へは到達しない。その結果、
       ;; src=変数・dst=定数の規則/等式は vterm->fterm 経路を通り、mgu(定数,定数) が
@@ -801,69 +805,69 @@
       ;; ところ NIL を返す（＝下の [A][B] は現実装では FAIL する）。
       ;;
       ;; あるべき仕様（推測・確度高、要設計確認）: 定数は変数を含まないため
-      ;; src<->dst の変数対応制約が無く、各辺が個別に alphabet= であれば規則/等式
+      ;; src<->dst の変数対応制約が無く、各辺が個別に alphabet-equivalent-p であれば規則/等式
       ;; としてもアルファ同値（T）とすべき。
 
       ;; --- 現実装では FAIL する（本来 T であるべき）---
       ;; [A] x -> A と z -> A は変数 x/z を付け替えれば一致する同一規則。
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (rewrite-rule (vterm 'x) (constant 'A))
             (rewrite-rule (vterm 'z) (constant 'A))))
       ;; [B] 等式版 x = A と z = A も同様に同値であるべき。
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (equation nil (vterm 'x) (constant 'A))
             (equation nil (vterm 'z) (constant 'A))))
 
       ;; --- 対照群（現実装でも T。修正後も維持されるべき）---
       ;; [C] fterm-src + 定数-dst。
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (rewrite-rule (fterm 'f (list (vterm 'x))) (constant 'A))
             (rewrite-rule (fterm 'f (list (vterm 'z))) (constant 'A))))
       ;; [E] 定数-src + fterm-dst。
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (rewrite-rule (constant 'A) (fterm 'f (list (vterm 'x))))
             (rewrite-rule (constant 'A) (fterm 'f (list (vterm 'y))))))
 
       ;; --- 過剰許容の防止（修正後も NIL を維持すべき負のケース）---
       ;; 定数が異なれば不一致。
-      (is (not (alphabet=
+      (is (not (alphabet-equivalent-p
                  (rewrite-rule (vterm 'x) (constant 'A))
                  (rewrite-rule (vterm 'z) (constant 'B)))))
-      (is (not (alphabet=
+      (is (not (alphabet-equivalent-p
                  (equation nil (vterm 'x) (constant 'A))
                  (equation nil (vterm 'z) (constant 'B)))))
       ;; src の変数構造が異なれば、dst が定数でも src を無視して T にしてはいけない。
-      (is (not (alphabet=
+      (is (not (alphabet-equivalent-p
                  (rewrite-rule (fterm 'f (list (vterm 'x) (vterm 'x))) (constant 'A))
                  (rewrite-rule (fterm 'f (list (vterm 'u) (vterm 'v))) (constant 'A))))))
 
 
-(test clover.tests.unify.alphabet=.rule-vterm-symmetry
-      ;; vterm->vterm 規則の「同変数 vs 別変数」は、alphabet= が対称な同値関係である以上、
+(test clover.tests.unify.alphabet-equivalent-p.rule-vterm-symmetry
+      ;; vterm->vterm 規則の「同変数 vs 別変数」は、alphabet-equivalent-p が対称な同値関係である以上、
       ;; どちらを第1引数に置いても結果は同じ（NIL）であるべき。
       ;;
       ;; 事実: 既存 test6(633-640行) は (同変数, 別変数) の向きだけを検査しており、
-      ;; 逆向き (別変数, 同変数) が未カバー。%alphabet=-for-rule-or-eq の vterm->vterm 分岐は
+      ;; 逆向き (別変数, 同変数) が未カバー。%alphabet-equivalent-p-for-rule-or-eq の vterm->vterm 分岐は
       ;;   (if (term= rule1-src rule1-dst) (term= rule2-src rule2-dst) t)
       ;; と rule1 が別変数のとき rule2 を見ずに t を返すため、向きに依存して偽陽性になる。
 
       ;; --- 対称性を保証する両向き（本来どちらも NIL）---
       ;; [A] 別変数 x->y vs 同変数 z->z : 現実装は T を返し FAIL する。
-      (is (not (alphabet= (rewrite-rule (vterm 'x) (vterm 'y))
+      (is (not (alphabet-equivalent-p (rewrite-rule (vterm 'x) (vterm 'y))
                           (rewrite-rule (vterm 'z) (vterm 'z)))))
       ;; [B] 逆向き 同変数 z->z vs 別変数 x->y : こちらは現実装でも NIL（対称性の対照）。
-      (is (not (alphabet= (rewrite-rule (vterm 'z) (vterm 'z))
+      (is (not (alphabet-equivalent-p (rewrite-rule (vterm 'z) (vterm 'z))
                           (rewrite-rule (vterm 'x) (vterm 'y)))))
 
       ;; --- 正例（両向きとも T。修正後も維持されるべき）---
       ;; 別変数同士・同変数同士はアルファ同値。
-      (is (alphabet= (rewrite-rule (vterm 'x) (vterm 'y))
+      (is (alphabet-equivalent-p (rewrite-rule (vterm 'x) (vterm 'y))
                      (rewrite-rule (vterm 'z) (vterm 'w))))
-      (is (alphabet= (rewrite-rule (vterm 'x) (vterm 'x))
+      (is (alphabet-equivalent-p (rewrite-rule (vterm 'x) (vterm 'x))
                      (rewrite-rule (vterm 'z) (vterm 'z)))))
 
 
-(test clover.tests.unify.alphabet=.rule-free-variable
+(test clover.tests.unify.alphabet-equivalent-p.rule-free-variable
       ;; src 変数が dst に出現しない形（自由変数を持つ）規則/等式の、
       ;; 自己比較ではない「別変数同士のアルファ同値」。
       ;;
@@ -874,24 +878,24 @@
 
       ;; --- 本来 T であるべき（別変数でのアルファ同値）---
       ;; [A] x->f(y) と z->f(w) は {x:=z, y:=w} で一致する同一規則。
-      (is (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
+      (is (alphabet-equivalent-p (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
                      (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w))))))
       ;; [B] 対称性: 逆順も T であるべき。
-      (is (alphabet= (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w))))
+      (is (alphabet-equivalent-p (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w))))
                      (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))))
       ;; [C] fterm->vterm 版 f(y)->x と f(w)->z。
-      (is (alphabet= (rewrite-rule (fterm 'f (list (vterm 'y))) (vterm 'x))
+      (is (alphabet-equivalent-p (rewrite-rule (fterm 'f (list (vterm 'y))) (vterm 'x))
                      (rewrite-rule (fterm 'f (list (vterm 'w))) (vterm 'z))))
       ;; [D] 等式版 x=f(y) と z=f(w)。
-      (is (alphabet= (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))
+      (is (alphabet-equivalent-p (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))
                      (equation nil (vterm 'z) (fterm 'f (list (vterm 'w))))))
 
       ;; --- 過剰許容を防ぐ負ケース（現実装でも NIL。修正後も NIL を維持すべき）---
       ;; [E] x->f(x) は src 変数が dst に出現する形。z->f(w)（出現しない形）とは非同値。
-      (is (not (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'x))))
+      (is (not (alphabet-equivalent-p (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'x))))
                           (rewrite-rule (vterm 'z) (fterm 'f (list (vterm 'w)))))))
       ;; [F] dst の関数構造が異なれば非同値。
-      (is (not (alphabet= (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
+      (is (not (alphabet-equivalent-p (rewrite-rule (vterm 'x) (fterm 'f (list (vterm 'y))))
                           (rewrite-rule (vterm 'z) (fterm 'g (list (vterm 'w) (vterm 'w))))))))
 
 
@@ -920,26 +924,26 @@
       )
 
 
-(test clover.tests.unify.alphabet=.equation-set
+(test clover.tests.unify.alphabet-equivalent-p.equation-set
       ;; clause-set 版(test3/test4)と対になる equation-set 版。これまで未カバーだった。
-      ;; alphabet= の equation-set メソッドは set-difference を両方向に :test #'alphabet= で取る。
+      ;; alphabet-equivalent-p の equation-set メソッドは set-difference を両方向に :test #'alphabet-equivalent-p で取る。
       ;; 変数リネームのみ異なる等式集合 → T。
-      (is (alphabet=
+      (is (alphabet-equivalent-p
             (equation-set (list (equation nil (vterm 'x) (constant 'A))
                                 (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))))
             (equation-set (list (equation nil (vterm 'z) (constant 'A))
                                 (equation nil (vterm 'z) (fterm 'f (list (vterm 'w))))))))
       ;; 片方の等式が非同値（A vs B）→ NIL。
-      (is (not (alphabet=
+      (is (not (alphabet-equivalent-p
                  (equation-set (list (equation nil (vterm 'x) (constant 'A))))
                  (equation-set (list (equation nil (vterm 'z) (constant 'B)))))))
       ;; 要素数が違えば → NIL。
-      (is (not (alphabet=
+      (is (not (alphabet-equivalent-p
                  (equation-set (list (equation nil (vterm 'x) (constant 'A))
                                      (equation nil (vterm 'x) (fterm 'f (list (vterm 'y))))))
                  (equation-set (list (equation nil (vterm 'z) (constant 'A)))))))
       ;; 空集合同士 → T。
-      (is (alphabet= (equation-set nil) (equation-set nil))))
+      (is (alphabet-equivalent-p (equation-set nil) (equation-set nil))))
 
 
 (test clover.tests.unify.subsumption-clause-p.boundary

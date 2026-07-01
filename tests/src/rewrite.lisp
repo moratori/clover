@@ -1,11 +1,13 @@
 (defpackage clover.tests.rewrite
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.rewrite
         :clover.rename
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :term=))
 (in-package :clover.tests.rewrite)
 
 

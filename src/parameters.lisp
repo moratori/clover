@@ -1,4 +1,4 @@
-(defpackage clover.property
+(defpackage clover.parameters
   (:use :cl)
   (:export
     :*save-resolution-history*
@@ -12,7 +12,7 @@
     :*completion-giveup-threshold*
     )
   )
-(in-package :clover.property)
+(in-package :clover.parameters)
 
 
 (defparameter *save-resolution-history* nil

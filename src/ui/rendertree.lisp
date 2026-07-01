@@ -1,11 +1,13 @@
 (defpackage clover.rendertree
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types 
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         )
+  (:import-from :clover.equality
+                :clause=)
   (:import-from :clover.rename
                 :rename-for-human-readable-printing)
   (:export

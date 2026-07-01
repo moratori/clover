@@ -1,15 +1,17 @@
 (defpackage clover.ui.batch
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types
         :clover.parser
-        :clover.util
+        :clover.logical-predicates
         :clover.clover
         :clover.converter
         :clover.ui.util
         :ppcre
         )
+  (:import-from :clover.equality
+                :term=)
   (:import-from :clover.parser
                 :parse-premise-logical-expression)
   (:import-from :clover.rewrite

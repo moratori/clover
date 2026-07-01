@@ -1,10 +1,13 @@
 (defpackage clover.tests.rename
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.unify
         :clover.rename
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :term=
+                :clause=))
 (in-package :clover.tests.rename)
 
 
@@ -79,7 +82,7 @@
       ;; リネーム結果は元とアルファ同値
       (let ((cl (clause (list (literal nil 'P (list (vterm 'x) (vterm 'y)))
                               (literal t 'Q (list (vterm 'y)))))))
-        (is (alphabet= cl (rename cl)))))
+        (is (alphabet-equivalent-p cl (rename cl)))))
 
 (test clover.tests.rename.human-readable.injective
       ;; 横展開調査で判明した不具合: rename-for-human-readable-printing が

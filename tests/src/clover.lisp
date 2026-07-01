@@ -1,6 +1,6 @@
 (defpackage clover.tests.clover
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.clover
         :clover.types
         :clover.resolution

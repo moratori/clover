@@ -2,9 +2,14 @@
   (:use :cl
         :clover.conditions
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.substitute
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :term=
+                :literal=
+                :clause=
+                :equation=))
 (in-package :clover.tests.substitute)
 
 ;; 横展開調査で判明したカバレッジ欠落の補填。

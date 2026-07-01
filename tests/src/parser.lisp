@@ -1,11 +1,14 @@
 (defpackage clover.tests.parser
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.types
         :clover.parser
-        :clover.util
+        :clover.logical-predicates
         :clover.conditions
-        :1am))
+        :1am)
+  (:import-from :clover.equality
+                :clause=
+                :equation-set=))
 (in-package :clover.tests.parser)
 
 

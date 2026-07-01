@@ -1,8 +1,12 @@
 (defpackage clover.tests.util
   (:use :cl
         :clover.types
-        :clover.util
-        :1am))
+        :clover.logical-predicates
+        :1am)
+  (:import-from :clover.equality
+                :term=
+                :term/=
+                :literal=))
 (in-package :clover.tests.util)
 
 

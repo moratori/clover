@@ -1,10 +1,12 @@
 (defpackage clover.tests.multicompletion
   (:use :cl
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.multicompletion
         :clover.rename
         :1am)
+  (:import-from :clover.equality
+                :rewrite-rule-set=)
   (:import-from :clover.parser
                 :parse-mkbtt-expression)
   )

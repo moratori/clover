@@ -1,9 +1,9 @@
 (defpackage clover.parser
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types
-        :clover.util
+        :clover.logical-predicates
         :clover.converter
         )
   (:import-from :yacc

@@ -6,7 +6,7 @@
 ;;;;
 ;;;; 設計方針:
 ;;;;  - 依存は clover.types のみ(低レイヤの独立モジュール)。
-;;;;  - キーは over-approximation: alphabet=(x,y) が真なら必ず同一キーになる。
+;;;;  - キーは over-approximation: alphabet-equivalent-p(x,y) が真なら必ず同一キーになる。
 ;;;;    (逆は成り立たなくてよい。同一キーのバケツ内で従来述語により最終確認する運用)
 ;;;;  - 1パスの文字列直列化のみで、rename 等のオブジェクト再構築を行わず軽量。
 ;;;;
@@ -29,8 +29,32 @@
     :canonical-clause-string
     :canonical-equation-key
     :canonical-rewrite-rule-key
+    :remove-duplicates-by-key
     ))
 (in-package :clover.canonicalization)
+
+
+;;;; --- 正準キーによる重複排除の高速化 -------------------------------------
+;;;; remove-duplicates + alphabet-equivalent-p は O(m^2) 比較で、alphabet-equivalent-p 内部の
+;;;; subsumption が都度 rename を呼ぶため非常に重い(プロファイル上の支配項の一つ)。各要素を
+;;;; 「変数リネーム不変」な正準キー文字列(本モジュールの canonical-*-key)でバケツ分けし、
+;;;; 同一バケツ内のみ eq-fn で確認することで、比較回数を O(m^2) から O(Σ bucket^2) に削減する。
+
+(defun remove-duplicates-by-key (items key-fn eq-fn)
+  "(remove-duplicates items :test eq-fn) と同一の結果(原順序・後優先)を返す。
+   key-fn で各要素をバケツ分けし、同一キーのバケツ内だけ eq-fn で比較する。
+   前提: eq-fn が真なら key-fn の結果が equal(=同一バケツ)であること(over-approximation)。
+   この前提の下で、結果は従来の remove-duplicates と完全に一致しつつ比較回数を削減する。"
+  (let* ((keyed (mapcar (lambda (x) (cons (funcall key-fn x) x)) items))
+         (buckets (make-hash-table :test #'equal)))
+    (loop :for kc :in keyed :for i :from 0
+          :do (push (cons i (cdr kc)) (gethash (car kc) buckets)))
+    (loop :for kc :in keyed :for i :from 0
+          :unless (some (lambda (p)
+                          (and (> (car p) i)
+                               (funcall eq-fn (cdr kc) (cdr p))))
+                        (gethash (car kc) buckets))
+          :collect (cdr kc))))
 
 
 (defun canonical-term-string (term var-index counter-cell out)
@@ -72,7 +96,7 @@
 
 (defun canonical-clause-string (clause)
   "[部品/-string] 節を変数リネーム不変な文字列へ1パスで直列化する(rename等のオブジェクト再構築を伴わず軽量)。
-   変数は節内の初出順に番号付け(節集合の alphabet= は節ごと独立の変数全単射のため節ローカルで正しい)。
+   変数は節内の初出順に番号付け(節集合の alphabet-equivalent-p は節ごと独立の変数全単射のため節ローカルで正しい)。
    リテラルは clause.literals の順序のまま(リテラル内/順序や condensation までは畳まない)。
    これは「一節分の断片」であり単体では節集合のキーにならない。節集合のキーは clover.clover の
    node-canonical-key が各節の本文字列をソート+連結して作る(節順非依存に畳むのはそちら)。"
@@ -96,7 +120,7 @@
 (defun canonical-equation-key (equation)
   "[完結キー/-key] 等式のα同値正準キー。左右入替不変(2向きのうち小さい方)・変数リネーム不変・否定込み。
    単体で remove-duplicates-by-key の key-fn にそのまま渡せる。
-   alphabet=(eq1,eq2) が真なら必ず同一キーになる(over-approximation)。"
+   alphabet-equivalent-p(eq1,eq2) が真なら必ず同一キーになる(over-approximation)。"
   (let ((s1 (%canonical-term-pair-string (equation.left equation)
                                          (equation.right equation)))
         (s2 (%canonical-term-pair-string (equation.right equation)

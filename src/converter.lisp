@@ -1,12 +1,14 @@
 (defpackage clover.converter
   (:use :cl
-        :clover.property
+        :clover.parameters
         :clover.conditions
         :clover.types
         :clover.substitute
-        :clover.util
+        :clover.logical-predicates
         )
-  (:export 
+  (:import-from :clover.equality
+                :term=)
+  (:export
     :convert-to-equation-set
     ))
 
