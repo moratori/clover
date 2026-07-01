@@ -144,6 +144,21 @@ YES
 $
 ```
 
+> [!WARNING]
+> **Function symbols in `.trs` input are currently case-insensitive.**
+> The parser converts every symbol name to upper case before using it, so
+> function symbols that differ only in letter case (for example `T` and `t`) are
+> treated as the same function symbol. Inputs that rely on case to distinguish
+> function symbols are therefore mis-parsed, and completion may report a spurious
+> "success" for a collapsed system that is not the one given. See
+> [issue #21](https://github.com/moratori/clover/issues/21) for details.
+>
+> This limitation applies to `.trs` batch input only. In the REPL
+> (premise/consequence expressions) letter case is significant, but with a
+> different, intentional meaning: names written in upper case are read as
+> constants, while names written in lower case are read as variables or function
+> symbols (see [Input format](#input-format) below).
+
 ## Running the REPL
 
 You can run proofs using either the resolution principle or completion.
@@ -242,24 +257,20 @@ When defining a premise, the input follows the `<premise expression>` form.
 Otherwise, the input follows the `<consequence expression>` form.
 
 ```
-<premise expression> ::= <equation>
-                       | <premise logical expression>
+<premise expression> ::= <formula>
+                       | <premise expression> "|" <formula>
 
-<consequence expression> ::= <equation>
-                           | <consequence logical expression>
-```
+<consequence expression> ::= <formula>
+                           | <consequence expression> "&" <formula>
 
-```
+<formula> ::= <equation>
+            | <predicate>
+
 <equation> ::= <term> "=" <term>
              | <term> "!=" <term>
 
-<premise logical expression> ::= <symbol> <argument>
-                               | "!" <symbol> <argument>
-                               | <premise logical expression> "|" <premise logical expression>
-
-<consequence logical expression> ::= <symbol> <argument>
-                                   | "!" <symbol> <argument>
-                                   | <consequence logical expression> "&" <consequence logical expression>
+<predicate> ::= <symbol> <argument>
+              | "!" <symbol> <argument>
 
 <argument> ::= "(" ")"
              | "(" <term sequence> ")"
@@ -273,16 +284,47 @@ Otherwise, the input follows the `<consequence expression>` form.
 <term sequence> ::= <term>
                   | <term sequence> "," <term>
 
-<symbol>   ::= "a" | "b" | "c" | "d" | ... | "z" | ... | "aaa" | ...
-<constant> ::= "A" | "B" | "C" | "D" | ... | "Z" | ... | "AAA" | ...
-
+<symbol>   ::= a non-empty sequence of  a-z 0-9 _ + * . - / @ \
+<constant> ::= a non-empty sequence of  A-Z
 ```
+
+Depending on where it appears, a `<symbol>` denotes a variable, a function
+symbol, or a predicate; a `<constant>` (an upper-case name) is always a constant.
+Premises and consequences share the same `<formula>`s and differ only in the
+connective that joins them (`|` for premises, `&` for consequences).
 
 ### File format for command-line batch execution
 
 ```
-todo
+<trs> ::= <section>
+        | <trs> <section>
+
+<section> ::= "(VAR" <var name>* ")"
+            | "(RULES" <rule>+ ")"
+            | "(COMMENT" <text> ")"
+            | "(FROM" <text> ")"
+
+<rule> ::= <term> "->" <term>
+
+<term> ::= <symbol>
+         | <symbol> "(" ")"
+         | <symbol> "(" <term sequence> ")"
+
+<term sequence> ::= <term>
+                  | <term sequence> "," <term>
+
+<var name> ::= a non-empty sequence of  a-z A-Z 0-9 _
+<symbol>   ::= a non-empty sequence of  a-z A-Z 0-9 _ + * . - / @ & \
 ```
+
+Exactly one `(VAR ...)` section and exactly one `(RULES ...)` section are
+required; `(COMMENT ...)` and `(FROM ...)` sections are optional and may appear
+any number of times, in any order. A bare `<symbol>` is a variable when it is
+listed in the `(VAR ...)` section and a constant otherwise; a parenthesised
+`<symbol> "(" ... ")"` is a function application (a constant when the argument
+list is empty). Unlike the REPL form, variables are declared explicitly in
+`(VAR ...)` rather than inferred from letter case —
+**[but see the case-sensitivity warning above](#running-batch-completion-from-the-command-line)**.
 
 ## Author
 
