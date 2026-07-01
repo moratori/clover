@@ -10,7 +10,7 @@
                 :yield
                 :next
                 :stop-iteration)
-  (:import-from :clover.multiprocess
+  (:import-from :clover.lib.parallel
                 :initialize-lparallel-kernel
                 :psome/kill)
   (:export

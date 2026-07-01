@@ -21,14 +21,17 @@
   :components ((:module "tests"
                 :components
                 ((:module "src"
-                  :components 
-                  ((:module "search"
-                    :components 
-                    ((:file "iddfs")
-                     (:file "astar")
-                     (:file "dfs")))
+                  :components
+                  ((:module "lib"
+                    :components
+                    ((:file "parallel")
+                     (:module "search"
+                      :components
+                      ((:file "iddfs")
+                       (:file "astar")
+                       (:file "dfs")))))
                    (:module "ui"
-                    :components 
+                    :components
                     ((:file "batch")))
                    (:file "converter")
                    (:file "clover")
@@ -43,7 +46,6 @@
                    (:file "rewrite")
                    (:file "criticalpair")
                    (:file "completion")
-                   (:file "multiprocess")
                    (:file "multicompletion")
                    (:file "completion-corpus")
                    (:file "rendertree")

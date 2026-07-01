@@ -1,11 +1,11 @@
-(defpackage clover.search.iddfs
+(defpackage clover.lib.search.iddfs
   (:use :cl
-        :clover.search.common)
+        :clover.lib.search.common)
   (:export 
     :iddfs
     )
   )
-(in-package :clover.search.iddfs)
+(in-package :clover.lib.search.iddfs)
 
 
 (defmethod iddfs ((initial-node abstract-node) maximum-limit)

@@ -1,9 +1,9 @@
-(defpackage clover.tests.search.iddfs
+(defpackage clover.tests.lib.search.iddfs
   (:use :cl
-        :clover.search.common
-        :clover.search.iddfs
+        :clover.lib.search.common
+        :clover.lib.search.iddfs
         :1am))
-(in-package :clover.tests.search.iddfs)
+(in-package :clover.tests.lib.search.iddfs)
 
 
 (defstruct (even-or-odds 
@@ -44,7 +44,7 @@
 
 
 
-(test clover.tests.search.iddfs.test1
+(test clover.tests.lib.search.iddfs.test1
   (defmethod finish ((node even-or-odds))
     (= 9 (even-or-odds-num node)))
   (multiple-value-bind 
@@ -54,7 +54,7 @@
     (is (= deepth 3))
     (is (= (even-or-odds-num value) 9))))
 
-(test clover.tests.search.iddfs.test2
+(test clover.tests.lib.search.iddfs.test2
   (defmethod finish ((node even-or-odds))
     (= 27 (even-or-odds-num node)))
   (multiple-value-bind 
@@ -64,7 +64,7 @@
     (is (= deepth 4))
     (is (= (even-or-odds-num value) 27))))
 
-(test clover.tests.search.iddfs.test3
+(test clover.tests.lib.search.iddfs.test3
   (defmethod finish ((node even-or-odds))
     (= 1234 (even-or-odds-num node)))
   (multiple-value-bind 
@@ -74,7 +74,7 @@
     (is (null deepth))
     (is (null value))))
 
-(test clover.tests.search.iddfs.test4
+(test clover.tests.lib.search.iddfs.test4
   (defmethod finish ((node even-or-odds))
     (= 1 (even-or-odds-num node)))
   (multiple-value-bind 
@@ -85,7 +85,7 @@
     (is (= 1 (even-or-odds-num value)))))
 
 
-(test clover.tests.search.iddfs.test5
+(test clover.tests.lib.search.iddfs.test5
   (defmethod finish ((node looped-graph))
     (string= "G" (looped-graph-label node)))
   (multiple-value-bind 
@@ -95,7 +95,7 @@
     (is (= deepth 2))
     (is (string= "G" (looped-graph-label value)))))
 
-(test clover.tests.search.iddfs.test6
+(test clover.tests.lib.search.iddfs.test6
   (defmethod finish ((node looped-graph))
     (string= "E" (looped-graph-label node)))
   (multiple-value-bind 
@@ -105,7 +105,7 @@
     (is (= deepth 1))
     (is (string= "E" (looped-graph-label value)))))
 
-(test clover.tests.search.iddfs.test7
+(test clover.tests.lib.search.iddfs.test7
   (let ((num 1342432))
 
     (defmethod finish ((node even-or-odds))

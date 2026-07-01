@@ -1,9 +1,9 @@
-(defpackage clover.tests.search.dfs
+(defpackage clover.tests.lib.search.dfs
   (:use :cl
-        :clover.search.common
-        :clover.search.dfs
+        :clover.lib.search.common
+        :clover.lib.search.dfs
         :1am))
-(in-package :clover.tests.search.dfs)
+(in-package :clover.tests.lib.search.dfs)
 
 
 (defstruct (looped-graph
@@ -36,7 +36,7 @@
 
 
 ;; 到達可能なゴール(G)を発見できる。flag が真であることも確認する。
-(test clover.tests.search.dfs.test1
+(test clover.tests.lib.search.dfs.test1
   (defmethod finish ((node looped-graph))
     (string= "G" (looped-graph-label node)))
   (multiple-value-bind
@@ -47,7 +47,7 @@
     (is (string= "G" (looped-graph-label value)))))
 
 ;; 到達可能なゴール(E)を発見できる。flag が真であることも確認する。
-(test clover.tests.search.dfs.test2
+(test clover.tests.lib.search.dfs.test2
   (defmethod finish ((node looped-graph))
     (string= "E" (looped-graph-label node)))
   (multiple-value-bind
@@ -58,7 +58,7 @@
     (is (string= "E" (looped-graph-label value)))))
 
 ;; 初期ノード自身がゴールの場合: 初手で finish が真になり、その初期ノードを返す。
-(test clover.tests.search.dfs.test3
+(test clover.tests.lib.search.dfs.test3
   (defmethod finish ((node looped-graph))
     (string= "A" (looped-graph-label node)))
   (multiple-value-bind
@@ -70,7 +70,7 @@
 
 ;; 到達不能なゴール(Z): 閉路を含むグラフでも停止し、(nil nil) を返す。
 ;; 再訪チェックが機能していなければ無限ループするため、本テストは停止性の検証も兼ねる。
-(test clover.tests.search.dfs.test4
+(test clover.tests.lib.search.dfs.test4
   (defmethod finish ((node looped-graph))
     (string= "Z" (looped-graph-label node)))
   (multiple-value-bind
@@ -81,7 +81,7 @@
     (is (null value))))
 
 ;; 深い位置のノード(D は A->B->D のみで到達可能)を発見できる。
-(test clover.tests.search.dfs.test5
+(test clover.tests.lib.search.dfs.test5
   (defmethod finish ((node looped-graph))
     (string= "D" (looped-graph-label node)))
   (multiple-value-bind
@@ -92,7 +92,7 @@
     (is (string= "D" (looped-graph-label value)))))
 
 ;; 別経路のノード(F)も発見できる。
-(test clover.tests.search.dfs.test6
+(test clover.tests.lib.search.dfs.test6
   (defmethod finish ((node looped-graph))
     (string= "F" (looped-graph-label node)))
   (multiple-value-bind
@@ -136,7 +136,7 @@
 ;; 到達不能ゴール: どのノードもゴールでないため全 (N+1)^2 ノードを探索しきって停止する。
 ;; 再訪チェックが効いていなければ経路爆発 or 無限ループとなるため、停止性の検証も兼ねる。
 ;; (改修前後の性能を比較する際の重い固定ワークロード)
-(test clover.tests.search.dfs.large-unreachable
+(test clover.tests.lib.search.dfs.large-unreachable
   (defmethod finish ((node grid-node))
     nil)
   (multiple-value-bind
@@ -147,7 +147,7 @@
     (is (null value))))
 
 ;; 到達可能ゴール(右上隅 (N,N)): 大きな格子でも正しく発見できる。
-(test clover.tests.search.dfs.large-reachable
+(test clover.tests.lib.search.dfs.large-reachable
   (defmethod finish ((node grid-node))
     (and (= (grid-node-x node) *grid-size*)
          (= (grid-node-y node) *grid-size*)))

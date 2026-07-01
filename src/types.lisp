@@ -1,6 +1,6 @@
 (defpackage clover.types
   (:use :cl
-        :clover.search.common
+        :clover.lib.search.common
         :clover.conditions
         )
   (:import-from :clover.parameters

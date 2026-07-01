@@ -1,10 +1,10 @@
-(defpackage clover.multiprocess
+(defpackage clover.lib.parallel
   (:use :cl)
   (:export
     :initialize-lparallel-kernel
     :psome/kill
     ))
-(in-package :clover.multiprocess)
+(in-package :clover.lib.parallel)
 
 
 (let (cached)

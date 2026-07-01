@@ -1,4 +1,4 @@
-(defpackage clover.search.common
+(defpackage clover.lib.search.common
   (:use :cl
         )
   (:export
@@ -9,7 +9,7 @@
     :*debug-print*
     )
   )
-(in-package :clover.search.common)
+(in-package :clover.lib.search.common)
 
 
 (defparameter *debug-print* nil)

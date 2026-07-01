@@ -1,9 +1,9 @@
-(defpackage clover.tests.search.astar
+(defpackage clover.tests.lib.search.astar
   (:use :cl
-        :clover.search.common
-        :clover.search.astar
+        :clover.lib.search.common
+        :clover.lib.search.astar
         :1am))
-(in-package :clover.tests.search.astar)
+(in-package :clover.tests.lib.search.astar)
 
 (defparameter *mapping* 
   '(("S" . (("AO" . 10)))
@@ -58,7 +58,7 @@
 
 
 
-(test clover.tests.search.astar.test1
+(test clover.tests.lib.search.astar.test1
   (multiple-value-bind 
     (foundp value)
     (astar (city "IB" nil))

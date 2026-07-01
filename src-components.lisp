@@ -16,12 +16,15 @@
 ;;;;    長時間起動しっぱなしの REPL では再読込が自動で効かないことがある（新規プロセス／
 ;;;;    CI では .asd が読み直されるので問題ない）。
 
-((:module "search"
+((:module "lib"
   :components
-  ((:file "common")
-   (:file "iddfs")
-   (:file "astar")
-   (:file "dfs")))
+  ((:file "parallel")
+   (:module "search"
+    :components
+    ((:file "common")
+     (:file "iddfs")
+     (:file "astar")
+     (:file "dfs")))))
  (:file "parameters")
  (:file "conditions")
  (:file "types")
@@ -39,7 +42,6 @@
  (:file "rewrite")
  (:file "criticalpair")
  (:file "completion")
- (:file "multiprocess")
  (:file "multicompletion")
  (:file "clover")
  (:module "ui"

@@ -1,11 +1,11 @@
-(defpackage clover.search.dfs
+(defpackage clover.lib.search.dfs
   (:use :cl
-        :clover.search.common)
+        :clover.lib.search.common)
   (:export
     :dfs
     )
   )
-(in-package :clover.search.dfs)
+(in-package :clover.lib.search.dfs)
 
 
 

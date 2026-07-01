@@ -1,6 +1,6 @@
-(defpackage clover.search.astar
+(defpackage clover.lib.search.astar
   (:use :cl
-        :clover.search.common)
+        :clover.lib.search.common)
   (:import-from :cl-heap
                 :enqueue
                 :dequeue
@@ -10,7 +10,7 @@
     :cost-to-goal
     :cost-to-neighbor
     :astar))
-(in-package :clover.search.astar)
+(in-package :clover.lib.search.astar)
 
 
 (defconstant +POSITIVE-INFINITY+

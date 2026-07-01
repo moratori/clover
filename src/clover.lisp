@@ -1,10 +1,10 @@
 (defpackage clover.clover
   (:use :cl
         :clover.parameters
-        :clover.search.common
-        :clover.search.astar
-        :clover.search.iddfs
-        :clover.search.dfs
+        :clover.lib.search.common
+        :clover.lib.search.astar
+        :clover.lib.search.iddfs
+        :clover.lib.search.dfs
         :clover.types
         :clover.resolution
         :clover.logical-predicates
@@ -22,7 +22,7 @@
                 :canonical-clause-string)
   (:import-from :clover.rewrite
                 :rewrite-final)
-  (:import-from :clover.multiprocess
+  (:import-from :clover.lib.parallel
                 :initialize-lparallel-kernel)
   (:export
     :start_resolution
