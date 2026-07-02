@@ -979,3 +979,33 @@
                  (clause (list (literal nil 'P (list (constant 'A)))
                                (literal nil 'Q (list (constant 'B)))))))))
 
+
+(test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
+      ;; 【監査で判明した単一化バグの再現 / RED / 確度: 高(再現済) / 現状は導出では latent】
+      ;;
+      ;; 事実: find-most-general-unifier-set は「変数を共有し位置が入れ替わった項」を
+      ;;   誤って ununifiable と判定する。例: P(x,y) と P(y,x)。これらは mgu {x:=y} で
+      ;;   単一化可能（両辺 P(y,y)）だが、現行実装は UNUNIFIABLE を返す。
+      ;; 根因(推測・確度中): disagreement-set が相互ペア {x->y, y->x} を含むとき、
+      ;;   %flatten-disagreement-set(unify.lisp:107-138) が y->x に x->y を適用して
+      ;;   自己参照 y->y を作り、直後の occurrence-check で occurrence-check-error →
+      ;;   %find-most-general-unifier-set が ununifiable-error に変換する。
+      ;;   (変数素な f(x1,y1)/f(y2,x2) は相互ペアを生じないため正しく単一化される＝
+      ;;    トリガーは「変数共有＋位置入替」)。
+      ;; 影響範囲(事実): 導出パイプラインの mgu 呼び出し(resolution.lisp:52,102 と
+      ;;   subsumption の unify.lisp:263)は常に standardize-apart 済みの変数素な引数で
+      ;;   呼ぶため、本バグは現状 latent(対称述語定理の end-to-end 証明は成功する)。
+      ;;   ただし find-most-general-unifier-set 単体の契約違反であり、変数共有項を
+      ;;   直接単一化する将来のコード/リファクタで顕在化し得る landmine。
+      ;;
+      ;; ununifiable-error は error 非継承(clover-toplevel-condition)なので自前で捕捉し、
+      ;; クリーンな (is nil) 失敗に落とす(修正後は literal= が真になり PASS)。
+      (let ((l1 (literal nil 'P (list (vterm 'x) (vterm 'y))))
+            (l2 (literal nil 'P (list (vterm 'y) (vterm 'x)))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set l1 l2)))
+                  (clover.equality:literal=
+                    (clover.substitute:apply-unifier-set l1 us)
+                    (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil)))))
+
