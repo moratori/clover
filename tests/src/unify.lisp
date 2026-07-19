@@ -1050,7 +1050,7 @@ REDケース。要修正。一旦コメントアウト。
 まずは、変数素の場合でも生じる不具合を修正したのち、こちらについても対応を行う。
 
 |#
-(skip-test
+
   (test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
       ;; 【監査で判明した単一化バグの再現 / RED / 確度: 高(再現済) / 現状は導出では latent】
       ;;
@@ -1078,7 +1078,7 @@ REDケース。要修正。一旦コメントアウト。
                   (clover.equality:literal=
                     (clover.substitute:apply-unifier-set l1 us)
                     (clover.substitute:apply-unifier-set l2 us)))
-              (ununifiable-error () nil))))))
+              (ununifiable-error () nil)))))
 
 
 ;; ─────────────────────────────────────────────────────────────────────────

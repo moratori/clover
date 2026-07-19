@@ -14,6 +14,9 @@
                 :rename)
   (:import-from :clover.lib.util
                 :pairwise-collect-if)
+  (:import-from :clover.logical-predicates
+                :identity-unifier-p
+                )
   (:export 
     :subsumption-clause-p
     :alphabet-equivalent-p
@@ -49,8 +52,7 @@
            ;;; tmp とマージする処理が必要
            (unifier-set
              (remove-if
-               (lambda (x)
-                 (term= (unifier.src x) (unifier.dst x)))
+               #'identity-unifier-p
                (remove-duplicates
                  (append
                    (remove-duplicates unifier-list :key #'unifier.src :test #'term=)
@@ -158,13 +160,16 @@
               ((not result)
                (error
                  (make-condition 'unexpected-unifier-source)))
+              ((identity-unifier-p result) result)
               ((occurrence-check (unifier.src result) (unifier.dst result))
                (error (make-condition 'occurrence-check-error
                                       :message "occurrence check error while %flatten-disagreement-set"
                                       :vterm (unifier.src result)
                                       :fterm (unifier.dst result))))
               (t result))))
-        (unifier-set.unifiers disagreement-set))
+        (remove-if
+          #'identity-unifier-p
+          (unifier-set.unifiers disagreement-set)))
       :test #'unifier=)))
 
 
