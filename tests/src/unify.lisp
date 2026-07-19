@@ -980,6 +980,12 @@
                                (literal nil 'Q (list (constant 'B)))))))))
 
 
+#|
+
+REDケース。要修正。一旦コメントアウト。
+変数素でないリテラル間のmguについても正しく計算する必要があり、それに関するテストである。
+まずは、変数素の場合でも生じる不具合を修正したのち、こちらについても対応を行う。
+
 (test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
       ;; 【監査で判明した単一化バグの再現 / RED / 確度: 高(再現済) / 現状は導出では latent】
       ;;
@@ -1007,5 +1013,110 @@
                   (clover.equality:literal=
                     (clover.substitute:apply-unifier-set l1 us)
                     (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil)))))
+
+
+;; ─────────────────────────────────────────────────────────────────────────
+;; 症状2(変数共有): 単一化が停止しない
+;;   ⚠ 注意: このテストは現行実装では【停止しない(無限ループ)】。非停止のため
+;;     handler-case では捕捉できない(ununifiable-error は送出されない)。ステップ2で
+;;     汎用単一化へ修正後、コメントアウトを解除すれば {y:=f(A)} を返して停止し PASS する
+;;     はず。修正前にこのブロックだけ有効化するとテストスイートがハングするので注意。
+;;
+;; 事実: P(y,f(A)) と P(y,y) は mgu {y:=f(A)} で単一化可能(両辺 P(f(A),f(A)))だが、
+;;   現行実装は停止しない。y を両リテラルで共有している(＝変数素でない入力)。
+;; 根因(推測・確度中): disagreement-set が恒等単一化子 y->y を含み(両リテラルが変数 y を
+;;   同位置に共有するため)、%select-one-of-substitutable-unifier が y->y を毎回「代入可能」
+;;   と判定するが、y->y による flatten は集合を変化させないため、
+;;   %find-most-general-unifier-set のループ(unify.lisp:147-149)が不動点に到達せず回り続ける。
+;;   本来は恒等単一化子を除去すべき(disjoint 版 D7 が停止する事実と整合)。
+(test clover.tests.unify.find-most-general-unifier-set.shared-nonterminating
+      (let ((l1 (literal nil 'P (list (vterm 'y) (fterm 'f (list (constant 'A))))))
+            (l2 (literal nil 'P (list (vterm 'y) (vterm 'y)))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set l1 l2)))
+                  (clover.equality:literal=
+                    (clover.substitute:apply-unifier-set l1 us)
+                    (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil)))))
+
+
+;; ─────────────────────────────────────────────────────────────────────────
+;; 症状3(変数共有): 位置が交差した関数項を誤って ununifiable と判定
+;; 事実: P(f(x),y) と P(y,f(B)) は f(x)=y かつ y=f(B) より x=B で単一化可能
+;;   (mgu {y:=f(B), x:=B})。しかし現行実装は UNUNIFIABLE を返す。
+;;   y を両リテラルで共有している(＝変数素でない入力)。
+;; 根因(推測・確度中): disagreement-set {y->f(x), y->f(B)} に対し flatten が変数 y を
+;;   相手 unifier の src に代入して src を fterm 化 → unexpected-unifier-source →
+;;   ununifiable-error。本来は2つの dst f(x),f(B) を再帰単一化(→ x=B)すべき。
+;;   disjoint-repeated-variable と同型の「分解欠落」だが、こちらは変数共有でも発火する。
+(test clover.tests.unify.find-most-general-unifier-set.shared-crossed-function-term
+      (let ((l1 (literal nil 'P (list (fterm 'f (list (vterm 'x))) (vterm 'y))))
+            (l2 (literal nil 'P (list (vterm 'y) (fterm 'f (list (constant 'B)))))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set l1 l2)))
+                  (clover.equality:literal=
+                    (clover.substitute:apply-unifier-set l1 us)
+                    (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil)))))
+|#
+
+
+(test clover.tests.unify.find-most-general-unifier-set.disjoint-repeated-variable
+      ;; 【変数素でも発生する単一化バグの再現 / RED / 確度: 高(再現済) / 現状 latent ではない】
+      ;;
+      ;; 事実: 2つのオペランドが変数を一切共有しない(＝standardize-apart 済み)場合でも、
+      ;;   片方のリテラル内で同一変数が重複し、それが相手側の「同一関数記号を持つ2つの項」に
+      ;;   対応すると、find-most-general-unifier-set は本来単一化可能なのに ununifiable を返す。
+      ;;   例: P(x,x) と P(f(a),f(b))。x=f(a) かつ x=f(b) より f(a)=f(b) すなわち a=b で
+      ;;   単一化可能(mgu 例 {x:=f(a), a:=b})。しかし現行実装は UNUNIFIABLE を返す。
+      ;;   ※ x と a,b は別リテラル由来で共有していない(変数素)。それでも失敗する点が要点。
+      ;;   対照: P(x,x) と P(f(w),g(v)) は f≠g で真に単一化不能(既存 test1 でカバー済)。
+      ;;         P(x,x) と P(y,f(w)) は片側が変数なので可解(既存 test1 でカバー済)。
+      ;; 根因(推測・確度中): disagreement-set が同一 src の非変数束縛 {x->f(a), x->f(b)} を
+      ;;   持つとき、%flatten-disagreement-set(unify.lisp:107-138) が変数 x を相手 unifier の
+      ;;   src に代入して src を fterm 化し、apply-unifier(substitute.lisp:77-81) が
+      ;;   unexpected-unifier-source を送出、%find-most-general-unifier-set が ununifiable-error に
+      ;;   変換する。本来は2つの dst f(a),f(b) を再帰的に単一化(→ a=b)する分解が必要。
+      ;; 影響範囲(事実): 変数重複を含む項/リテラル(反射律 P(x,x)、規則 LHS f(x,x) 等)は一般的で、
+      ;;   resolution(resolution.lisp:52,102)・rewrite(rewrite.lisp:50)・
+      ;;   critical-pair(criticalpair.lisp:49,63)・subsumption(unify.lisp:263)のいずれも
+      ;;   変数素化後の呼び出しで到達可能(＝latent ではなく現に取りこぼしを生む)。
+      ;;
+      ;; ununifiable-error は error 非継承(clover-toplevel-condition)なので自前で捕捉し、
+      ;; クリーンな (is nil) 失敗に落とす。修正後は apply 後の両辺が等しくなり PASS。
+
+      ;; D1: P(x,x) vs P(f(a),f(b))  ─ x はL1のみ, a,b はL2のみ(変数素) / a,b は変数
+      (let ((l1 (literal nil 'P (list (vterm 'x) (vterm 'x))))
+            (l2 (literal nil 'P (list (fterm 'f (list (vterm 'a)))
+                                      (fterm 'f (list (vterm 'b)))))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set l1 l2)))
+                  (clover.equality:literal=
+                    (clover.substitute:apply-unifier-set l1 us)
+                    (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil))))
+
+      ;; D2: P(f(a),f(b)) vs P(y,y)  ─ D1 の対称形(変数素)
+      (let ((l1 (literal nil 'P (list (fterm 'f (list (vterm 'a)))
+                                      (fterm 'f (list (vterm 'b))))))
+            (l2 (literal nil 'P (list (vterm 'y) (vterm 'y)))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set l1 l2)))
+                  (clover.equality:literal=
+                    (clover.substitute:apply-unifier-set l1 us)
+                    (clover.substitute:apply-unifier-set l2 us)))
+              (ununifiable-error () nil))))
+
+      ;; 項レベル版(rewrite/critical-pair の呼び出しに相当): f(x,x) vs f(g(a),g(b))
+      ;;   x=g(a) かつ x=g(b) より a=b で可解(mgu 例 {x:=g(a), a:=b})。
+      (let ((t1 (fterm 'f (list (vterm 'x) (vterm 'x))))
+            (t2 (fterm 'f (list (fterm 'g (list (vterm 'a)))
+                                (fterm 'g (list (vterm 'b)))))))
+        (is (handler-case
+                (let ((us (find-most-general-unifier-set t1 t2)))
+                  (term=
+                    (clover.substitute:apply-unifier-set t1 us)
+                    (clover.substitute:apply-unifier-set t2 us)))
               (ununifiable-error () nil)))))
 
