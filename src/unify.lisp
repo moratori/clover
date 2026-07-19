@@ -12,6 +12,8 @@
                 :%intern-symbol-to-specified-package)
   (:import-from :clover.rename
                 :rename)
+  (:import-from :clover.lib.util
+                :pairwise-collect-if)
   (:export 
     :subsumption-clause-p
     :alphabet-equivalent-p
@@ -22,12 +24,40 @@
 
 
 (defun %collect-disagreement-set (obj1 obj2)
-  (let ((result
-          (unifier-set
-            (remove-duplicates 
-              (%%collect-disagreement-set obj1 obj2)
-              :test #'unifier=)))) 
-    result))
+  (let* ((unifier-list
+           (%%collect-disagreement-set obj1 obj2))
+         (tmp
+           (pairwise-collect-if
+             (lambda (x y)
+               (let ((src-x (unifier.src x))
+                     (src-y (unifier.src y))
+                     (dst-x (unifier.dst x))
+                     (dst-y (unifier.dst y)))
+                 (cond
+                   ((and (term= src-x src-y)
+                         (term/= dst-x dst-y))
+                    (let* ((recursive-collects-unifier-set
+                             ;;; 適切なエラーハンドリングが必要かどうか要確認
+                             (%collect-disagreement-set
+                               dst-x dst-y)))
+                      (values (consp (unifier-set.unifiers recursive-collects-unifier-set))
+                              recursive-collects-unifier-set)))
+                   (t (values nil nil)))))
+             unifier-list))
+         (result
+           ;;; unifier-listから、x -> Y, x -> Z のようなunifierの片方（どっち？？どっちでもいいならsrc比較でおもむろにremove-duplicatesすれば良さそう）を削除し、
+           ;;; tmp とマージする処理が必要
+           (unifier-set
+             (remove-if
+               (lambda (x)
+                 (term= (unifier.src x) (unifier.dst x)))
+               (remove-duplicates
+                 (append
+                   (remove-duplicates unifier-list :key #'unifier.src :test #'term=)
+                   (loop :for us :in tmp :append (unifier-set.unifiers us)))
+                 :test #'unifier=))))) 
+    result
+    ))
 
 
 
