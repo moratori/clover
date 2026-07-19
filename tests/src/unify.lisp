@@ -5,6 +5,9 @@
         :clover.types
         :clover.logical-predicates
         :1am)
+  (:import-from :clover.tests.util
+                :skip-test
+                )
   (:import-from :clover.equality
                 :term=
                 :unifier-set=
@@ -1046,7 +1049,9 @@ REDケース。要修正。一旦コメントアウト。
 変数素でないリテラル間のmguについても正しく計算する必要があり、それに関するテストである。
 まずは、変数素の場合でも生じる不具合を修正したのち、こちらについても対応を行う。
 
-(test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
+|#
+(skip-test
+  (test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
       ;; 【監査で判明した単一化バグの再現 / RED / 確度: 高(再現済) / 現状は導出では latent】
       ;;
       ;; 事実: find-most-general-unifier-set は「変数を共有し位置が入れ替わった項」を
@@ -1073,9 +1078,8 @@ REDケース。要修正。一旦コメントアウト。
                   (clover.equality:literal=
                     (clover.substitute:apply-unifier-set l1 us)
                     (clover.substitute:apply-unifier-set l2 us)))
-              (ununifiable-error () nil)))))
+              (ununifiable-error () nil))))))
 
-|#
 
 ;; ─────────────────────────────────────────────────────────────────────────
 ;; 症状2(変数共有): 単一化が停止しない
