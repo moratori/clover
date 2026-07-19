@@ -1043,14 +1043,6 @@
  
 
 
-#|
-
-REDケース。要修正。一旦コメントアウト。
-変数素でないリテラル間のmguについても正しく計算する必要があり、それに関するテストである。
-まずは、変数素の場合でも生じる不具合を修正したのち、こちらについても対応を行う。
-
-|#
-
   (test clover.tests.unify.find-most-general-unifier-set.shared-swap-variables
       ;; 【監査で判明した単一化バグの再現 / RED / 確度: 高(再現済) / 現状は導出では latent】
       ;;
@@ -1179,4 +1171,122 @@ REDケース。要修正。一旦コメントアウト。
                     (clover.substitute:apply-unifier-set t1 us)
                     (clover.substitute:apply-unifier-set t2 us)))
               (ununifiable-error () nil)))))
+
+
+;;;; ================================================================
+;;;; 単一化 網羅回帰テスト(変数共有 / factoring 前提の担保)
+;;;;
+;;;; 変数共有リテラルの単一化は factoring(同一節内リテラル同士)の前提。ここが崩れると
+;;;; 導出の取りこぼし・非停止に直結するため、停止性・単一化子性・不能検出(occurs/衝突)・
+;;;; 対称性・最汎性(over-specialization 検出)を固定する。
+;;;; 注: 単一化が非停止に退行すると該当 is がハングしスイート全体が止まる(=大異常として検知)。
+;;;; ================================================================
+
+(test clover.tests.unify.find-most-general-unifier-set.variable-sharing-unifiable
+      ;; 変数を共有する項/リテラルが停止し、正しい単一化子を返す(apply 後 両辺一致)。
+      (labels ((uni? (a b)
+                 (let ((us (find-most-general-unifier-set a b)))
+                   (if (typep a 'literal)
+                       (clover.equality:literal=
+                         (clover.substitute:apply-unifier-set a us)
+                         (clover.substitute:apply-unifier-set b us))
+                       (term=
+                         (clover.substitute:apply-unifier-set a us)
+                         (clover.substitute:apply-unifier-set b us))))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'y)))            ; swap
+                  (literal nil 'P (list (vterm 'y) (vterm 'x)))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'y)))            ; chain
+                  (literal nil 'P (list (vterm 'y) (vterm 'z)))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'x) (vterm 'y)))
+                  (literal nil 'P (list (vterm 'y) (vterm 'z) (vterm 'z)))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
+                  (literal nil 'P (list (vterm 'y) (vterm 'z) (constant 'A)))))
+        (is (uni? (fterm 'f (list (vterm 'x) (vterm 'y) (vterm 'z)))       ; 3-cycle
+                  (fterm 'f (list (vterm 'y) (vterm 'z) (vterm 'x)))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'x)))))
+                  (literal nil 'P (list (vterm 'y) (fterm 'f (list (vterm 'y)))))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'x)))            ; 恒等+束縛(共有)
+                  (literal nil 'P (list (vterm 'x) (vterm 'y)))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (fterm 'g (list (vterm 'y)))))
+                  (literal nil 'P (list (fterm 'g (list (vterm 'y))) (vterm 'x)))))
+        (is (uni? (fterm 'f (list (vterm 'a) (vterm 'a)))                  ; 多重 merge(両側共有 y)
+                  (fterm 'f (list (fterm 'g (list (vterm 'x) (vterm 'y)))
+                                  (fterm 'g (list (vterm 'y) (vterm 'z)))))))
+        (is (uni? (literal nil 'P (list (vterm 'x) (vterm 'x) (vterm 'y) (vterm 'y)))
+                  (literal nil 'P (list (vterm 'u) (vterm 'v) (vterm 'v) (vterm 'u)))))))
+
+(test clover.tests.unify.find-most-general-unifier-set.occurs-check-and-clash
+      ;; 真に単一化不能なもの(occurs-check / 記号・定数衝突)を正しく ununifiable と判定する
+      ;; (spurious な単一化=偽の推論を防ぐ健全性の担保)。
+      (signals ununifiable-error                                          ; x = f(x)
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x)))
+          (literal nil 'P (list (fterm 'f (list (vterm 'x)))))))
+      (signals ununifiable-error                                          ; merge 経由 occurs
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (vterm 'x)))
+          (literal nil 'P (list (vterm 'y) (fterm 'f (list (vterm 'y)))))))
+      (signals ununifiable-error                                          ; 共有 occurs
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'x)))))
+          (literal nil 'P (list (fterm 'g (list (vterm 'y))) (vterm 'y)))))
+      (signals ununifiable-error                                          ; 共有 恒等+occurs
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (vterm 'x)))
+          (literal nil 'P (list (vterm 'x) (fterm 'f (list (vterm 'x)))))))
+      (signals ununifiable-error                                          ; 相互 occurs
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (vterm 'y)))
+          (literal nil 'P (list (fterm 'f (list (vterm 'y))) (fterm 'f (list (vterm 'x)))))))
+      (signals ununifiable-error                                          ; 連鎖 → occurs
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'x)))
+          (literal nil 'P (list (vterm 'y) (vterm 'z) (fterm 'f (list (vterm 'z)))))))
+      (signals ununifiable-error                                          ; 定数衝突
+        (find-most-general-unifier-set
+          (fterm 'f (list (vterm 'x) (vterm 'x)))
+          (fterm 'f (list (constant 'A) (constant 'B)))))
+      (signals ununifiable-error                                          ; 記号衝突
+        (find-most-general-unifier-set
+          (literal nil 'P (list (vterm 'x) (vterm 'x)))
+          (literal nil 'P (list (fterm 'f (list (vterm 'a))) (fterm 'g (list (vterm 'b))))))))
+
+(test clover.tests.unify.find-most-general-unifier-set.symmetry
+      ;; unify(s,t) と unify(t,s) がともに単一化子を返す(向き非依存)。
+      (labels ((uni? (a b)
+                 (let ((us (find-most-general-unifier-set a b)))
+                   (clover.equality:literal=
+                     (clover.substitute:apply-unifier-set a us)
+                     (clover.substitute:apply-unifier-set b us)))))
+        (is (uni? (literal nil 'P (list (fterm 'f (list (vterm 'x))) (vterm 'y)))
+                  (literal nil 'P (list (vterm 'y) (fterm 'f (list (constant 'B)))))))
+        (is (uni? (literal nil 'P (list (vterm 'y) (fterm 'f (list (constant 'B)))))
+                  (literal nil 'P (list (fterm 'f (list (vterm 'x))) (vterm 'y)))))))
+
+(test clover.tests.unify.find-most-general-unifier-set.most-general
+      ;; 最汎性(over-specialization 検出)を固定する特性テスト。exact mgu を unifier-set= で照合する
+      ;; (apply 後一致だけでは over-specialization を検知できないため設置)。
+      ;; 注: 実装リファクタで代表元(残す変数)が変われば失敗する。その際は「依然として最汎か」を
+      ;;     確認の上で期待値を更新すること。
+      (is (unifier-set=
+            (find-most-general-unifier-set
+              (literal nil 'P (list (vterm 'x) (vterm 'y)))
+              (literal nil 'P (list (vterm 'y) (vterm 'x))))
+            (unifier-set (list (unifier (vterm 'x) (vterm 'y))))))
+      (is (unifier-set=
+            (find-most-general-unifier-set
+              (literal nil 'P (list (vterm 'x) (vterm 'y) (vterm 'z)))
+              (literal nil 'P (list (vterm 'y) (vterm 'z) (constant 'A))))
+            (unifier-set (list (unifier (vterm 'x) (constant 'A))
+                               (unifier (vterm 'y) (constant 'A))
+                               (unifier (vterm 'z) (constant 'A))))))
+      (is (unifier-set=
+            (find-most-general-unifier-set
+              (literal nil 'P (list (vterm 'x) (vterm 'x) (vterm 'x)))
+              (literal nil 'P (list (fterm 'f (list (vterm 'a)))
+                                    (fterm 'f (list (vterm 'b)))
+                                    (fterm 'f (list (vterm 'c))))))
+            (unifier-set (list (unifier (vterm 'x) (fterm 'f (list (vterm 'c))))
+                               (unifier (vterm 'a) (vterm 'c))
+                               (unifier (vterm 'b) (vterm 'c)))))))
 
