@@ -81,52 +81,7 @@
                 (equation negation final-left final-right)))))
 
 
-(defmethod prepare-resolution ((clause-set clause-set))
-  "頂節とresolution-modeを決定し、clause-setを返却する"
-  (let* ((clauses
-           (clause-set.clauses clause-set))
-         (conseq
-           (find-if (lambda (clause) 
-                      (eq :conseq (clause.clause-type clause)))
-                    clauses))
-         (base-clauses
-           (progn
-             (when (null conseq)
-               (error "consequent clause is required"))
-             (remove conseq clauses :test #'clause=)))
-         (centerlized-clause
-           (clause 
-             (clause.literals conseq)
-             (clause.parent1 conseq)
-             (clause.parent2 conseq)
-             (clause.unifier conseq)
-             :center)))
-    (clause-set
-      (cons centerlized-clause base-clauses)
-      (cond
-        ((and (every 
-                (lambda (c)
-                  (or (fact-clause-p c) 
-                      (rule-clause-p c)))
-                base-clauses)
-              (goal-clause-p conseq))
-         :snl)
-        (t :default)))))
-
 (defmethod start_resolution ((clause-set clause-set))
-
-  (when (some
-          (lambda (c) (null (clause.clause-type c)))
-          (clause-set.clauses clause-set))
-    (error "clause type must not be null"))
-
-  (when (< 1 
-           (count-if 
-             (lambda (clause)
-               (eq (clause.clause-type clause) :conseq))
-             (clause-set.clauses clause-set)))
-    (error "multiple consequence clause found"))
-
   (let* ((target
            (prepare-resolution clause-set))
          (available-search 
