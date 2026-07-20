@@ -9,6 +9,8 @@
         :clover.rename
         :clover.substitute
         )
+  (:import-from :clover.lib.util
+                :pairwise-collect-if)
   (:import-from :clover.equality
                 :literal=
                 :clause=)
@@ -145,6 +147,45 @@
       (when result (list result)))))
 
 
+(defmethod factoring ((clause clause) (resolution-mode (eql :snl)))
+  nil)
+
+(defmethod factoring ((clause clause) (resolution-mode (eql :default)))
+  (let ((literals
+          (clause.literals clause)))
+    (remove-duplicates
+      (pairwise-collect-if
+        (lambda (l1 l2)
+          (let ((mgu 
+                  (handler-case 
+                      (find-most-general-unifier-set
+                        l1 l2)
+                    (ununifiable-error (e) nil))))
+            (cond
+              ((null mgu) (values nil nil))
+              ((not (eq (literal.negation l1) (literal.negation l2))) (values nil nil))
+              (t
+               (values 
+                 t
+                 (let ((new-literals
+                         (remove-duplicates
+                           (mapcar 
+                             (lambda (l)
+                               (apply-unifier-set l mgu)) literals)
+                           :test #'literal=)))
+                   (clause
+                     new-literals
+                     (clause.parent1 clause)
+                     (clause.parent2 clause)
+                     (clause.unifier clause)
+                     (clause.clause-type clause)
+                     (clause.used-cnt clause))))))))
+        literals)
+      :test #'alphabet-equivalent-p
+      )))
+
+
+
 (defmethod resolution-wrapper ((clause-set clause-set) 
                                     (parent1 clause) 
                                     (parent2 clause)
@@ -169,6 +210,13 @@
                     (list new-parent1))
             resolution-mode))
         resoluted-clauses))))
+
+
+
+
+
+
+
 
 
 (defmethod opener_clause-set :around ((clause-set clause-set) resolution-mode)
