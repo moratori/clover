@@ -10,7 +10,8 @@
   (:import-from :clover.equality
                 :literal=)
   (:export
-    :simplify
+    :full-simplify
+    :incremental-simplify
     )
   )
 (in-package :clover.simplify)
@@ -109,6 +110,26 @@
           :unless (aref removed i)
           :collect (aref vec i))))
 
+(defun %remove-subsumption-incremental (clauses)
+  ;; 直近で生成された center節に限って他の節に対して subsumption規則を実行する
+  ;; フルフルのsubsumptionは非常に重たい処理なので、本実装を用いる 
+  ;; 直近生成の :center 節だけを他節と照合(前提: 非center節は既に相互 subsumption-free)。
+  (let* ((vec     (coerce clauses 'vector))
+         (n       (length vec))
+         (renamed (map 'vector #'clover.rename:rename vec))
+         (cidx    (position :center vec :key #'clause.clause-type)))
+    (if (null cidx)
+        clauses                      ; center が無ければ何もしない(0-center は no-op)
+        (let ((removed (make-array n :initial-element nil)))
+          (loop :for j :below n :do
+            (when (and (/= j cidx) (not (aref removed cidx)) (not (aref removed j)))
+              (cond
+                ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed cidx) (aref renamed j))
+                 (setf (aref removed j) t))
+                ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed j) (aref renamed cidx))
+                 (setf (aref removed cidx) t)))))
+          (loop :for i :below n :unless (aref removed i) :collect (aref vec i))))))
+
 (defun %remove-alphabet-equal-clause (clauses)
   (loop 
     :for target-clause :in clauses
@@ -125,18 +146,49 @@
     :collect target-clause))
 
 
-(defmethod simplify ((clause clause))
+(defmethod full-simplify ((clause clause))
   (%remove-duplicates-literal clause))
 
-(defmethod simplify ((clause-set clause-set))
+(defmethod full-simplify ((clause-set clause-set))
   (let* ((clauses 
            (clause-set.clauses clause-set))
          (next-clauses ;; 重複リテラルの削除
-           (mapcar #'simplify clauses))
+           (mapcar #'full-simplify clauses))
          (next-clauses ;; トートロジーを含む節の削除
            (remove-if #'%include-law-of-exclude-middle-p next-clauses))
          (next-clauses ;; subsumption
            (%remove-subsumption next-clauses))
+         (next-clauses ;; アルファベット同値な節ペアのうち1つを削除
+           (%remove-alphabet-equal-clause next-clauses))
+         (next-clauses ;; 単一述語の除去
+           (%remove-independent-clause next-clauses)))
+    (clause-set
+      next-clauses
+      (clause-set.resolution-mode clause-set))))
+
+
+(defmethod incremental-simplify ((clause clause))
+  ;; 節についてはfullと同じ
+  (full-simplify clause))
+
+(defmethod incremental-simplify :before ((clause-set clause-set))
+  (when (< 1 (count-if 
+              (lambda (c) 
+                (eq (clause.clause-type c) :center))
+              (clause-set.clauses clause-set)))
+    (error (make-condition 'multiple-clause-found
+                           :message ":center"))))
+
+(defmethod incremental-simplify ((clause-set clause-set))
+  ;; 実行コストの高い subsumption 規則については特別な実装に差し替える
+  (let* ((clauses 
+           (clause-set.clauses clause-set))
+         (next-clauses ;; 重複リテラルの削除
+           (mapcar #'incremental-simplify clauses))
+         (next-clauses ;; トートロジーを含む節の削除
+           (remove-if #'%include-law-of-exclude-middle-p next-clauses))
+         (next-clauses ;; subsumption
+           (%remove-subsumption-incremental next-clauses))
          (next-clauses ;; アルファベット同値な節ペアのうち1つを削除
            (%remove-alphabet-equal-clause next-clauses))
          (next-clauses ;; 単一述語の除去

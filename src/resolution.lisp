@@ -287,25 +287,26 @@
                (clause-set.clauses clause-set)))
       (error "multiple consequence clause found")) 
 
-    (clause-set
-      (cons centerlized-clause base-clauses)
-      (cond
-        ((and (every 
-                (lambda (c)
-                  (or (fact-clause-p c) 
-                      (rule-clause-p c)))
-                base-clauses)
-              (goal-clause-p conseq))
-         :snl)
-        (t :default)))))
-
+    (full-simplify
+      (rename
+        (clause-set
+          (cons centerlized-clause base-clauses)
+          (cond
+            ((and (every 
+                    (lambda (c)
+                      (or (fact-clause-p c) 
+                          (rule-clause-p c)))
+                    base-clauses)
+                  (goal-clause-p conseq))
+             :snl)
+            (t :default)))))))
 
 
 
 
 (defmethod opener_clause-set :around ((clause-set clause-set) resolution-mode)
   (call-next-method 
-    (simplify
+    (incremental-simplify
       (rename clause-set))
     resolution-mode))
 
