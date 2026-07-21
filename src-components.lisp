@@ -18,7 +18,8 @@
 
 ((:module "lib"
   :components
-  ((:file "parallel")
+  ((:file "util")
+   (:file "parallel")
    (:module "search"
     :components
     ((:file "common")

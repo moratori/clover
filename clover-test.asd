@@ -20,7 +20,8 @@
                )
   :components ((:module "tests"
                 :components
-                ((:module "src"
+                ((:file "test-util")
+                 (:module "src"
                   :components
                   ((:module "lib"
                     :components

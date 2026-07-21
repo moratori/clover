@@ -12,6 +12,11 @@
                 :%intern-symbol-to-specified-package)
   (:import-from :clover.rename
                 :rename)
+  (:import-from :clover.lib.util
+                :pairwise-collect-if)
+  (:import-from :clover.logical-predicates
+                :identity-unifier-p
+                )
   (:export 
     :subsumption-clause-p
     :alphabet-equivalent-p
@@ -22,12 +27,39 @@
 
 
 (defun %collect-disagreement-set (obj1 obj2)
-  (let ((result
-          (unifier-set
-            (remove-duplicates 
-              (%%collect-disagreement-set obj1 obj2)
-              :test #'unifier=)))) 
-    result))
+  (let* ((unifier-list
+           (%%collect-disagreement-set obj1 obj2))
+         (tmp
+           (pairwise-collect-if
+             (lambda (x y)
+               (let ((src-x (unifier.src x))
+                     (src-y (unifier.src y))
+                     (dst-x (unifier.dst x))
+                     (dst-y (unifier.dst y)))
+                 (cond
+                   ((and (term= src-x src-y)
+                         (term/= dst-x dst-y))
+                    (let* ((recursive-collects-unifier-set
+                             ;;; 適切なエラーハンドリングが必要かどうか要確認
+                             (%collect-disagreement-set
+                               dst-x dst-y)))
+                      (values (consp (unifier-set.unifiers recursive-collects-unifier-set))
+                              recursive-collects-unifier-set)))
+                   (t (values nil nil)))))
+             unifier-list))
+         (result
+           ;;; unifier-listから、x -> Y, x -> Z のようなunifierの片方（どっち？？どっちでもいいならsrc比較でおもむろにremove-duplicatesすれば良さそう）を削除し、
+           ;;; tmp とマージする処理が必要
+           (unifier-set
+             (remove-if
+               #'identity-unifier-p
+               (remove-duplicates
+                 (append
+                   (remove-duplicates unifier-list :key #'unifier.src :test #'term=)
+                   (loop :for us :in tmp :append (unifier-set.unifiers us)))
+                 :test #'unifier=))))) 
+    result
+    ))
 
 
 
@@ -128,13 +160,16 @@
               ((not result)
                (error
                  (make-condition 'unexpected-unifier-source)))
+              ((identity-unifier-p result) result)
               ((occurrence-check (unifier.src result) (unifier.dst result))
                (error (make-condition 'occurrence-check-error
                                       :message "occurrence check error while %flatten-disagreement-set"
                                       :vterm (unifier.src result)
                                       :fterm (unifier.dst result))))
               (t result))))
-        (unifier-set.unifiers disagreement-set))
+        (remove-if
+          #'identity-unifier-p
+          (unifier-set.unifiers disagreement-set)))
       :test #'unifier=)))
 
 
@@ -241,7 +276,7 @@
         :always (and (%unifier-consistent-with-p u rest)
                      (%unifier-consistent-with-p u consistent-acc))))
 
-(defun %subsumption-clause-p-renamed (renamed-clause1 renamed-clause2)
+(defun %subsumption-clause-p-renamed-in-advance (renamed-clause1 renamed-clause2)
   ;; subsumption-clause-p の判定本体。呼び出し側で renamed-clause1 と renamed-clause2 が
   ;; 既に standardize-apart 済み(互いに変数素)であることを前提とし、内部でのリネームを行わない。
   ;; これにより %remove-subsumption のような O(n^2) のペア走査で、各節のリネームを
@@ -304,7 +339,7 @@
   ;; {P(A), P(B), Q(B)}
   ;; ((unifier unifier) (unifier))
   ;; clause1 と clause2 を standardize-apart(互いに変数素化)してから判定本体へ委譲する。
-  (%subsumption-clause-p-renamed (rename clause1) (rename clause2)))
+  (%subsumption-clause-p-renamed-in-advance (rename clause1) clause2))
 
 
 (defmethod alphabet-equivalent-p ((term1 term) (term2 term))

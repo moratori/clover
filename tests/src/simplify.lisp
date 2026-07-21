@@ -93,7 +93,7 @@
                 (clause-set (list clause1 clause2)))
               (expected
                 (clause-set nil )))
-          (clause-set= (simplify clause-set) expected)))
+          (clause-set= (full-simplify clause-set) expected)))
 
       )
 

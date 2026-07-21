@@ -22,6 +22,7 @@
     :tautology-p
     :conseq-clause-p
     :ground-term-p
+    :identity-unifier-p
     :prohibited-unifier-set-p
     :occurrence-check
     :collect-variables
@@ -89,6 +90,10 @@
 
 
 
+(defmethod identity-unifier-p ((unifier unifier))
+  (term=
+    (unifier.src unifier)
+    (unifier.dst unifier)))
 
 (defmethod consistent-unifier-set-p ((unifier-set unifier-set))
   ;; どのunifier A Bをとっても、A.src = B.src　ならば A.dst = B.dst
