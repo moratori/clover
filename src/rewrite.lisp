@@ -39,36 +39,89 @@
     dst
     (unifier src fterm)))
 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+
+; 従来実装は、 find-most-general-unifier-set を用いるものだった。
+; find-most-unifier-setは、実行コストが非常に高い。これは、項の双方向の変数バインディングが生じるため。
+;    なお、 prohibited-unifier-set-p で、不要な方向のバインディングふぁ生じないように制御していた。
+; ここで必要なのは、rule側の変数でバインディングを作ればいいだけ(一方向)なので、その実装を行う。
+
 (defmethod %rewrite ((fterm fterm) (src fterm) (dst term))
-  (handler-case
-      (let* ((unifset
-;; find-most-general-unifier-set は、元々導出の為の実装であり、変数同士から
-;; unifierを作るときの順序は適当である。(左に与えられた項の変数が unifierのsrcになる)
-;; 例: find-most-general-unifier-set(f(x), f(z)) -> {x -> z}
-;; rewriteでは、src(書き換え規則)に含まれる変数をsrcにしたいので
-;; srcを左にとる  
-               (find-most-general-unifier-set src fterm))
-             (variables
-               (collect-variables fterm))
-             (is-error
-               (prohibited-unifier-set-p unifset variables)))
-        (if is-error
-            fterm
-            (apply-unifier-set dst unifset)))
-    (ununifiable-error (c) fterm)))
+  (labels
+    ((%instantiate (term bindings)
+       (typecase term
+         (vterm (let ((hit (assoc (vterm.var term) bindings :test #'eq)))
+                  (if hit (cdr hit) term)))
+         (fterm (let* ((args (fterm.args term))
+                       (new  (mapcar (lambda (a) (%instantiate a bindings)) args)))
+                  (if (every #'eq new args)
+                      term                                   ; 未変化 → 再構築しない
+                      (fterm (fterm.fsymbol term) new))))
+         (t term)))
+     (%match (pattern term bindings)
+       (cond
+         ((eq bindings :fail) :fail)
+         ((typep pattern 'vterm)
+          (let ((hit (assoc (vterm.var pattern) bindings :test #'eq)))
+            (if hit
+                (if (term= (cdr hit) term) bindings :fail) ; 非線形パターンの整合性
+                (acons (vterm.var pattern) term bindings))))
+         ((and (typep pattern 'fterm) (typep term 'fterm)
+               (eq (fterm.fsymbol pattern) (fterm.fsymbol term))
+               (= (length (fterm.args pattern)) (length (fterm.args term))))
+          (loop :with b := bindings
+                :for p :in (fterm.args pattern) :for a :in (fterm.args term)
+                :do (setf b (%match p a b))
+                :when (eq b :fail) :return :fail
+                :finally (return b)))
+         (t :fail))))
+    (let ((b (%match src fterm '())))
+      (if (eq b :fail)
+          fterm
+          (%instantiate dst b)))))
 
 (defmethod rewrite ((term term) (rewrite-rule rewrite-rule))
-  (let ((renamed (rename rewrite-rule)))
-    (%rewrite term
-              (rewrite-rule.src renamed)
-              (rewrite-rule.dst renamed))))
+  (%rewrite term
+            (rewrite-rule.src rewrite-rule)
+            (rewrite-rule.dst rewrite-rule)))
+
+;(defmethod %rewrite ((fterm fterm) (src fterm) (dst term))
+;  (handler-case
+;      (let* ((unifset
+;;; find-most-general-unifier-set は、元々導出の為の実装であり、変数同士から
+;;; unifierを作るときの順序は適当である。(左に与えられた項の変数が unifierのsrcになる)
+;;; 例: find-most-general-unifier-set(f(x), f(z)) -> {x -> z}
+;;; rewriteでは、src(書き換え規則)に含まれる変数をsrcにしたいので
+;;; srcを左にとる  
+;               (find-most-general-unifier-set src fterm))
+;             (variables
+;               (collect-variables fterm))
+;             (is-error
+;               (prohibited-unifier-set-p unifset variables)))
+;        (if is-error
+;            fterm
+;            (apply-unifier-set dst unifset)))
+;    (ununifiable-error (c) fterm)))
+
+;(defmethod rewrite ((term term) (rewrite-rule rewrite-rule))
+;  (let ((renamed (rename rewrite-rule)))
+;    (%rewrite term
+;              (rewrite-rule.src renamed)
+;              (rewrite-rule.dst renamed))))
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+
+
 
 
 
 (defgeneric rewrite-final (target rewrite-rule)
   (:documentation 
    "rewrite-ruleを用いて、targetが書き換え不能になるまで書き換える。rewrite-ruleよにっては、停止しない可能性がある。"))
-
 
 (defmethod rewrite-final ((term vterm) (rewrite-rule rewrite-rule))
   (rewrite term rewrite-rule))
@@ -102,6 +155,7 @@
     (equation.negation equation)
     (rewrite-final (equation.left equation) rewrite-rule-set)
     (rewrite-final (equation.right equation) rewrite-rule-set)))
+
 
 
 
