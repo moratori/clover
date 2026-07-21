@@ -50,10 +50,18 @@
       (mapcar #'canonical-clause-string (clause-set.clauses node))
       #'string<)))
 
-(defmethod cost-to-goal ((node clause-set))
-  (loop
-    :for clause :in (clause-set.clauses node)
-    :minimize (clause-length clause)))
+(defun %center-length (node)
+  "残り歩数の見積り = center 節に残っているリテラル数"
+  (let ((c (find-if (lambda (x) (eq :center (clause.clause-type x)))
+                    (clause-set.clauses node))))
+    (if c (length (clause.literals c))
+        (loop :for x :in (clause-set.clauses node) :minimize (clause-length x)))))
+
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+; admissible な定義でないため、最短でない可能性があることに留意
 
 (defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
   (let ((clauses (clause-set.clauses node2)))
@@ -66,7 +74,18 @@
               clauses))
           (1+ (variance
                 (mapcar #'clause.used-cnt clauses))))
-        1)))
+        1))) 
+
+(defmethod cost-to-goal ((node clause-set))
+  (* *heuristic-weight*              ; w（貪欲度）
+     (%center-length node)           ; 残り何歩か
+     (cost-to-neighbor node node)))  ; 1歩あたりのコスト ← ①をそのまま流用
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+
+
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))

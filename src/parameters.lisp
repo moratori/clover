@@ -10,6 +10,7 @@
     :*term-order-algorithm*
     :*take-limit-from-permutation-generator*
     :*completion-giveup-threshold*
+    :*heuristic-weight*
     )
   )
 (in-package :clover.parameters)
@@ -35,3 +36,6 @@
   (list :lpo))
 
 (defparameter *take-limit-from-permutation-generator* 1024)
+
+(defparameter *heuristic-weight* 1.5
+  "貪欲度。1.0 で最短性寄り、大きいほど速いが最短でなくなる。")
