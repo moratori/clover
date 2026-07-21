@@ -113,21 +113,24 @@
 (defun %remove-subsumption-incremental (clauses)
   ;; 直近で生成された center節に限って他の節に対して subsumption規則を実行する
   ;; フルフルのsubsumptionは非常に重たい処理なので、本実装を用いる 
-  ;; 直近生成の :center 節だけを他節と照合(前提: 非center節は既に相互 subsumption-free)。
-  (let* ((vec     (coerce clauses 'vector))
-         (n       (length vec))
-         (renamed (map 'vector #'clover.rename:rename vec))
-         (cidx    (position :center vec :key #'clause.clause-type)))
+  ;; 直近生成の :center 節だけを他節と照合(前提: 非center節は既に相互 subsumption-free)。 
+  (let* ((vec  (coerce clauses 'vector))
+         (n    (length vec))
+         (cidx (position :center vec :key #'clause.clause-type)))
     (if (null cidx)
-        clauses                      ; center が無ければ何もしない(0-center は no-op)
-        (let ((removed (make-array n :initial-element nil)))
+        clauses
+        (let ((rc      (clover.rename:rename (aref vec cidx)))  ; ★ center だけ 1回 rename(fresh gensym)
+              (removed (make-array n :initial-element nil)))
           (loop :for j :below n :do
             (when (and (/= j cidx) (not (aref removed cidx)) (not (aref removed j)))
-              (cond
-                ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed cidx) (aref renamed j))
-                 (setf (aref removed j) t))
-                ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed j) (aref renamed cidx))
-                 (setf (aref removed cidx) t)))))
+              (let ((bj (aref vec j)))                          ; base[j] は未 rename のまま渡す
+                (cond
+                  ;; center が base[j] を包摂?  (rc の変数は gensym なので bj と必ず変数素)
+                  ((clover.unify::%subsumption-clause-p-renamed-in-advance rc bj)
+                   (setf (aref removed j) t))
+                  ;; base[j] が center を包摂?
+                  ((clover.unify::%subsumption-clause-p-renamed-in-advance bj rc)
+                   (setf (aref removed cidx) t))))))
           (loop :for i :below n :unless (aref removed i) :collect (aref vec i))))))
 
 (defun %remove-alphabet-equal-clause (clauses)
