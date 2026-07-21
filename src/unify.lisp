@@ -339,7 +339,7 @@
   ;; {P(A), P(B), Q(B)}
   ;; ((unifier unifier) (unifier))
   ;; clause1 と clause2 を standardize-apart(互いに変数素化)してから判定本体へ委譲する。
-  (%subsumption-clause-p-renamed (rename clause1) (rename clause2)))
+  (%subsumption-clause-p-renamed (rename clause1) clause2))
 
 
 (defmethod alphabet-equivalent-p ((term1 term) (term2 term))

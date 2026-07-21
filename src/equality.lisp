@@ -16,8 +16,37 @@
     ))
 (in-package :clover.equality)
 
-(defmethod term/= ((obj1 t) (obj2 t))
-  (not (term= obj1 obj2)))
+
+
+#|
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+
+term= は利用頻度が高く、現状の defmethod定義は特にパフォーマンスへの影響が多い。
+ポリシーに反するが、大きな性能上の効果が見込めるためdefunでの定義に差し替える
+
+ネック（結論）
+
+1) CLOS ジェネリック関数ディスパッチが最大のネック（self-time 約40%）
+sb-sprof flat: DLISP3.LISP のディスパッチ lambda 27.6% ＋ CLOSURE-TRAMP 8.8% ＋ FUNCALLABLE-INSTANCE-TRAMP 4.2%。その実体は超高頻度の微小述語で、term= は 2問で297万回。
+
+2) 過剰アロケーション（2問で 1.1GB）→ GC 圧
+決定的プロファイルの consing 上位:
+
+┌───────────────────┬──────────────┬─────────┐
+│       関数        │ 呼び出し回数 │ consing │
+├───────────────────┼──────────────┼─────────┤
+│ apply-unifier-set │      649,816 │  181 MB │
+├───────────────────┼──────────────┼─────────┤
+│ apply-unifier     │      898,669 │  116 MB │
+├───────────────────┼──────────────┼─────────┤
+│ term=             │    2,977,462 │  113 MB │
+├───────────────────┼──────────────┼─────────┤
+│ make-rename-binds │       41,602 │   76 MB │
+├───────────────────┼──────────────┼─────────┤
+│ collect-variables │      542,866 │   62 MB │
+└───────────────────┴──────────────┴─────────┘
 
 (defmethod term= ((obj1 t) (obj2 t))
   nil)
@@ -33,7 +62,27 @@
     (and 
       (eq fsymbol1 fsymbol2)
       (= (length args1) (length args2))
-      (every #'term= args1 args2))))
+      (every #'term= args1 args2)))) 
+|#
+
+(defun term= (a b)
+  (typecase a
+    (vterm (and (typep b 'vterm) (eq (vterm.var a) (vterm.var b))))
+    (fterm (and (typep b 'fterm)
+                (eq (fterm.fsymbol a) (fterm.fsymbol b))
+                (let ((aa (fterm.args a)) (ba (fterm.args b)))
+                  (and (= (length aa) (length ba))
+                       (every #'term= aa ba)))))
+    (t nil)))
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
+
+
+
+(defmethod term/= ((obj1 t) (obj2 t))
+  (not (term= obj1 obj2)))
 
 (defmethod equation= ((equation1 equation) (equation2 equation))
   (let ((left1 (equation.left equation1))
