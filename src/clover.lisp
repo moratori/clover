@@ -50,10 +50,18 @@
       (mapcar #'canonical-clause-string (clause-set.clauses node))
       #'string<)))
 
-(defmethod cost-to-goal ((node clause-set))
-  (loop
-    :for clause :in (clause-set.clauses node)
-    :minimize (clause-length clause)))
+(defun %center-length (node)
+  "残り歩数の見積り = center 節に残っているリテラル数"
+  (let ((c (find-if (lambda (x) (eq :center (clause.clause-type x)))
+                    (clause-set.clauses node))))
+    (if c (length (clause.literals c))
+        (loop :for x :in (clause-set.clauses node) :minimize (clause-length x)))))
+
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+; admissible な定義でないため、最短でない可能性があることに留意
 
 (defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
   (let ((clauses (clause-set.clauses node2)))
@@ -66,7 +74,18 @@
               clauses))
           (1+ (variance
                 (mapcar #'clause.used-cnt clauses))))
-        1)))
+        1))) 
+
+(defmethod cost-to-goal ((node clause-set))
+  (* *heuristic-weight*              ; w（貪欲度）
+     (%center-length node)           ; 残り何歩か
+     (cost-to-neighbor node node)))  ; 1歩あたりのコスト ← ①をそのまま流用
+
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
+
+
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))
@@ -81,52 +100,7 @@
                 (equation negation final-left final-right)))))
 
 
-(defmethod prepare-resolution ((clause-set clause-set))
-  "頂節とresolution-modeを決定し、clause-setを返却する"
-  (let* ((clauses
-           (clause-set.clauses clause-set))
-         (conseq
-           (find-if (lambda (clause) 
-                      (eq :conseq (clause.clause-type clause)))
-                    clauses))
-         (base-clauses
-           (progn
-             (when (null conseq)
-               (error "consequent clause is required"))
-             (remove conseq clauses :test #'clause=)))
-         (centerlized-clause
-           (clause 
-             (clause.literals conseq)
-             (clause.parent1 conseq)
-             (clause.parent2 conseq)
-             (clause.unifier conseq)
-             :center)))
-    (clause-set
-      (cons centerlized-clause base-clauses)
-      (cond
-        ((and (every 
-                (lambda (c)
-                  (or (fact-clause-p c) 
-                      (rule-clause-p c)))
-                base-clauses)
-              (goal-clause-p conseq))
-         :snl)
-        (t :default)))))
-
 (defmethod start_resolution ((clause-set clause-set))
-
-  (when (some
-          (lambda (c) (null (clause.clause-type c)))
-          (clause-set.clauses clause-set))
-    (error "clause type must not be null"))
-
-  (when (< 1 
-           (count-if 
-             (lambda (clause)
-               (eq (clause.clause-type clause) :conseq))
-             (clause-set.clauses clause-set)))
-    (error "multiple consequence clause found"))
-
   (let* ((target
            (prepare-resolution clause-set))
          (available-search 
