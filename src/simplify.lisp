@@ -101,9 +101,9 @@
       (loop :for j :from (1+ i) :below n :do
         (unless (or (aref removed i) (aref removed j))
           (cond
-            ((clover.unify::%subsumption-clause-p-renamed (aref renamed i) (aref renamed j))
+            ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed i) (aref renamed j))
              (setf (aref removed j) t))
-            ((clover.unify::%subsumption-clause-p-renamed (aref renamed j) (aref renamed i))
+            ((clover.unify::%subsumption-clause-p-renamed-in-advance (aref renamed j) (aref renamed i))
              (setf (aref removed i) t))))))
     (loop :for i :below n
           :unless (aref removed i)

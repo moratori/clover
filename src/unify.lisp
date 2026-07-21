@@ -276,7 +276,7 @@
         :always (and (%unifier-consistent-with-p u rest)
                      (%unifier-consistent-with-p u consistent-acc))))
 
-(defun %subsumption-clause-p-renamed (renamed-clause1 renamed-clause2)
+(defun %subsumption-clause-p-renamed-in-advance (renamed-clause1 renamed-clause2)
   ;; subsumption-clause-p の判定本体。呼び出し側で renamed-clause1 と renamed-clause2 が
   ;; 既に standardize-apart 済み(互いに変数素)であることを前提とし、内部でのリネームを行わない。
   ;; これにより %remove-subsumption のような O(n^2) のペア走査で、各節のリネームを
@@ -339,7 +339,7 @@
   ;; {P(A), P(B), Q(B)}
   ;; ((unifier unifier) (unifier))
   ;; clause1 と clause2 を standardize-apart(互いに変数素化)してから判定本体へ委譲する。
-  (%subsumption-clause-p-renamed (rename clause1) clause2))
+  (%subsumption-clause-p-renamed-in-advance (rename clause1) clause2))
 
 
 (defmethod alphabet-equivalent-p ((term1 term) (term2 term))
