@@ -48,7 +48,7 @@
       (is (progn
             (setf *save-resolution-history* t)
             (multiple-value-bind (depth clause) 
-                (start_resolution
+                (start-resolution
                   (clause-set (list (clause (list (literal nil 'P nil) (literal nil 'P nil)))
                                     (clause (list (literal nil 'P nil) (literal t 'Q nil)))
                                     (clause (list (literal t 'P nil)) nil nil nil :conseq))))
@@ -61,7 +61,7 @@
       (is (progn
             (setf *save-resolution-history* t)
             (multiple-value-bind (depth clause) 
-                (start_resolution
+                (start-resolution
                   (clause-set 
                     (list (clause 
                             (list (literal nil 'LEN (list (constant 'NIL )
@@ -87,7 +87,7 @@
       (is (progn
             (setf *save-resolution-history* t)
             (multiple-value-bind (depth clause) 
-                (start_resolution
+                (start-resolution
                   (clause-set 
                     (list (clause 
                             (list (literal t 'R (list (vterm 'x) (vterm 'y)))
@@ -111,7 +111,7 @@
       (is (progn
             (setf *save-resolution-history* t)
             (multiple-value-bind (depth clause) 
-                (start_resolution
+                (start-resolution
                   (clause-set 
                     (list  (clause (list (literal t 'nephew (list (constant 'TARA ) (vterm 'x)))) nil nil nil :conseq)
                            (clause 

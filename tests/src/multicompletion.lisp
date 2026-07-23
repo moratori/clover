@@ -323,5 +323,5 @@ cons(x, cons(W, cons(B, y))) -> cons(x, cons(S, y))
 
 
 
-;; toplevel-completion は src 上で clover.multicompletion から clover.clover へ移設された。
+;; start-completion は src 上で clover.multicompletion から clover.clover へ移設された。
 ;; それに伴い、そのテストは tests/src/clover.lisp（clover.tests.clover）へ移動した。

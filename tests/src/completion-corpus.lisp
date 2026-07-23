@@ -11,7 +11,7 @@
 ;;;; 完備化は記号順序の並列探索を含み実行時間に変動があるため、時間がかかる問題
 ;;;; (1 秒以上) は flaky を避ける目的で意図的に除外している。
 ;;;;
-;;;; アサーションは「完備化が成功すること（toplevel-completion の成功フラグが真）」のみ。
+;;;; アサーションは「完備化が成功すること（start-completion の成功フラグが真）」のみ。
 ;;;; 完備化後の正規系は順序探索の非決定性により一意でないため、内容は固定しない。
 
 (defpackage clover.tests.completion.corpus
@@ -19,7 +19,7 @@
   (:import-from :clover.parser
                 :parse-mkbtt-expression)
   (:import-from :clover.clover
-                :toplevel-completion)
+                :start-completion)
   (:import-from :clover.parameters
                 :*completion-giveup-threshold*))
 (in-package :clover.tests.completion.corpus)
@@ -51,9 +51,9 @@
 
 (defun %corpus-completes-p (filename)
   ;; 同梱 .trs をパースして equation-set にし、CLI と同じ閾値で完備化を試みる。
-  ;; 成功フラグ（toplevel-completion の第1返り値）を返す。
+  ;; 成功フラグ（start-completion の第1返り値）を返す。
   (let ((equation-set (parse-mkbtt-expression (%read-corpus-file filename))))
-    (values (toplevel-completion equation-set *completion-giveup-threshold*))))
+    (values (start-completion equation-set *completion-giveup-threshold*))))
 
 
 (defmacro define-corpus-completion-tests (&rest filenames)

@@ -85,7 +85,7 @@
   (%stdout "The input was recognized as a set of equations.")
   (when (yes-or-no-p "Do you want to run the completion algorithm? ")
     (multiple-value-bind (flag ordering completed)
-          (toplevel-completion equation-set *completion-giveup-threshold*)
+          (start-completion equation-set *completion-giveup-threshold*)
         (cond
           (flag
            (%stdout "~%The completion process succeeded:~%")
@@ -190,7 +190,7 @@
 (defmethod do-resolution ((clause-set clause-set))
   (multiple-value-bind (depth clause-set)
       (handler-case
-          (time (start_resolution clause-set))
+          (time (start-resolution clause-set))
         (clover-toplevel-condition (con)
           (%stdout "An unexpected error occurred: ~A~%" con)
           (throw 'exit nil))
@@ -222,7 +222,7 @@
                       (tmp (equation (not (equation.negation eqs))
                                      left
                                      right)))
-                 (multiple-value-bind (r v) (start_trs tmp rewrite-rule-set)
+                 (multiple-value-bind (r v) (start-trs tmp rewrite-rule-set)
                    (push v irreducibles)
                    r)))
              literals)))

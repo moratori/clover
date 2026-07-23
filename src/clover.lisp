@@ -23,9 +23,9 @@
   (:import-from :clover.multicompletion
                 :multi-kb-completion)
   (:export
-    :start_resolution
-    :start_trs
-    :toplevel-completion
+    :start-resolution
+    :start-trs
+    :start-completion
     ))
 (in-package :clover.clover)
 
@@ -87,7 +87,7 @@
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
 
 
-(defmethod toplevel-completion ((equation-set equation-set) giveup-threshold)
+(defmethod start-completion ((equation-set equation-set) giveup-threshold)
   (let ((*error-output* (make-two-way-stream
                           (make-concatenated-stream)
                           (make-broadcast-stream))))
@@ -97,7 +97,7 @@
         (values nil nil nil))))) 
 
 
-(defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
+(defmethod start-trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
   (let* ((left (equation.left expr))
          (right (equation.right expr))
          (negation (equation.negation expr))
@@ -110,7 +110,7 @@
                 (equation negation final-left final-right)))))
 
 
-(defmethod start_resolution ((clause-set clause-set))
+(defmethod start-resolution ((clause-set clause-set))
   (let* ((target
            (prepare-resolution clause-set))
          (available-search 

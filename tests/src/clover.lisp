@@ -484,7 +484,7 @@
               (format t "~%default~%")
               (multiple-value-bind
                   (foundp value) 
-                  (time (clover.clover:start_resolution target))
+                  (time (clover.clover:start-resolution target))
                 (is foundp))
               )))
 
@@ -496,7 +496,7 @@
               (format t "~%default~%")
               (multiple-value-bind
                   (foundp value) 
-                  (time (clover.clover:start_resolution target))
+                  (time (clover.clover:start-resolution target))
                 (is foundp)))))
 
 (test clover.tests.clover.prepare-resolution
@@ -507,12 +507,13 @@
             (is (eq expected (clause-set.resolution-mode converted)))))
 
 
-;;; toplevel-completion — 並列完備化のトップレベル入口。
-;;; src 上で clover.multicompletion から clover.clover へ移設されたため、テストもこちらへ移動した。
-;;; start_resolution / start_trs と同じ「入口（何をトップレベルから呼ぶか）」層に属する。
-;;; 内容は移設前の clover.tests.multicompletion.toplevel-completion.test1 と同一で、
-;;; 参照先シンボルのみ clover.clover:toplevel-completion に変更している。
-(test clover.tests.clover.toplevel-completion.test1
+;;; start-completion — 並列完備化のトップレベル入口。
+;;; src 上で clover.multicompletion から clover.clover へ移設され、その後 toplevel-completion から
+;;; start-completion へ改名されたため、テストもこちらへ移動・追随させた。
+;;; start-resolution / start-trs と同じ「入口（何をトップレベルから呼ぶか）」層に属する。
+;;; 内容は移設前の clover.tests.multicompletion 側のテスト（旧名 toplevel-completion）と同一で、
+;;; 参照先シンボルのみ clover.clover:start-completion に変更している。
+(test clover.tests.clover.start-completion.test1
       (let* ((target
               (equation-set
                 (list
@@ -523,7 +524,7 @@
             (result
               (rename-for-human-readable-printing
                 (multiple-value-bind (_1 _2 completed)
-                    (toplevel-completion target 10)
+                    (start-completion target 10)
                   completed)))
             (expected1 ;; g < h の場合
               (rewrite-rule-set

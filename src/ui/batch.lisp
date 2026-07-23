@@ -108,7 +108,7 @@
          (content (alexandria:read-file-into-string fname))
          (eqs (parse-mkbtt-expression content)))
     (multiple-value-bind (flag ordering result)
-        (toplevel-completion eqs *completion-giveup-threshold*)
+        (start-completion eqs *completion-giveup-threshold*)
       (show-batch-completion-result flag ordering result)
       result)))
 

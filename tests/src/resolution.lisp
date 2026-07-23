@@ -12,7 +12,7 @@
                 :clause=
                 :clause-set=)
   (:import-from :clover.clover
-                :start_resolution))
+                :start-resolution))
 (in-package :clover.tests.resolution)
 
 
@@ -36,7 +36,7 @@
       ;;   探索し尽くし foundp=NIL。タイムアウトではない)。
       ;; 現在は opener_clause-set が center を factoring するため foundp=T となる。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'P (list (vterm 'x)))
@@ -65,7 +65,7 @@
       ;; 注: 多くの証明器は「前提の無矛盾」を仮定するため、これを許容する設計もあり得る。
       ;;   その場合は本テストを「前提無矛盾を仮定するため対象外」として削除/無効化してよい。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'P nil)))
@@ -685,7 +685,7 @@
 ;;;; 反駁(refutation)エンドツーエンドの受け入れテスト — 古典的一階問題
 ;;;;
 ;;;; 出典: Pelletier "75 Problems for Testing ATP" 系の小さな一階反駁、および
-;;;;   教科書的な三段論法/推移律。start_resolution が □ に到達すること(foundp=T)を固定する。
+;;;;   教科書的な三段論法/推移律。start-resolution が □ に到達すること(foundp=T)を固定する。
 ;;;;
 ;;;; clover の入力モデル上の制約(prepare-resolution, resolution.lisp:258-302):
 ;;;;   - :conseq 節はちょうど1個。これが set-of-support(頂節=center)の唯一の種になる。
@@ -705,7 +705,7 @@
       ;; 定言三段論法(Barbara): ∀x(man(x)→mortal(x)), man(SOCRATES) ⊢ mortal(SOCRATES)。
       ;; 反駁形: 前提2節 + ¬mortal(SOCRATES)(単一 conseq)。すべて Horn(fact/rule/goal)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t   'man    (list (vterm 'x)))
@@ -721,7 +721,7 @@
       ;; 推移律: p(A,B), p(B,C), ∀xyz(p(x,y)∧p(y,z)→p(x,z)) ⊢ p(A,C)。
       ;; 2変数述語での鎖状の単一化を伴う Horn 反駁。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t   'p (list (vterm 'x) (vterm 'y)))
@@ -739,7 +739,7 @@
       ;; 帰納的な鎖: ∀x(p(x)→p(f(x))), p(A) ⊢ p(f(f(A)))。
       ;; 入れ子関数項 f(f(A)) への段階的な単一化を確認する。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t   'p (list (vterm 'x)))
@@ -755,7 +755,7 @@
       ;; 非 Horn の場合分け: (p(A)∨q(A)), ∀x(p(x)→r(x)), ∀x(q(x)→r(x)) ⊢ r(A)。
       ;; 選言前提 {p(A), q(A)} からの分岐を両側とも r(A) に合流させる。:default 導出。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'p (list (constant 'A)))
@@ -776,7 +776,7 @@
       ;; ¬(huge(E)∧enormous(E)) = {!huge(E), !enormous(E)} が単一 conseq(2リテラル)に収まる。
       ;; 単一 conseq 制約下でも連言ゴールが扱えることを示す。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t   'big      (list (vterm 'x)))
@@ -795,7 +795,7 @@
       ;; 仮言三段論法の連鎖: ∀x(p(x)→q(x)), ∀x(q(x)→r(x)), ∀x(r(x)→s(x)), p(A) ⊢ s(A)。
       ;; 単一化を伴う3段の含意連鎖(線形導出が素直に伸びる Horn 反駁)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
@@ -812,7 +812,7 @@
       ;; 選言三段論法: (p(A)∨q(A)), ¬p(A) ⊢ q(A)。
       ;; 選言の事実節 {p(A),q(A)} に対する二項導出(非 Horn の最小例)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'p (list (constant 'A)))
@@ -828,7 +828,7 @@
       ;; モーダス・トレンス: ∀x(p(x)→q(x)), ¬q(A) ⊢ ¬p(A)。
       ;; ゴールが負リテラルの例。¬(¬p(A)) = {p(A)} を単一 conseq として置く。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
@@ -843,7 +843,7 @@
       ;; 後続関数つき推移律: ∀x p(x,f(x)), 推移律 ⊢ p(A, f(f(A)))。
       ;; 事実が関数項スキーマ p(x,f(x)) で、単一化のたびに新しい関数項が現れる。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'p (list (vterm 'x) (fterm 'f (list (vterm 'x)))))))
@@ -862,7 +862,7 @@
       ;;   ⊢ cares(JOHN, mother(JOHN))。
       ;; 変数を定数へ束縛しつつ、関数項 mother(x) が y に伝播する単一化を確認する。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'loves (list (vterm 'x) (fterm 'mother (list (vterm 'x)))))))
@@ -879,7 +879,7 @@
       ;; 入れ子の場合分け: (p(A)∨q(A)), ∀x(p(x)→s(x)), ∀x(q(x)→s(x)), ∀x(s(x)→r(x)) ⊢ r(A)。
       ;; 両枝を s(A) に合流させたのち、さらに s→r で1段進める非 Horn 反駁。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'p (list (constant 'A)))
@@ -898,7 +898,7 @@
       ;; 頂節 ¬p(B,A) が {p(x,A),p(B,y)} と2回相補導出(祖先導出/factoring 相当)で
       ;; □ に到達する。単一節ゴールだが非 Horn かつ2変数の例。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'p (list (vterm 'x) (constant 'A)))
@@ -915,7 +915,7 @@
       ;;   ⊢ app(cons(A,NIL), cons(B,NIL), cons(A,cons(B,NIL)))。
       ;; 再帰規則の1段展開と、リスト構成子 cons の入れ子単一化を確認する。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'app (list (constant 'NIL) (vterm 'y) (vterm 'y)))))
@@ -937,7 +937,7 @@
       ;;   ⊢ odd(s(s(s(Z))))。
       ;; even/odd を後続関数 s で交互に辿る。異なる述語間を跨ぐ導出の連鎖。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'even (list (constant 'Z)))))
@@ -956,7 +956,7 @@
       ;;   ⊢ reach(A,B,C)。
       ;; 負3・正1 の4リテラル節を頂節から順に解消していく(3引数の結論述語)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'p (list (vterm 'x)))
@@ -976,7 +976,7 @@
       ;; 二項関係の対称性: ∀xy(rel(x,y)→rel(y,x)), rel(A,B) ⊢ rel(B,A)。
       ;; 規則の頭部 rel(y,x) に対する引数入替の単一化。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'rel (list (vterm 'x) (vterm 'y)))
@@ -992,7 +992,7 @@
       ;; 深い関数連鎖: ∀x(p(x)→p(f(x))), p(A) ⊢ p(f(f(f(f(A)))))。
       ;; 同じ規則を4回適用して関数項を深くする(導出の深さの伸長)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'p (list (vterm 'x)))
@@ -1008,7 +1008,7 @@
       ;; 後方否定連鎖: ∀x(p(x)→q(x)), ∀x(q(x)→r(x)), ¬r(A) ⊢ ¬p(A)。
       ;; ¬(¬p(A)) = {p(A)} を頂節に置き、p→q→r と辿って ¬r(A) に衝突させる。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
@@ -1025,7 +1025,7 @@
       ;;   ⊢ grandparent(A,C)。
       ;; 推移律と似るが結論述語が別(2前提規則による関係の合成)。
       (multiple-value-bind (foundp node)
-          (start_resolution
+          (start-resolution
             (clause-set
               (list
                 (clause (list (literal nil 'parent (list (constant 'A) (constant 'B)))))
