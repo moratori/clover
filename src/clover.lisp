@@ -16,14 +16,10 @@
   (:import-from :alexandria
                 :median
                 :variance)
-  (:import-from :clover.unify
-                :alphabet-equivalent-p)
   (:import-from :clover.canonicalization
                 :canonical-clause-string)
   (:import-from :clover.rewrite
                 :rewrite-final)
-  (:import-from :clover.lib.parallel
-                :initialize-lparallel-kernel)
   (:export
     :start_resolution
     :start_trs
