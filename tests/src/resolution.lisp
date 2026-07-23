@@ -680,3 +680,361 @@
             ret
             :test #'clause-set=))))
 
+
+;;;; ==========================================================================
+;;;; 反駁(refutation)エンドツーエンドの受け入れテスト — 古典的一階問題
+;;;;
+;;;; 出典: Pelletier "75 Problems for Testing ATP" 系の小さな一階反駁、および
+;;;;   教科書的な三段論法/推移律。start_resolution が □ に到達すること(foundp=T)を固定する。
+;;;;
+;;;; clover の入力モデル上の制約(prepare-resolution, resolution.lisp:258-302):
+;;;;   - :conseq 節はちょうど1個。これが set-of-support(頂節=center)の唯一の種になる。
+;;;;   - 他の節は既定で :premise。全体(前提 ∪ conseq)が充足不能であれば反駁が得られる。
+;;;;   - したがって「否定したゴール ¬φ が単一節に収まる」問題のみ素直に表現できる
+;;;;     (φ が単一リテラル、または リテラルの連言。¬(l1∧…∧ln)=¬l1∨…∨¬ln は1節)。
+;;;;     ¬φ が複数節に割れる問題は単一 center モデルに収まらず、別カテゴリ(不完全性の実証)。
+;;;;   - 導出は paramodulation/superposition を持たない(等式推論なし)ため、等式非依存の
+;;;;     問題に限る。等式を使う定理は完備化(mkbtt/.trs 経路)側の担当。
+;;;;
+;;;; いずれも実エンジンで foundp=T を確認済み(高速・タイムアウトなし)。
+;;;; もし将来いずれかが RED になったら、それは導出コアの回帰(完全性/健全性)の兆候であり、
+;;;; テストを緩めるのではなく実装側を疑うこと。
+;;;; ==========================================================================
+
+(test clover.tests.resolution.refutation.syllogism-socrates
+      ;; 定言三段論法(Barbara): ∀x(man(x)→mortal(x)), man(SOCRATES) ⊢ mortal(SOCRATES)。
+      ;; 反駁形: 前提2節 + ¬mortal(SOCRATES)(単一 conseq)。すべて Horn(fact/rule/goal)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t   'man    (list (vterm 'x)))
+                              (literal nil 'mortal (list (vterm 'x)))))
+                (clause (list (literal nil 'man    (list (constant 'SOCRATES)))))
+                (clause (list (literal t   'mortal (list (constant 'SOCRATES))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.transitivity
+      ;; 推移律: p(A,B), p(B,C), ∀xyz(p(x,y)∧p(y,z)→p(x,z)) ⊢ p(A,C)。
+      ;; 2変数述語での鎖状の単一化を伴う Horn 反駁。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t   'p (list (vterm 'x) (vterm 'y)))
+                              (literal t   'p (list (vterm 'y) (vterm 'z)))
+                              (literal nil 'p (list (vterm 'x) (vterm 'z)))))
+                (clause (list (literal nil 'p (list (constant 'A) (constant 'B)))))
+                (clause (list (literal nil 'p (list (constant 'B) (constant 'C)))))
+                (clause (list (literal t   'p (list (constant 'A) (constant 'C))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.nested-function-unification
+      ;; 帰納的な鎖: ∀x(p(x)→p(f(x))), p(A) ⊢ p(f(f(A)))。
+      ;; 入れ子関数項 f(f(A)) への段階的な単一化を確認する。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t   'p (list (vterm 'x)))
+                              (literal nil 'p (list (fterm 'f (list (vterm 'x)))))))
+                (clause (list (literal nil 'p (list (constant 'A)))))
+                (clause (list (literal t   'p (list (fterm 'f (list (fterm 'f (list (constant 'A))))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.case-split-disjunctive-premise
+      ;; 非 Horn の場合分け: (p(A)∨q(A)), ∀x(p(x)→r(x)), ∀x(q(x)→r(x)) ⊢ r(A)。
+      ;; 選言前提 {p(A), q(A)} からの分岐を両側とも r(A) に合流させる。:default 導出。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'p (list (constant 'A)))
+                              (literal nil 'q (list (constant 'A)))))
+                (clause (list (literal t   'p (list (vterm 'x)))
+                              (literal nil 'r (list (vterm 'x)))))
+                (clause (list (literal t   'q (list (vterm 'x)))
+                              (literal nil 'r (list (vterm 'x)))))
+                (clause (list (literal t   'r (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.conjunctive-goal
+      ;; 連言ゴール: ∀x(big(x)→huge(x)), ∀x(huge(x)→enormous(x)), big(E)
+      ;;   ⊢ huge(E) ∧ enormous(E)。
+      ;; ¬(huge(E)∧enormous(E)) = {!huge(E), !enormous(E)} が単一 conseq(2リテラル)に収まる。
+      ;; 単一 conseq 制約下でも連言ゴールが扱えることを示す。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t   'big      (list (vterm 'x)))
+                              (literal nil 'huge     (list (vterm 'x)))))
+                (clause (list (literal t   'huge     (list (vterm 'x)))
+                              (literal nil 'enormous (list (vterm 'x)))))
+                (clause (list (literal nil 'big      (list (constant 'E)))))
+                (clause (list (literal t   'huge     (list (constant 'E)))
+                              (literal t   'enormous (list (constant 'E))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.hypothetical-syllogism-chain
+      ;; 仮言三段論法の連鎖: ∀x(p(x)→q(x)), ∀x(q(x)→r(x)), ∀x(r(x)→s(x)), p(A) ⊢ s(A)。
+      ;; 単一化を伴う3段の含意連鎖(線形導出が素直に伸びる Horn 反駁)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
+                (clause (list (literal t 'q (list (vterm 'x))) (literal nil 'r (list (vterm 'x)))))
+                (clause (list (literal t 'r (list (vterm 'x))) (literal nil 's (list (vterm 'x)))))
+                (clause (list (literal nil 'p (list (constant 'A)))))
+                (clause (list (literal t 's (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.disjunctive-syllogism
+      ;; 選言三段論法: (p(A)∨q(A)), ¬p(A) ⊢ q(A)。
+      ;; 選言の事実節 {p(A),q(A)} に対する二項導出(非 Horn の最小例)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'p (list (constant 'A)))
+                              (literal nil 'q (list (constant 'A)))))
+                (clause (list (literal t 'p (list (constant 'A)))))
+                (clause (list (literal t 'q (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.modus-tollens
+      ;; モーダス・トレンス: ∀x(p(x)→q(x)), ¬q(A) ⊢ ¬p(A)。
+      ;; ゴールが負リテラルの例。¬(¬p(A)) = {p(A)} を単一 conseq として置く。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
+                (clause (list (literal t 'q (list (constant 'A)))))
+                (clause (list (literal nil 'p (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.transitivity-with-successor
+      ;; 後続関数つき推移律: ∀x p(x,f(x)), 推移律 ⊢ p(A, f(f(A)))。
+      ;; 事実が関数項スキーマ p(x,f(x)) で、単一化のたびに新しい関数項が現れる。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'p (list (vterm 'x) (fterm 'f (list (vterm 'x)))))))
+                (clause (list (literal t 'p (list (vterm 'x) (vterm 'y)))
+                              (literal t 'p (list (vterm 'y) (vterm 'z)))
+                              (literal nil 'p (list (vterm 'x) (vterm 'z)))))
+                (clause (list (literal t 'p (list (constant 'A)
+                                                  (fterm 'f (list (fterm 'f (list (constant 'A))))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.compound-term-in-goal
+      ;; ゴール内の複合項: ∀x loves(x, mother(x)), ∀xy(loves(x,y)→cares(x,y))
+      ;;   ⊢ cares(JOHN, mother(JOHN))。
+      ;; 変数を定数へ束縛しつつ、関数項 mother(x) が y に伝播する単一化を確認する。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'loves (list (vterm 'x) (fterm 'mother (list (vterm 'x)))))))
+                (clause (list (literal t 'loves (list (vterm 'x) (vterm 'y)))
+                              (literal nil 'cares (list (vterm 'x) (vterm 'y)))))
+                (clause (list (literal t 'cares (list (constant 'JOHN)
+                                                      (fterm 'mother (list (constant 'JOHN))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.nested-case-split
+      ;; 入れ子の場合分け: (p(A)∨q(A)), ∀x(p(x)→s(x)), ∀x(q(x)→s(x)), ∀x(s(x)→r(x)) ⊢ r(A)。
+      ;; 両枝を s(A) に合流させたのち、さらに s→r で1段進める非 Horn 反駁。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'p (list (constant 'A)))
+                              (literal nil 'q (list (constant 'A)))))
+                (clause (list (literal t 'p (list (vterm 'x))) (literal nil 's (list (vterm 'x)))))
+                (clause (list (literal t 'q (list (vterm 'x))) (literal nil 's (list (vterm 'x)))))
+                (clause (list (literal t 's (list (vterm 'x))) (literal nil 'r (list (vterm 'x)))))
+                (clause (list (literal t 'r (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.positive-two-literal-clause
+      ;; 正リテラル2本の節: ∀xy(p(x,A)∨p(B,y)), ¬p(B,A) は充足不能。
+      ;; 頂節 ¬p(B,A) が {p(x,A),p(B,y)} と2回相補導出(祖先導出/factoring 相当)で
+      ;; □ に到達する。単一節ゴールだが非 Horn かつ2変数の例。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'p (list (vterm 'x) (constant 'A)))
+                              (literal nil 'p (list (constant 'B) (vterm 'y)))))
+                (clause (list (literal t 'p (list (constant 'B) (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.append-relation
+      ;; Prolog の append(3項述語 + 再帰 + cons/NIL):
+      ;;   app(NIL,y,y), ∀xlyz(app(l,y,z)→app(cons(x,l),y,cons(x,z)))
+      ;;   ⊢ app(cons(A,NIL), cons(B,NIL), cons(A,cons(B,NIL)))。
+      ;; 再帰規則の1段展開と、リスト構成子 cons の入れ子単一化を確認する。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'app (list (constant 'NIL) (vterm 'y) (vterm 'y)))))
+                (clause (list (literal t 'app (list (vterm 'l) (vterm 'y) (vterm 'z)))
+                              (literal nil 'app (list (fterm 'cons (list (vterm 'x) (vterm 'l)))
+                                                      (vterm 'y)
+                                                      (fterm 'cons (list (vterm 'x) (vterm 'z)))))))
+                (clause (list (literal t 'app (list (fterm 'cons (list (constant 'A) (constant 'NIL)))
+                                                    (fterm 'cons (list (constant 'B) (constant 'NIL)))
+                                                    (fterm 'cons (list (constant 'A)
+                                                                       (fterm 'cons (list (constant 'B) (constant 'NIL))))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.mutual-recursion-even-odd
+      ;; 相互再帰する2述語: even(Z), ∀x(even(x)→odd(s(x))), ∀x(odd(x)→even(s(x)))
+      ;;   ⊢ odd(s(s(s(Z))))。
+      ;; even/odd を後続関数 s で交互に辿る。異なる述語間を跨ぐ導出の連鎖。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'even (list (constant 'Z)))))
+                (clause (list (literal t 'even (list (vterm 'x)))
+                              (literal nil 'odd (list (fterm 's (list (vterm 'x)))))))
+                (clause (list (literal t 'odd (list (vterm 'x)))
+                              (literal nil 'even (list (fterm 's (list (vterm 'x)))))))
+                (clause (list (literal t 'odd (list (fterm 's (list (fterm 's (list (fterm 's (list (constant 'Z))))))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.mixed-sign-multiantecedent-rule
+      ;; 混在符号の多前提規則: ∀xyz(p(x)∧q(y)∧r(z)→reach(x,y,z)), p(A), q(B), r(C)
+      ;;   ⊢ reach(A,B,C)。
+      ;; 負3・正1 の4リテラル節を頂節から順に解消していく(3引数の結論述語)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'p (list (vterm 'x)))
+                              (literal t 'q (list (vterm 'y)))
+                              (literal t 'r (list (vterm 'z)))
+                              (literal nil 'reach (list (vterm 'x) (vterm 'y) (vterm 'z)))))
+                (clause (list (literal nil 'p (list (constant 'A)))))
+                (clause (list (literal nil 'q (list (constant 'B)))))
+                (clause (list (literal nil 'r (list (constant 'C)))))
+                (clause (list (literal t 'reach (list (constant 'A) (constant 'B) (constant 'C))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.binary-relation-symmetry
+      ;; 二項関係の対称性: ∀xy(rel(x,y)→rel(y,x)), rel(A,B) ⊢ rel(B,A)。
+      ;; 規則の頭部 rel(y,x) に対する引数入替の単一化。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'rel (list (vterm 'x) (vterm 'y)))
+                              (literal nil 'rel (list (vterm 'y) (vterm 'x)))))
+                (clause (list (literal nil 'rel (list (constant 'A) (constant 'B)))))
+                (clause (list (literal t 'rel (list (constant 'B) (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.deep-function-chain
+      ;; 深い関数連鎖: ∀x(p(x)→p(f(x))), p(A) ⊢ p(f(f(f(f(A)))))。
+      ;; 同じ規則を4回適用して関数項を深くする(導出の深さの伸長)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'p (list (vterm 'x)))
+                              (literal nil 'p (list (fterm 'f (list (vterm 'x)))))))
+                (clause (list (literal nil 'p (list (constant 'A)))))
+                (clause (list (literal t 'p (list (fterm 'f (list (fterm 'f (list (fterm 'f (list (fterm 'f (list (constant 'A))))))))))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.modus-tollens-chain
+      ;; 後方否定連鎖: ∀x(p(x)→q(x)), ∀x(q(x)→r(x)), ¬r(A) ⊢ ¬p(A)。
+      ;; ¬(¬p(A)) = {p(A)} を頂節に置き、p→q→r と辿って ¬r(A) に衝突させる。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal t 'p (list (vterm 'x))) (literal nil 'q (list (vterm 'x)))))
+                (clause (list (literal t 'q (list (vterm 'x))) (literal nil 'r (list (vterm 'x)))))
+                (clause (list (literal t 'r (list (constant 'A)))))
+                (clause (list (literal nil 'p (list (constant 'A))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
+
+(test clover.tests.resolution.refutation.grandparent-relational-composition
+      ;; 関係合成: parent(A,B), parent(B,C), ∀xyz(parent(x,y)∧parent(y,z)→grandparent(x,z))
+      ;;   ⊢ grandparent(A,C)。
+      ;; 推移律と似るが結論述語が別(2前提規則による関係の合成)。
+      (multiple-value-bind (foundp node)
+          (start_resolution
+            (clause-set
+              (list
+                (clause (list (literal nil 'parent (list (constant 'A) (constant 'B)))))
+                (clause (list (literal nil 'parent (list (constant 'B) (constant 'C)))))
+                (clause (list (literal t 'parent (list (vterm 'x) (vterm 'y)))
+                              (literal t 'parent (list (vterm 'y) (vterm 'z)))
+                              (literal nil 'grandparent (list (vterm 'x) (vterm 'z)))))
+                (clause (list (literal t 'grandparent (list (constant 'A) (constant 'C))))
+                        nil nil nil :conseq))))
+        (declare (ignore node))
+        (is foundp)))
+
