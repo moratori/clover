@@ -54,8 +54,10 @@
   "残り歩数の見積り = center 節に残っているリテラル数"
   (let ((c (find-if (lambda (x) (eq :center (clause.clause-type x)))
                     (clause-set.clauses node))))
-    (if c (length (clause.literals c))
-        (loop :for x :in (clause-set.clauses node) :minimize (clause-length x)))))
+    (if c 
+        (clause-length c) 
+        (loop :for x :in (clause-set.clauses node)
+              :minimize (clause-length x)))))
 
 
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
