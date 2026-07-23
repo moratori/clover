@@ -5,14 +5,12 @@
         :clover.types
         :clover.completion
         )
-  (:import-from :generators
-                :make-generator
-                :yield
-                :next
-                :stop-iteration)
   (:import-from :clover.lib.parallel
                 :initialize-lparallel-kernel
                 :psome/kill)
+  (:import-from :clover.lib.util
+                :permutation
+                :take)
   (:export
     :multi-kb-completion
     :toplevel-completion
@@ -70,39 +68,6 @@
          (function-symbols-permutation
            (permutation function-symbols)))
      (values constant-symbols function-symbols)))
-
-
-(defun permutation (elements)
-  (make-generator ()
-    (if (<= (length elements) 1)
-        (yield elements)
-        (handler-case
-            (loop
-              :with gen := (permutation (subseq elements 1))
-              :for perm := (next gen)
-              :do
-              (loop
-                :for i :from 0 :below (length elements)
-                :do
-                (yield 
-                  (append 
-                    (subseq perm 0 i)
-                    (subseq elements 0 1)
-                    (subseq perm i)))))
-          (stop-iteration (c) 
-            (declare (ignore c)) nil)))))
-
-(defun take (n gen)
-  (let (result)
-    (handler-case 
-        (dotimes (i n)
-          (let ((value (next gen)))
-            (when value
-              (push value result))))
-      (stop-iteration (c)
-        (declare (ignore c))))
-    result))
-
 
 
 (defmethod multi-kb-completion ((equation-set equation-set) giveup-threshold)
