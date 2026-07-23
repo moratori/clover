@@ -15,7 +15,8 @@
   (:import-from :clover.termorder
                 :term<)
   (:import-from :clover.canonicalization
-                :canonical-equation-key
+                :canonical-equation-key)
+  (:import-from :clover.lib.util
                 :remove-duplicates-by-key)
   (:export
     :critical-pair

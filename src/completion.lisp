@@ -17,7 +17,8 @@
                 :all-critical-pair)
   (:import-from :clover.canonicalization
                 :canonical-equation-key
-                :canonical-rewrite-rule-key
+                :canonical-rewrite-rule-key)
+  (:import-from :clover.lib.util
                 :remove-duplicates-by-key)
   (:export
     :kb-completion
