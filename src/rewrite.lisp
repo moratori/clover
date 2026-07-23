@@ -43,10 +43,23 @@
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
 
-; 従来実装は、 find-most-general-unifier-set を用いるものだった。
-; find-most-unifier-setは、実行コストが非常に高い。これは、項の双方向の変数バインディングが生じるため。
-;    なお、 prohibited-unifier-set-p で、不要な方向のバインディングふぁ生じないように制御していた。
-; ここで必要なのは、rule側の変数でバインディングを作ればいいだけ(一方向)なので、その実装を行う。
+;(defmethod %rewrite ((fterm fterm) (src fterm) (dst term))
+;  (handler-case
+;      (let* ((unifset
+;;; find-most-general-unifier-set は、元々導出の為の実装であり、変数同士から
+;;; unifierを作るときの順序は適当である。(左に与えられた項の変数が unifierのsrcになる)
+;;; 例: find-most-general-unifier-set(f(x), f(z)) -> {x -> z}
+;;; rewriteでは、src(書き換え規則)に含まれる変数をsrcにしたいので
+;;; srcを左にとる  
+;               (find-most-general-unifier-set src fterm))
+;             (variables
+;               (collect-variables fterm))
+;             (is-error
+;               (prohibited-unifier-set-p unifset variables)))
+;        (if is-error
+;            fterm
+;            (apply-unifier-set dst unifset)))
+;    (ununifiable-error (c) fterm))) 
 
 (defmethod %rewrite ((fterm fterm) (src fterm) (dst term))
   (labels
@@ -60,6 +73,10 @@
                       term                                   ; 未変化 → 再構築しない
                       (fterm (fterm.fsymbol term) new))))
          (t term)))
+     ; 従来実装は、 find-most-general-unifier-set を用いるものだった。
+     ; find-most-unifier-setは、実行コストが非常に高い。これは、項の双方向の変数バインディングが生じるため。
+     ;    なお、 prohibited-unifier-set-p で、不要な方向のバインディングふぁ生じないように制御していた。
+     ; ここで必要なのは、rule側の変数でバインディングを作ればいいだけ(一方向)なので、その実装を行う。 
      (%match (pattern term bindings)
        (cond
          ((eq bindings :fail) :fail)
@@ -82,34 +99,16 @@
           fterm
           (%instantiate dst b)))))
 
-(defmethod rewrite ((term term) (rewrite-rule rewrite-rule))
-  (%rewrite term
-            (rewrite-rule.src rewrite-rule)
-            (rewrite-rule.dst rewrite-rule)))
-
-;(defmethod %rewrite ((fterm fterm) (src fterm) (dst term))
-;  (handler-case
-;      (let* ((unifset
-;;; find-most-general-unifier-set は、元々導出の為の実装であり、変数同士から
-;;; unifierを作るときの順序は適当である。(左に与えられた項の変数が unifierのsrcになる)
-;;; 例: find-most-general-unifier-set(f(x), f(z)) -> {x -> z}
-;;; rewriteでは、src(書き換え規則)に含まれる変数をsrcにしたいので
-;;; srcを左にとる  
-;               (find-most-general-unifier-set src fterm))
-;             (variables
-;               (collect-variables fterm))
-;             (is-error
-;               (prohibited-unifier-set-p unifset variables)))
-;        (if is-error
-;            fterm
-;            (apply-unifier-set dst unifset)))
-;    (ununifiable-error (c) fterm)))
-
 ;(defmethod rewrite ((term term) (rewrite-rule rewrite-rule))
 ;  (let ((renamed (rename rewrite-rule)))
 ;    (%rewrite term
 ;              (rewrite-rule.src renamed)
-;              (rewrite-rule.dst renamed))))
+;              (rewrite-rule.dst renamed)))) 
+
+(defmethod rewrite ((term term) (rewrite-rule rewrite-rule))
+  (%rewrite term
+            (rewrite-rule.src rewrite-rule)
+            (rewrite-rule.dst rewrite-rule)))
 
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; 
