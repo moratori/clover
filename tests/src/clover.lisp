@@ -5,6 +5,10 @@
         :clover.types
         :clover.resolution
         :1am)
+  (:import-from :clover.equality
+                :rewrite-rule-set=)
+  (:import-from :clover.rename
+                :rename-for-human-readable-printing)
   )
 (in-package :clover.tests.clover)
 
@@ -499,6 +503,45 @@
       (loop :for target :in *prepare-resolution-test-data*
             :for expected :in (list :snl :default :snl :snl :snl :default :snl :default)
             :for converted := (clover.clover::prepare-resolution target)
-            :do 
+            :do
             (is (eq expected (clause-set.resolution-mode converted)))))
+
+
+;;; toplevel-completion — 並列完備化のトップレベル入口。
+;;; src 上で clover.multicompletion から clover.clover へ移設されたため、テストもこちらへ移動した。
+;;; start_resolution / start_trs と同じ「入口（何をトップレベルから呼ぶか）」層に属する。
+;;; 内容は移設前の clover.tests.multicompletion.toplevel-completion.test1 と同一で、
+;;; 参照先シンボルのみ clover.clover:toplevel-completion に変更している。
+(test clover.tests.clover.toplevel-completion.test1
+      (let* ((target
+              (equation-set
+                (list
+                  (equation
+                    nil
+                    (fterm 'h (list (fterm 'h (list (vterm 'x)))))
+                    (fterm 'g (list (vterm 'x)))))))
+            (result
+              (rename-for-human-readable-printing
+                (multiple-value-bind (_1 _2 completed)
+                    (toplevel-completion target 10)
+                  completed)))
+            (expected1 ;; g < h の場合
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'h (list (vterm 'CLOVER.PARSER::X)))))
+                    (fterm 'g (list (vterm 'CLOVER.PARSER::X))))
+                  (rewrite-rule
+                    (fterm 'h (list (fterm 'g (list (vterm 'CLOVER.PARSER::X)))))
+                    (fterm 'g (list (fterm 'h (list (vterm 'CLOVER.PARSER::X)))))))))
+            (expected2 ;; h < g の場合
+              (rewrite-rule-set
+                (list
+                  (rewrite-rule
+                    (fterm 'g (list (vterm 'CLOVER.PARSER::x)))
+                    (fterm 'h (list (fterm 'h (list (vterm 'CLOVER.PARSER::x))))))))))
+        (is
+          (or
+            (rewrite-rule-set= result expected1)
+            (rewrite-rule-set= result expected2)))))
 

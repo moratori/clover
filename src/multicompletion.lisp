@@ -13,7 +13,6 @@
                 :take)
   (:export
     :multi-kb-completion
-    :toplevel-completion
     ))
 (in-package :clover.multicompletion)
 
@@ -114,12 +113,4 @@
               (values-list result)
               (values nil nil nil))))))
 
-(defmethod toplevel-completion ((equation-set equation-set) giveup-threshold)
-  (let ((*error-output* (make-two-way-stream
-                          (make-concatenated-stream)
-                          (make-broadcast-stream))))
-    (handler-case
-        (multi-kb-completion equation-set giveup-threshold)
-      (condition (c)
-        (values nil nil nil)))))
 

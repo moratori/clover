@@ -18,7 +18,7 @@
   (:use :cl :1am)
   (:import-from :clover.parser
                 :parse-mkbtt-expression)
-  (:import-from :clover.multicompletion
+  (:import-from :clover.clover
                 :toplevel-completion)
   (:import-from :clover.parameters
                 :*completion-giveup-threshold*))

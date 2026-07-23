@@ -11,8 +11,6 @@
         :clover.ui.util
         :ppcre
         )
-  (:import-from :clover.multicompletion
-                :toplevel-completion)
   (:import-from :clover.rename
                 :rename-for-human-readable-printing)
   (:export 

@@ -16,8 +16,6 @@
                 :parse-premise-logical-expression)
   (:import-from :clover.rewrite
                 :rewrite-final)
-  (:import-from :clover.multicompletion
-                :toplevel-completion)
   (:import-from :clover.rename
                 :rename-for-human-readable-printing)
   (:export 

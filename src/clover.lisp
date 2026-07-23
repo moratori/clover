@@ -20,9 +20,12 @@
                 :canonical-clause-string)
   (:import-from :clover.rewrite
                 :rewrite-final)
+  (:import-from :clover.multicompletion
+                :multi-kb-completion)
   (:export
     :start_resolution
     :start_trs
+    :toplevel-completion
     ))
 (in-package :clover.clover)
 
@@ -83,6 +86,15 @@
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
 ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
 
+
+(defmethod toplevel-completion ((equation-set equation-set) giveup-threshold)
+  (let ((*error-output* (make-two-way-stream
+                          (make-concatenated-stream)
+                          (make-broadcast-stream))))
+    (handler-case
+        (multi-kb-completion equation-set giveup-threshold)
+      (condition (c)
+        (values nil nil nil))))) 
 
 
 (defmethod start_trs ((expr equation) (rewrite-rule-set rewrite-rule-set))
