@@ -1290,3 +1290,89 @@
                                (unifier (vterm 'a) (vterm 'c))
                                (unifier (vterm 'b) (vterm 'c)))))))
 
+
+(test clover.tests.unify.alphabet-equivalent-p.rewrite-rule-set
+      ;; rewrite-rule-set 用メソッド: 規則ごとの変数リネームとリスト内の並び順を
+      ;; 無視した「集合としての両包含」(各規則にα同値な相手が相互に存在)を検査する。
+      ;; 既存の clause-set / equation-set 用メソッドと同じ相互 set-difference 方式。
+      (let ((peano1
+              (rewrite-rule-set
+                (list (rewrite-rule
+                        (fterm 'plus (list (vterm 'x) (constant 'ZERO)))
+                        (vterm 'x))
+                      (rewrite-rule
+                        (fterm 'plus (list (fterm 's (list (vterm 'x))) (vterm 'y)))
+                        (fterm 's (list (fterm 'plus (list (vterm 'x) (vterm 'y)))))))))
+            ;; peano1 と同一の規則集合。変数名を変え、リスト順も入れ替えたもの
+            (peano2
+              (rewrite-rule-set
+                (list (rewrite-rule
+                        (fterm 'plus (list (fterm 's (list (vterm 'a))) (vterm 'b)))
+                        (fterm 's (list (fterm 'plus (list (vterm 'a) (vterm 'b))))))
+                      (rewrite-rule
+                        (fterm 'plus (list (vterm 'v) (constant 'ZERO)))
+                        (vterm 'v)))))
+            ;; peano1 の第1規則の向きだけを反転したもの
+            (peano-flipped
+              (rewrite-rule-set
+                (list (rewrite-rule
+                        (vterm 'x)
+                        (fterm 'plus (list (vterm 'x) (constant 'ZERO))))
+                      (rewrite-rule
+                        (fterm 'plus (list (fterm 's (list (vterm 'x))) (vterm 'y)))
+                        (fterm 's (list (fterm 'plus (list (vterm 'x) (vterm 'y)))))))))
+            ;; peano1 の真部分集合(第1規則のみ)
+            (peano-subset
+              (rewrite-rule-set
+                (list (rewrite-rule
+                        (fterm 'plus (list (vterm 'v) (constant 'ZERO)))
+                        (vterm 'v))))))
+
+        ;; 変数リネーム + 並び順入替は同一視される
+        (is (alphabet-equivalent-p peano1 peano2))
+        (is (alphabet-equivalent-p peano2 peano1))
+
+        ;; 規則の向きは保持される(反転はα同値でない)
+        (is (not (alphabet-equivalent-p peano1 peano-flipped)))
+
+        ;; 真部分集合は両方向とも NIL
+        (is (not (alphabet-equivalent-p peano1 peano-subset)))
+        (is (not (alphabet-equivalent-p peano-subset peano1))))
+
+      ;; 変数の共有構造の違いは区別される: f(x,y)->x と f(x,x)->x
+      (is (not (alphabet-equivalent-p
+                 (rewrite-rule-set
+                   (list (rewrite-rule
+                           (fterm 'f (list (vterm 'x) (vterm 'y)))
+                           (vterm 'x))))
+                 (rewrite-rule-set
+                   (list (rewrite-rule
+                           (fterm 'f (list (vterm 'x) (vterm 'x)))
+                           (vterm 'x)))))))
+
+      ;; 空集合同士は同値、空と非空は非同値
+      (is (alphabet-equivalent-p (rewrite-rule-set nil) (rewrite-rule-set nil)))
+      (is (not (alphabet-equivalent-p
+                 (rewrite-rule-set nil)
+                 (rewrite-rule-set
+                   (list (rewrite-rule
+                           (fterm 'f (list (vterm 'x)))
+                           (vterm 'x)))))))
+
+      ;; 多重度は見ない(set 意味論)ことの固定: α同値な重複2件を含む集合と
+      ;; 1件の集合は同値と判定される。既存の clause-set / equation-set 用と
+      ;; 一貫した仕様であり、完備化結果は alphabet-equivalent-p による重複排除を
+      ;; 通るため実用上の問題はない。
+      (is (alphabet-equivalent-p
+            (rewrite-rule-set
+              (list (rewrite-rule
+                      (fterm 'plus (list (vterm 'p) (constant 'ZERO)))
+                      (vterm 'p))
+                    (rewrite-rule
+                      (fterm 'plus (list (vterm 'q) (constant 'ZERO)))
+                      (vterm 'q))))
+            (rewrite-rule-set
+              (list (rewrite-rule
+                      (fterm 'plus (list (vterm 'v) (constant 'ZERO)))
+                      (vterm 'v)))))))
+

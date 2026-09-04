@@ -390,6 +390,17 @@
          (rule2-dst (rewrite-rule.dst rewrite-rule2)))
     (%alphabet-equivalent-p-for-rule-or-eq rule1-src rule1-dst rule2-src rule2-dst)))
 
+(defmethod alphabet-equivalent-p ((rewrite-rule-set1 rewrite-rule-set) (rewrite-rule-set2 rewrite-rule-set))
+  (and 
+    (null (set-difference 
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
+            :test #'alphabet-equivalent-p))
+    (null (set-difference 
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set2)
+            (rewrite-rule-set.rewrite-rules rewrite-rule-set1)
+            :test #'alphabet-equivalent-p))))
+
 (defmethod alphabet-equivalent-p ((equation1 equation) (equation2 equation))
   (let* ((eq1-left (equation.left equation1))
          (eq1-right (equation.right equation1))
