@@ -44,6 +44,7 @@
                    (:file "simplify")
                    (:file "substitute")
                    (:file "resolution")
+                   (:file "resolution-prolog-corpus")
                    (:file "rewrite")
                    (:file "criticalpair")
                    (:file "completion")
