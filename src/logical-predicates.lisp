@@ -9,7 +9,6 @@
     :literal=
   )
   (:export
-    :clause-length
     :complement-literal-p
     :has-parent-p
     :null-clause-p
@@ -25,6 +24,7 @@
     :identity-unifier-p
     :prohibited-unifier-set-p
     :occurrence-check
+    :clause-length
     :collect-variables
     ))
 (in-package :clover.logical-predicates)

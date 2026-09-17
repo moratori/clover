@@ -8,14 +8,12 @@
         :clover.types
         :clover.resolution
         :clover.logical-predicates
+        :clover.heuristics
         )
   (:import-from :clover.equality
                 :term=
                 :term/=
                 :clause=)
-  (:import-from :alexandria
-                :median
-                :variance)
   (:import-from :clover.canonicalization
                 :canonical-clause-string)
   (:import-from :clover.rewrite
@@ -49,42 +47,7 @@
       (mapcar #'canonical-clause-string (clause-set.clauses node))
       #'string<)))
 
-(defun %center-length (node)
-  "残り歩数の見積り = center 節に残っているリテラル数"
-  (let ((c (find-if (lambda (x) (eq :center (clause.clause-type x)))
-                    (clause-set.clauses node))))
-    (if c 
-        (clause-length c) 
-        (loop :for x :in (clause-set.clauses node)
-              :minimize (clause-length x)))))
 
-
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
-; admissible な定義でないため、最短でない可能性があることに留意
-
-(defmethod cost-to-neighbor ((node1 clause-set) (node2 clause-set))
-  (let ((clauses (clause-set.clauses node2)))
-    (if clauses
-        (*
-          (length clauses)
-          (median 
-            (mapcar 
-              #'clause-length
-              clauses))
-          (1+ (variance
-                (mapcar #'clause.used-cnt clauses))))
-        1))) 
-
-(defmethod cost-to-goal ((node clause-set))
-  (* *heuristic-weight*              ; w（貪欲度）
-     (%center-length node)           ; 残り何歩か
-     (cost-to-neighbor node node)))  ; 1歩あたりのコスト ← ①をそのまま流用
-
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
-;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;; ;;;
 
 
 (defmethod start-completion ((equation-set equation-set) giveup-threshold)

@@ -44,6 +44,7 @@
  (:file "criticalpair")
  (:file "completion")
  (:file "multicompletion")
+ (:file "heuristics")
  (:file "clover")
  (:module "ui"
   :components
