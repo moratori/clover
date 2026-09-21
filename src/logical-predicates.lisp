@@ -18,6 +18,7 @@
     :rule-clause-p
     :fact-clause-p
     :clause-subset
+    :equation-clause-p
     :tautology-p
     :conseq-clause-p
     :ground-term-p
@@ -53,6 +54,11 @@
 
 
 
+(defmethod equation-clause-p ((clause clause))
+  (every
+    (lambda (x)
+      (typep x 'equation))
+    (clause.literals clause)))
 
 (defmethod tautology-p ((equation equation))
   (term= (equation.left equation)

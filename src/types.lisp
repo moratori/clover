@@ -56,6 +56,20 @@
         :mkbtt-rules-form.value
         :mkbtt-comment-form
         :mkbtt-comment-form.value
+        :prove-status
+        :prove-engine
+        :prove-input
+        :prove-input.target
+        :prove-input.premises
+        :prove-input.completed-rewrite-rule-set
+        :prove-input.timeout-seconds
+        :prove-input.print-stream
+        :prove-result
+        :prove-result.prove-status
+        :prove-result.prove-engine
+        :prove-result.elapsed-seconds
+        :prove-result.supporting-info
+        :prove-result.completed-rewrite-rule-set
   ))
 (in-package :clover.types)
 
@@ -169,6 +183,12 @@
 
 (deftype %mkbtt-form-type ()
   '(satisfies %%mkbtt-form-type))
+
+(deftype prove-status ()
+  '(member :proved :disproved :unknown :timeout))
+
+(deftype prove-engine ()
+  '(member :resolution :rewriting :none))
 
 
 (defstruct term)
@@ -401,3 +421,36 @@
              (:constructor mkbtt-rules-form (value)))
   (value nil :type (or nil equation-set) :read-only t))
 
+
+#|
+  証明の統一的なインターフェースとして、 prove 関数を定義する予定。
+  prove関数への入力、および返却値の型を定義する。
+|#
+(defstruct (prove-input
+             (:conc-name prove-input.)
+             (:constructor
+              prove-input 
+              (target premises completed-rewrite-rule-set timeout-seconds print-stream)))
+
+  ;; 証明したい式そのもの。否定形にするかどうかは、あくまで証明のテクニックになにを用いるか(背理法(反駁)を使うかどうか)に依存する部分。
+  ;; 呼び出し側はあくまで、証明したい式そのものを与える。
+  ;; 導出原理の場合は、特に注意。ここの節は、 __連言__ の節として解釈する。ここ以外のほとんどが、 __選言__ 節であることと対照的なので特に注意 
+  (target (error "must be required") :type (or clause equation) :read-only t)
+
+  (premises nil :type (or null clause-set equation-set) :read-only t)
+  (completed-rewrite-rule-set nil :type (or null rewrite-rule-set) :read-only t)
+  (timeout-seconds nil :type  (or null (real (0))) :read-only t)
+  (print-stream nil :type (or null (eql t) stream) :read-only t))
+
+(defstruct (prove-result
+             (:conc-name prove-result.)
+             (:constructor 
+              prove-result 
+              (prove-status prove-engine elapsed-seconds supporting-info completed-rewrite-rule-set))) 
+  (prove-status :unknown :type prove-status :read-only t)
+  (prove-engine (error "must be required") :type prove-engine :read-only t)
+  (elapsed-seconds 0 :type (real 0) :read-only t)
+  (supporting-info nil :read-only t) ;; 証明の裏付けとなる情報を設定する。prove-engineの値を元に解釈する。
+  (completed-rewrite-rule-set nil :type (or null rewrite-rule-set) :read-only t))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

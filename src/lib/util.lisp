@@ -5,7 +5,14 @@
                 :yield
                 :next
                 :stop-iteration)
+  (:import-from :bordeaux-threads
+                :with-timeout)
   (:export
+    :measuring-time
+    :with-optional-timeout
+    :make-deadline
+    :remaining-seconds
+    :call-with-budget
     :pairwise-collect-if
     :permutation
     :take  
@@ -13,6 +20,53 @@
     ))
 (in-package :clover.lib.util)
 
+
+(defun make-deadline (timeout-seconds)
+  ;; prove 開始時に1回だけ作る締切(internal-time 単位)。nil なら無制限。
+  (and timeout-seconds
+       (+ (get-internal-real-time)
+          (round (* timeout-seconds internal-time-units-per-second)))))
+
+(defun remaining-seconds (deadline)
+  ;; 締切までの残り秒数(実数)。無制限なら nil。締切超過は 0。
+  (when deadline
+    (max 0 (/ (- deadline (get-internal-real-time))
+              internal-time-units-per-second))))
+
+(defun call-with-budget (deadline cap thunk)
+  ;; thunk を「残り時間と cap の小さい方」を上限に実行する。
+  ;; - deadline も cap も nil → 無制限で素通し(通常呼び出しがここ)
+  ;; - 予算が尽きていたら実行せず即タイムアウトを通知
+  ;; - タイムアウト条件はここでは捕捉せず上へ伝播させ、prove の1箇所で捕捉する
+  (let* ((rest (remaining-seconds deadline))
+         (budget (cond ((and (null rest) (null cap)) nil)
+                       ((null rest) cap)
+                       ((null cap) rest)
+                       (t (min rest cap)))))
+    (cond
+      ((null budget)   (funcall thunk))
+      ((<= budget 0)   (error 'sb-ext:timeout))
+      (t (with-timeout (budget) (funcall thunk))))))
+
+
+(defmacro with-optional-timeout ((timeout-seconds) &body body)
+  (let ((ts (gensym "TIMEOUT"))
+        (thunk (gensym "THUNK")))
+    `(let ((,ts ,timeout-seconds))
+       (flet ((,thunk () ,@body))
+         (if ,ts
+             (with-timeout (,ts) (,thunk))
+             (,thunk))))))
+
+(defmacro measuring-time (&body body)
+  (let ((start (gensym "START"))
+        (vals  (gensym "VALS")))
+    `(let* ((,start (get-internal-real-time))
+            (,vals  (multiple-value-list (progn ,@body))))
+       (values-list
+         (cons (/ (- (get-internal-real-time) ,start)
+                  internal-time-units-per-second)
+               ,vals)))))
 
 (defun pairwise-collect-if (fn lst)
   (loop :for (a . rest) :on lst

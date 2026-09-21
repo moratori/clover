@@ -253,11 +253,7 @@
          (completed
            (cdr (assoc *current-axiomatic-system*
                        *completed-system-list* :test #'string=)))
-         (is-equation
-           (every
-             (lambda (x)
-               (typep x 'equation))
-             (clause.literals expr))))
+         (is-equation (equation-clause-p expr)))
 
     (when *render-tree-path-name*
       (setf *save-resolution-history* t))

@@ -24,6 +24,7 @@
                :generators
                :alexandria
                :cl-ppcre
+               :bordeaux-threads
                #+sbcl :sb-cover
                #+sbcl :sb-sprof
                )
