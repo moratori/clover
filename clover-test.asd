@@ -36,6 +36,7 @@
                     ((:file "batch")))
                    (:file "converter")
                    (:file "clover")
+                   (:file "prove")
                    (:file "types")
                    (:file "unify")
                    (:file "logical-predicates")
